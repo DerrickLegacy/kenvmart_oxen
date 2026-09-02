@@ -1,5 +1,5 @@
 /**
- * Kenvies Node.js API Server
+ * KenvMart Node.js API Server
  *
  * Replaces the CodeIgniter /api/* backend.
  * Connects directly to the same MySQL database as JPOS.
