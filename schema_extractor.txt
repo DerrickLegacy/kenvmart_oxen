@@ -1,0 +1,5 @@
+/opt/lampp/bin/mysqldump -u root -p --no-data \
+--compact \
+--skip-comments \
+--socket=/opt/lampp/var/mysql/mysql.sock jpos \
+> jpos_schema.sql

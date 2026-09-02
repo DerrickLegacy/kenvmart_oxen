@@ -1,0 +1,120 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - main   # change to 'master' if that's your default branch
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout code ────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Set up Node.js ───────────────────────────────────────────────
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── 3. Install dependencies ─────────────────────────────────────────
+      - name: Install dependencies
+        run: npm ci
+
+      # ── 4. Write production .env files from GitHub Secrets ──────────────
+      - name: Create root .env
+        run: |
+          cat > .env <<EOF
+          VITE_API_BASE_URL=/api
+          VITE_NODE_API_URL=${{ secrets.VITE_NODE_API_URL }}
+          VITE_JPOS_ROOT=${{ secrets.VITE_JPOS_ROOT }}
+          VITE_IMAGE_BASE_URL=${{ secrets.VITE_IMAGE_BASE_URL }}
+          VITE_DEFAULT_IMAGE=/assets/images/placeholder.jpg
+          VITE_APP_NAME=Kenvies
+          VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          EOF
+
+      - name: Create server/.env
+        run: |
+          cat > server/.env <<EOF
+          PORT=${{ secrets.SERVER_PORT }}
+          NODE_ENV=production
+          DB_HOST=localhost
+          DB_PORT=3306
+          DB_USER=${{ secrets.DB_USER }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_NAME=${{ secrets.DB_NAME }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          IMAGE_BASE_URL=${{ secrets.VITE_IMAGE_BASE_URL }}
+          CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
+          GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          EOF
+
+      # ── 5. Build the React/Vite frontend ────────────────────────────────
+      - name: Build frontend
+        run: npm run build
+
+      # ── 5b. Copy .htaccess into dist for Apache/Hostinger ────────────────
+      - name: Copy .htaccess to dist
+        run: cp public/.htaccess dist/.htaccess
+
+      # ── 6. Deploy to Hostinger via SSH ──────────────────────────────────
+      - name: Deploy to Hostinger
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port:     22
+          script: |
+            set -e
+
+            echo "──────────────────────────────────────"
+            echo "  Deploying Kenvies to Hostinger..."
+            echo "──────────────────────────────────────"
+
+            # Navigate to your app directory on the server
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            # Pull latest code
+            git pull origin main
+
+            # Install/update Node dependencies (production only)
+            npm ci --omit=dev
+
+            # Write production server .env directly on the server
+            cat > server/.env <<'ENVEOF'
+            PORT=${{ secrets.SERVER_PORT }}
+            NODE_ENV=production
+            DB_HOST=localhost
+            DB_PORT=3306
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            IMAGE_BASE_URL=${{ secrets.VITE_IMAGE_BASE_URL }}
+            CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
+            GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            ENVEOF
+
+            # Build the React frontend on the server (if needed)
+            # Uncomment next line if you prefer building on the server
+            # npm run build
+
+            # Restart the Node API using PM2
+            if pm2 list | grep -q "kenvies-api"; then
+              pm2 restart kenvies-api
+            else
+              pm2 start server/index.js --name kenvies-api
+            fi
+
+            pm2 save
+
+            echo "✅  Deployment complete!"

@@ -1,0 +1,112 @@
+# ─── Dependencies ────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Build output ────────────────────────────────────────────
+dist/
+dist-ssr/
+build/
+out/
+
+# ─── Local env files (may contain secrets) ───────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+server/.env
+# Allow the example template (no real secrets)
+!.env.production.example
+
+# ─── Logs ────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ─── Test / coverage ─────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ─── Vite cache ──────────────────────────────────────────────
+.vite/
+vite.config.js.timestamp-*
+
+# ─── Editor & OS ─────────────────────────────────────────────
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.local
+
+# ─── Misc ────────────────────────────────────────────────────
+*.tsbuildinfo
+.eslintcache
+
+# ─── Heavy video files ───────────────────────────────────────
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wmv
+*.flv
+*.webm
+*.m4v
+*.mpeg
+*.mpg
+*.3gp
+
+# ─── Heavy audio files ───────────────────────────────────────
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+*.m4a
+*.wma
+
+# ─── Large/raw image formats ─────────────────────────────────
+*.psd
+*.ai
+*.sketch
+*.fig
+*.xd
+*.raw
+*.cr2
+*.nef
+*.tiff
+*.tif
+*.bmp
+
+# ─── Archives & compressed files ─────────────────────────────
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.gz
+*.bz2
+
+# ─── Large data & binary files ───────────────────────────────
+*.sqlite
+*.sqlite3
+*.db
+*.bin
+*.exe
+*.dmg
+*.iso
+*.pkg
+*.deb
+*.rpm

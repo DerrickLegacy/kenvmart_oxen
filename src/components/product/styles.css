@@ -1,0 +1,240 @@
+/* ProductCard.css - Add to your stylesheet */
+
+.single-product {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Important: fills parent grid/flex container */
+  min-height: 420px; /* Fixed minimum height */
+  max-height: 420px; /* Fixed maximum height */
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+  border: 1px solid #e8e8e8;
+}
+
+.single-product:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* --- Image Container --- */
+.product-image {
+  position: relative;
+  flex-shrink: 0; /* Prevents image area from shrinking */
+  height: 200px; /* Fixed image height */
+  background: #f7f7f7;
+  overflow: hidden;
+}
+
+.product-img-wrap {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.product-img-fixed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures consistent image display */
+  transition: transform 0.3s;
+}
+
+.single-product:hover .product-img-fixed {
+  transform: scale(1.03);
+}
+
+/* --- Product Info --- */
+.product-info {
+  flex: 1; /* Takes remaining space */
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px 14px;
+  min-height: 0; /* Critical for flex children to shrink */
+  overflow: hidden;
+}
+
+.product-info-flex {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Category - truncate if too long */
+.category {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+/* Title - with ellipsis for overflowing text */
+.title {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.3;
+  flex-shrink: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  height: 36px; /* 2 lines × line-height */
+}
+
+.title a {
+  color: #111;
+  text-decoration: none;
+}
+
+.title a:hover {
+  color: #0066c0;
+}
+
+/* Star Rating - fixed height */
+.product-info .star-rating {
+  flex-shrink: 0;
+  height: 20px;
+  margin: 2px 0;
+}
+
+/* Price section - always at bottom */
+.price {
+  margin-top: auto; /* Pushes price to bottom */
+  padding-top: 6px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.price .discount-price {
+  font-size: 13px;
+  font-weight: 400;
+  color: #999;
+  text-decoration: line-through;
+}
+
+/* --- Buttons and Badges --- */
+.sale-tag,
+.new-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  color: #fff;
+  z-index: 2;
+}
+
+.sale-tag {
+  background: #e74c3c;
+}
+
+.new-tag {
+  background: #2ecc71;
+}
+
+.product-wishlist-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: #999;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 2;
+}
+
+.product-wishlist-btn:hover {
+  background: #fff;
+  color: #e74c3c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.product-wishlist-btn.wishlisted {
+  color: #e74c3c;
+  background: #fff;
+}
+
+/* Add to Cart button - appears on hover */
+.button {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s;
+  z-index: 2;
+}
+
+.product-image:hover .button {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.button .btn {
+  width: 100%;
+  padding: 8px;
+  background: #0066c0;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.button .btn:hover {
+  background: #004e9e;
+}
+
+/* --- Responsive adjustments --- */
+@media (max-width: 768px) {
+  .single-product {
+    min-height: 380px;
+    max-height: 380px;
+  }
+  
+  .product-image {
+    height: 160px;
+  }
+  
+  .title {
+    font-size: 13px;
+    height: 32px;
+    -webkit-line-clamp: 2;
+  }
+  
+  .price {
+    font-size: 14px;
+  }
+}

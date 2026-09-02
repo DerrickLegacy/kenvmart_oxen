@@ -1,0 +1,2 @@
+ALTER TABLE `geopos_product_cat` ADD COLUMN disp_on_ecomm bool DEFAULT 0;
+photoshop mix
