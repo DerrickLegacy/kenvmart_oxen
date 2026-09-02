@@ -102,7 +102,7 @@ if (IS_PROD && fs.existsSync(DIST_DIR)) {
 
 // ── Start ──────────────────────────────────────────────────────────────────
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅  Kenvies  →  http://localhost:${PORT}`);
   console.log(`    Mode: ${IS_PROD ? 'production' : 'development'}`);
   console.log(`    DB:   ${process.env.DB_NAME || 'jpos_db'} @ ${process.env.DB_HOST || 'localhost'}`);

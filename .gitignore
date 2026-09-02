@@ -17,7 +17,8 @@ out/
 .env.production.local
 .env.*.local
 server/.env
-# Allow the example template (no real secrets)
+# Allow these — no secrets, just public URLs
+!.env.production
 !.env.production.example
 
 # ─── Logs ────────────────────────────────────────────────────
