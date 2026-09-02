@@ -1,31 +1,26 @@
 /**
- * KenvMart Node.js API Server
+ * KenvMart Node.js API + Static File Server
  *
- * Replaces the CodeIgniter /api/* backend.
- * Connects directly to the same MySQL database as JPOS.
- * JPOS continues running independently — this server only reads/writes
- * the shop_* tables and reads geopos_products / geopos_product_cat.
+ * In production:  serves the React/Vite dist/ build AND the /api/* routes.
+ * In development: only serves /api/* — Vite dev server handles the frontend.
  *
- * Development:
- *   node server/index.js
- *   npm run server
- *
- * The Vite dev server proxies /api/* → this server (see vite.config.js).
- * In production, run this as a standalone process on a separate port,
- * or behind Nginx / Apache with a reverse-proxy rule.
+ * Hostinger Node.js app setup:
+ *   Entry point:    server/index.js
+ *   Build command:  npm install && npm run build
+ *   Start command:  npm start
  */
 
 import 'dotenv/config';
 import express from 'express';
-
-// Ensure dotenv loads from the right place when run from any cwd
-import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { config as dotenvConfig } from 'dotenv';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
+
+// Load server/.env
 dotenvConfig({ path: join(__dirname, '.env') });
 
 import authRouter       from './routes/auth.js';
@@ -38,38 +33,31 @@ import profileRouter    from './routes/profile.js';
 import contactRouter    from './routes/contact.js';
 import newsletterRouter from './routes/newsletter.js';
 
-const app  = express();
-const PORT = process.env.PORT || 4000;
+const app        = express();
+const PORT       = process.env.PORT || 3000;
+const IS_PROD    = process.env.NODE_ENV === 'production';
+
+// dist/ is one level up from server/ (at the project root)
+const DIST_DIR   = join(__dirname, '..', 'dist');
+const INDEX_HTML = join(DIST_DIR, 'index.html');
 
 // ── Middleware ─────────────────────────────────────────────────────────────
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// CORS
 app.use((req, res, next) => {
-  const allowedOrigins = [
-    'http://localhost',
-    'http://localhost:5173',
-    'http://127.0.0.1',
-    'http://127.0.0.1:5173',
-    process.env.CORS_ORIGIN,
-  ].filter(Boolean);
-
-  const origin = req.headers.origin || '';
-
-  if (allowedOrigins.includes(origin))      res.setHeader('Access-Control-Allow-Origin', origin);
-  else if (!origin)                          res.setHeader('Access-Control-Allow-Origin', '*');
-  else                                       res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*');
-
+  const corsOrigin = process.env.CORS_ORIGIN || '*';
+  res.setHeader('Access-Control-Allow-Origin', corsOrigin);
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-
   if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
 });
 
-// ── Routes ─────────────────────────────────────────────────────────────────
+// ── API Routes ─────────────────────────────────────────────────────────────
 
 app.use('/api/auth',       authRouter);
 app.use('/api/products',   productsRouter);
@@ -85,14 +73,38 @@ app.get('/api/health', (_req, res) =>
   res.json({ status: true, message: 'Kenvies API is running.', time: new Date().toISOString() })
 );
 
-app.use((req, res) =>
-  res.status(404).json({ status: false, message: `Route ${req.method} ${req.path} not found.` })
-);
+// ── Serve React frontend in production ────────────────────────────────────
+// This replaces the need for .htaccess — Express handles the SPA fallback.
+
+if (IS_PROD && fs.existsSync(DIST_DIR)) {
+  // Serve static assets (JS, CSS, images) from dist/
+  app.use(express.static(DIST_DIR));
+
+  // SPA fallback — any non-API route serves index.html so React Router works
+  app.get('*', (req, res) => {
+    if (fs.existsSync(INDEX_HTML)) {
+      res.sendFile(INDEX_HTML);
+    } else {
+      res.status(404).send('App not built. Run: npm run build');
+    }
+  });
+} else if (!IS_PROD) {
+  // Dev mode — just a reminder, Vite handles the frontend
+  app.use((req, res) =>
+    res.status(404).json({ status: false, message: `Route ${req.method} ${req.path} not found.` })
+  );
+} else {
+  // Production but dist/ missing
+  app.use((_req, res) =>
+    res.status(503).send('Frontend not built. SSH in and run: npm install && npm run build')
+  );
+}
 
 // ── Start ──────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`✅  Kenvies API  →  http://localhost:${PORT}/api`);
+  console.log(`✅  Kenvies  →  http://localhost:${PORT}`);
+  console.log(`    Mode: ${IS_PROD ? 'production' : 'development'}`);
   console.log(`    DB:   ${process.env.DB_NAME || 'jpos_db'} @ ${process.env.DB_HOST || 'localhost'}`);
-  console.log(`    ENV:  ${process.env.NODE_ENV || 'development'}`);
+  console.log(`    Dist: ${IS_PROD ? (fs.existsSync(DIST_DIR) ? '✅ found' : '❌ MISSING — run npm run build') : 'n/a (dev mode)'}`);
 });
