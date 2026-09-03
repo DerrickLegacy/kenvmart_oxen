@@ -15,7 +15,10 @@
     "build": "RAYON_NUM_THREADS=1 vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "logs": "node server/utils/readLogs.js",
+    "logs:error": "node server/utils/readLogs.js --type error",
+    "logs:list": "node server/utils/readLogs.js --list"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

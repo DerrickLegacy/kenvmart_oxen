@@ -22,49 +22,27 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      # ── 3. Install dependencies ─────────────────────────────────────────
-      - name: Install dependencies
-        run: npm ci
+      # ── 3. Verify Node.js version ────────────────────────────────────────
+      - name: Verify Node version
+        run: node --version
 
       # ── 4. Write production .env files from GitHub Secrets ──────────────
-      - name: Create root .env
+      # NOTE: The actual build happens ON the server via SSH below.
+      # These steps just validate secrets are set correctly.
+      - name: Verify required secrets exist
         run: |
-          cat > .env <<EOF
-          VITE_API_BASE_URL=/api
-          VITE_NODE_API_URL=${{ secrets.VITE_NODE_API_URL }}
-          VITE_JPOS_ROOT=${{ secrets.VITE_JPOS_ROOT }}
-          VITE_IMAGE_BASE_URL=${{ secrets.VITE_IMAGE_BASE_URL }}
-          VITE_DEFAULT_IMAGE=/assets/images/placeholder.jpg
-          VITE_APP_NAME=Kenvies
-          VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-          EOF
+          echo "Checking required secrets are configured..."
+          [ -n "${{ secrets.SSH_HOST }}" ]     && echo "✅ SSH_HOST" || (echo "❌ SSH_HOST missing" && exit 1)
+          [ -n "${{ secrets.SSH_USER }}" ]     && echo "✅ SSH_USER" || (echo "❌ SSH_USER missing" && exit 1)
+          [ -n "${{ secrets.SSH_PASSWORD }}" ] && echo "✅ SSH_PASSWORD" || (echo "❌ SSH_PASSWORD missing" && exit 1)
+          [ -n "${{ secrets.DEPLOY_PATH }}" ]  && echo "✅ DEPLOY_PATH" || (echo "❌ DEPLOY_PATH missing" && exit 1)
+          [ -n "${{ secrets.DB_USER }}" ]      && echo "✅ DB_USER" || (echo "❌ DB_USER missing" && exit 1)
+          [ -n "${{ secrets.DB_PASSWORD }}" ]  && echo "✅ DB_PASSWORD" || (echo "❌ DB_PASSWORD missing" && exit 1)
+          [ -n "${{ secrets.DB_NAME }}" ]      && echo "✅ DB_NAME" || (echo "❌ DB_NAME missing" && exit 1)
+          [ -n "${{ secrets.JWT_SECRET }}" ]   && echo "✅ JWT_SECRET" || (echo "❌ JWT_SECRET missing" && exit 1)
+          echo "All secrets present ✅"
 
-      - name: Create server/.env
-        run: |
-          cat > server/.env <<EOF
-          PORT=${{ secrets.SERVER_PORT }}
-          NODE_ENV=production
-          DB_HOST=localhost
-          DB_PORT=3306
-          DB_USER=${{ secrets.DB_USER }}
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          DB_NAME=${{ secrets.DB_NAME }}
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          IMAGE_BASE_URL=${{ secrets.VITE_IMAGE_BASE_URL }}
-          CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
-          GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-          EOF
-
-      # ── 5. Build the React/Vite frontend ────────────────────────────────
-      - name: Build frontend
-        run: npm run build
-
-      # ── 5b. Copy .htaccess into dist for Apache/Hostinger ────────────────
-      - name: Copy .htaccess to dist
-        run: cp public/.htaccess dist/.htaccess
-
-      # ── 6. Deploy to Hostinger via SSH ──────────────────────────────────
+      # ── 7. Deploy to Hostinger via SSH ──────────────────────────────────
       - name: Deploy to Hostinger
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -75,6 +53,13 @@ jobs:
           script: |
             set -e
 
+            # ── Load nvm so npm/node are available ──────────────────────
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 20 || nvm use default
+
+            echo "── Node: $(node --version)  npm: $(npm --version) ──"
+
             echo "──────────────────────────────────────"
             echo "  Deploying Kenvies to Hostinger..."
             echo "──────────────────────────────────────"
@@ -82,14 +67,14 @@ jobs:
             # Navigate to your app directory on the server
             cd ${{ secrets.DEPLOY_PATH }}
 
-            # Pull latest code
+            # Pull latest source code
             git pull origin main
 
-            # Install/update Node dependencies (production only)
-            npm ci --omit=dev
+            # Install ALL dependencies (need devDeps to build)
+            npm ci
 
-            # Write production server .env directly on the server
-            cat > server/.env <<'ENVEOF'
+            # Write production server/.env on the server
+            cat > server/.env <<ENVEOF
             PORT=${{ secrets.SERVER_PORT }}
             NODE_ENV=production
             DB_HOST=localhost
@@ -104,11 +89,24 @@ jobs:
             GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
             ENVEOF
 
-            # Build the React frontend on the server (if needed)
-            # Uncomment next line if you prefer building on the server
-            # npm run build
+            # Write root .env for Vite build
+            cat > .env <<ENVEOF2
+            VITE_API_BASE_URL=/api
+            VITE_NODE_API_URL=${{ secrets.VITE_NODE_API_URL }}
+            VITE_JPOS_ROOT=${{ secrets.VITE_JPOS_ROOT }}
+            VITE_IMAGE_BASE_URL=${{ secrets.VITE_IMAGE_BASE_URL }}
+            VITE_DEFAULT_IMAGE=/assets/images/placeholder.jpg
+            VITE_APP_NAME=Kenvies
+            VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+            ENVEOF2
 
-            # Restart the Node API using PM2
+            # Build the React frontend ON the server
+            npm run build
+
+            echo "── Verifying dist ──"
+            ls dist/index.html && echo "✅ dist/index.html present" || (echo "❌ build failed" && exit 1)
+
+            # Restart the Node app using PM2
             if pm2 list | grep -q "kenvies-api"; then
               pm2 restart kenvies-api
             else
@@ -118,3 +116,4 @@ jobs:
             pm2 save
 
             echo "✅  Deployment complete!"
+            echo "    Visit: https://kenvmart.kenvies.com"

@@ -23,6 +23,7 @@ server/.env
 
 # ─── Logs ────────────────────────────────────────────────────
 logs/
+kenvmart_*.log
 *.log
 npm-debug.log*
 yarn-debug.log*

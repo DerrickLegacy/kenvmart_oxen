@@ -38,28 +38,51 @@ const LOG_DIR  = join(__dirname, '..', 'logs');
 // Create logs/ directory if it doesn't exist
 try { mkdirSync(LOG_DIR, { recursive: true }); } catch {}
 
-const accessLogStream = createWriteStream(join(LOG_DIR, 'access.log'), { flags: 'a' });
-const errorLogStream  = createWriteStream(join(LOG_DIR, 'error.log'),  { flags: 'a' });
+// ── Log rotation — one combined file per day: kenvmart_DD-MM-YY.log ────────
+function todayStamp() {
+  const now = new Date();
+  const dd  = String(now.getDate()).padStart(2, '0');
+  const mm  = String(now.getMonth() + 1).padStart(2, '0');
+  const yy  = String(now.getFullYear()).slice(-2);
+  return `${dd}-${mm}-${yy}`; // e.g. 03-09-26
+}
+
+let _day       = todayStamp();
+let _logStream = createWriteStream(join(LOG_DIR, `kenvmart_${_day}.log`), { flags: 'a' });
+
+function getStream() {
+  const today = todayStamp();
+  if (today !== _day) {
+    // Day rolled over — open a new log file
+    _day       = today;
+    _logStream = createWriteStream(join(LOG_DIR, `kenvmart_${_day}.log`), { flags: 'a' });
+  }
+  return _logStream;
+}
 
 function timestamp() {
   return new Date().toISOString();
 }
 
+function writeLog(line) {
+  getStream().write(line + '\n');
+}
+
 const logger = {
   info(msg, meta = {}) {
     const line = JSON.stringify({ level: 'info', time: timestamp(), msg, ...meta });
-    console.log(line);
-    if (IS_PROD) accessLogStream.write(line + '\n');
+    writeLog(line);
+    if (!IS_PROD) console.log(line);
   },
   warn(msg, meta = {}) {
     const line = JSON.stringify({ level: 'warn', time: timestamp(), msg, ...meta });
-    console.warn(line);
-    if (IS_PROD) errorLogStream.write(line + '\n');
+    writeLog(line);
+    if (!IS_PROD) console.warn(line);
   },
   error(msg, meta = {}) {
     const line = JSON.stringify({ level: 'error', time: timestamp(), msg, ...meta });
-    console.error(line);
-    if (IS_PROD) errorLogStream.write(line + '\n');
+    writeLog(line);
+    if (!IS_PROD) console.error(line);
   },
   http(req, res, duration) {
     const line = JSON.stringify({
@@ -71,12 +94,37 @@ const logger = {
       duration: `${duration}ms`,
       ip:       req.headers['x-forwarded-for'] || req.socket.remoteAddress,
     });
-    console.log(line);
-    if (IS_PROD) accessLogStream.write(line + '\n');
+    writeLog(line);
+    if (!IS_PROD) console.log(line);
   },
 };
 
-// ── Route imports ──────────────────────────────────────────────────────────
+// ── Auto-cleanup: delete log files older than 14 days ─────────────────────
+function cleanOldLogs() {
+  try {
+    const files     = fs.readdirSync(LOG_DIR);
+    const cutoff    = Date.now() - 14 * 24 * 60 * 60 * 1000; // 14 days in ms
+    let   deleted   = 0;
+    for (const file of files) {
+      if (!file.endsWith('.log')) continue;
+      const filePath = join(LOG_DIR, file);
+      const stat     = fs.statSync(filePath);
+      if (stat.mtimeMs < cutoff) {
+        fs.unlinkSync(filePath);
+        deleted++;
+      }
+    }
+    if (deleted > 0) logger.info(`Log cleanup: removed ${deleted} old log file(s)`);
+  } catch (e) {
+    logger.warn('Log cleanup failed', { error: e.message });
+  }
+}
+
+// Run cleanup once at startup and then every 24 hours
+cleanOldLogs();
+setInterval(cleanOldLogs, 24 * 60 * 60 * 1000);
+
+
 import authRouter       from './routes/auth.js';
 import productsRouter   from './routes/products.js';
 import categoriesRouter from './routes/categories.js';
