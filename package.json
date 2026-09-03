@@ -16,7 +16,7 @@
     "dev:all": "concurrently -n \"api,vite\" -c \"cyan,green\" \"npm run server\" \"npm run dev\"",
     "server": "node server/index.js",
     "server:dev": "nodemon server/index.js",
-    "build": "RAYON_NUM_THREADS=1 vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node server.js",

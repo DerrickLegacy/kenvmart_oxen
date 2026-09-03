@@ -19,7 +19,7 @@ const INDEX     = resolve(__dirname, 'dist', 'index.html');
 if (!existsSync(DIST) || !existsSync(INDEX)) {
   console.log('dist/ not found — running npm run build...');
   try {
-    execSync('RAYON_NUM_THREADS=1 npx vite build', {
+    execSync('npm run build', {
       stdio: 'inherit',
       cwd:   __dirname,
       env:   { ...process.env, NODE_ENV: 'production' },
