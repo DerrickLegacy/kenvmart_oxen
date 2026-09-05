@@ -180,7 +180,7 @@ export default function HeaderMiddle() {
         <div className="container">
           <div className="row align-items-center">
 
-            <div className="col-lg-3 col-md-3 col-7">
+            <div className="col-lg-3 col-md-3 d-none d-lg-block">
               <Link className="navbar-brand" to="/">
                 <img src="/assets/images/logo/logo.svg" alt={siteConfig.name} />
               </Link>
@@ -254,7 +254,7 @@ export default function HeaderMiddle() {
               </div>
             </div>
 
-            <div className="col-lg-4 col-md-2 col-5">
+            <div className="col-lg-4 col-md-2 d-none d-lg-flex">
               <div className="middle-right-area">
                 <div className="nav-hotline">
                   <i className="lni lni-phone"></i>

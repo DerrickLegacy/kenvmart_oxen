@@ -189,6 +189,14 @@ app.get('/api/health', (_req, res) => {
 });
 
 // ── Serve React frontend (production) ─────────────────────────────────────
+// Serve uploaded videos/media from public/videos — these are uploaded directly
+// to the server and are NOT committed to git
+const PUBLIC_DIR = resolve(__dirname, '..', 'public');
+if (fs.existsSync(PUBLIC_DIR)) {
+  app.use('/public', express.static(PUBLIC_DIR));
+  logger.info('Public directory served at /public');
+}
+
 if (fs.existsSync(DIST_DIR)) {
   // Serve static files: JS, CSS, images from dist/
   app.use(express.static(DIST_DIR));

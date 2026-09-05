@@ -1,0 +1,9 @@
+# Ignore all video files — upload directly to server via File Manager or SSH
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.wmv
+*.flv
+*.m4v
