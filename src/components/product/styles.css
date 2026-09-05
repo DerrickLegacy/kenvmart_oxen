@@ -162,7 +162,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
   z-index: 2;
 }
 
@@ -187,7 +187,7 @@
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
   opacity: 0;
   transform: translateY(10px);
-  transition: all 0.3s;
+  transition: opacity 0.2s ease, transform 0.2s ease;
   z-index: 2;
 }
 
@@ -206,7 +206,7 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background-color 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;

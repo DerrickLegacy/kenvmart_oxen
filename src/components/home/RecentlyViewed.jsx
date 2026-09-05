@@ -111,9 +111,14 @@ export default function RecentlyViewed() {
               <motion.div
                 key={product.id}
                 className="col-xl-2 col-lg-2 col-md-2 col-6 flex-shrink-0"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
+                custom={i}
+                initial={{ opacity: 0, transform: 'translateY(12px)' }}
+                animate={{ opacity: 1, transform: 'translateY(0px)' }}
+                transition={{
+                  delay: Math.min(i, 5) * 0.04,
+                  duration: 0.25,
+                  ease: [0.23, 1, 0.32, 1],
+                }}
                 style={{ minWidth: '150px' }}
               >
                 <ProductCard product={product} />

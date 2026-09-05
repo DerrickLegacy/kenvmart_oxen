@@ -1,41 +1,8 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import ProductCard from "../product/ProductCard";
+import ProductCard from '../product/ProductCard';
+import { productCardVariants, VIEW_MORE_STYLES } from '../../utils/motion';
 
-const VIEW_MORE_STYLES = {
-  wrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: '16px',
-    flexWrap: 'wrap',
-    gap: '8px',
-  },
-  button: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    padding: '7px 16px',
-    fontSize: '0.85rem',
-    fontWeight: 600,
-    color: '#0b1a33',
-    background: '#fff',
-    border: '1.5px solid #dce0e6',
-    borderRadius: '999px',
-    textDecoration: 'none',
-    transition: 'all 0.2s ease',
-    cursor: 'pointer',
-  },
-};
-
-/**
- * TodaysDeals section
- * Renders a grid of product cards for the home page today's deals section.
- *
- * @param {object} props
- * @param {Array}  props.products - Array of product objects to display
- * @param {boolean} props.loading - Whether data is still loading
- */
 export default function TodaysDeals({ products = [], loading = false }) {
   if (!loading && products.length === 0) return null;
 
@@ -69,9 +36,10 @@ export default function TodaysDeals({ products = [], loading = false }) {
               <motion.div
                 key={product.id}
                 className="col-xl-2 col-lg-2 col-md-2 col-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.06, duration: 0.35 }}
+                custom={i}
+                variants={productCardVariants}
+                initial="hidden"
+                animate="visible"
               >
                 <ProductCard product={product} />
               </motion.div>

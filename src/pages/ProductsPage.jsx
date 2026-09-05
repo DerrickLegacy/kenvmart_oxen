@@ -447,9 +447,13 @@ export default function ProductsPage() {
 										<motion.div
 											key={product.id}
 											className="col-xl-3 col-lg-4 col-md-6 col-6"
-											initial={{ opacity: 0, y: 20 }}
-											animate={{ opacity: 1, y: 0 }}
-											transition={{ delay: i * 0.04, duration: 0.3 }}
+											initial={{ opacity: 0, transform: 'translateY(16px)' }}
+											animate={{ opacity: 1, transform: 'translateY(0px)' }}
+											transition={{
+												delay: Math.min(i, 5) * 0.04,
+												duration: 0.25,
+												ease: [0.23, 1, 0.32, 1],
+											}}
 										>
 											<ProductCard product={product} />
 										</motion.div>

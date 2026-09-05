@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { useApi } from "../hooks/useApi";
 import { productsApi, cartApi, wishlistApi } from "../services/api";
 import { useCart } from "../context/CartContext";
@@ -324,15 +325,17 @@ export default function ProductDetailsPage() {
                     <div className="row align-items-end">
                       <div className="col-lg-4 col-md-4 col-12">
                         <div className="button cart-button">
-                          <button
+                          <motion.button
                             className="btn"
                             style={{ width: "100%" }}
                             data-testid="add-to-cart-btn"
                             onClick={handleAddToCart}
                             disabled={apiBusy}
+                            whileTap={{ scale: 0.96 }}
+                            transition={{ duration: 0.12, ease: [0.23, 1, 0.32, 1] }}
                           >
                             {apiBusy ? "Adding…" : "Add to Cart"}
-                          </button>
+                          </motion.button>
                         </div>
                       </div>
                       <div className="col-lg-4 col-md-4 col-12">
@@ -358,19 +361,24 @@ export default function ProductDetailsPage() {
                     </div>
                   </div>
 
-                  {addedToCart && (
-                    <div
-                      className="add-to-cart-toast"
-                      role="status"
-                      aria-live="polite"
-                    >
-                      <i className="lni lni-checkmark-circle"></i> Added to
-                      cart!{" "}
-                      <Link to="/cart" className="cart-toast-link">
-                        View Cart →
-                      </Link>
-                    </div>
-                  )}
+                  <AnimatePresence>
+                    {addedToCart && (
+                      <motion.div
+                        className="add-to-cart-toast"
+                        role="status"
+                        aria-live="polite"
+                        initial={{ opacity: 0, transform: 'translateY(8px) scale(0.97)' }}
+                        animate={{ opacity: 1, transform: 'translateY(0px) scale(1)' }}
+                        exit={{ opacity: 0, transform: 'translateY(4px) scale(0.98)' }}
+                        transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                      >
+                        <i className="lni lni-checkmark-circle"></i> Added to cart!{" "}
+                        <Link to="/cart" className="cart-toast-link">
+                          View Cart →
+                        </Link>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
             </div>

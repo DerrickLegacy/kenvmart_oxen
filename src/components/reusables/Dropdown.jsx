@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 function Dropdown({
   buttonLabel,
@@ -10,7 +11,6 @@ function Dropdown({
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  // Close when clicking outside
   useEffect(() => {
     function handleClickOutside(e) {
       if (ref.current && !ref.current.contains(e.target)) {
@@ -23,7 +23,6 @@ function Dropdown({
 
   return (
     <div className={`topbar-dropdown ${className}`} ref={ref}>
-      {/* <div className="topbar-dropdown" ref={ref}> */}
       <button
         className="topbar-dropdown-toggle"
         onClick={() => setOpen((prev) => !prev)}
@@ -31,30 +30,39 @@ function Dropdown({
         aria-haspopup="true"
       >
         <i className={buttonIcon}></i> {buttonLabel}
-        <i
-          className={`lni lni-chevron-down topbar-caret${open ? " open" : ""}`}
-        ></i>
+        <i className={`lni lni-chevron-down topbar-caret${open ? " open" : ""}`}></i>
       </button>
 
-      {open && (
-        <ul className="topbar-dropdown-menu" role="menu">
-          {accountItems.map((item) => (
-            <li role="none" key={item.label}>
-              <Link 
-                to={item.to}
-                role="menuitem"
-                onClick={() => {
-                  setOpen(false);
-                  if (item.onClick) item.onClick();
-                }}
-              >
-                <i className={item.icon}></i> {item.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.ul
+            className="topbar-dropdown-menu"
+            role="menu"
+            initial={{ opacity: 0, transform: 'scale(0.97) translateY(-4px)' }}
+            animate={{ opacity: 1, transform: 'scale(1) translateY(0px)' }}
+            exit={{ opacity: 0, transform: 'scale(0.97) translateY(-4px)' }}
+            transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+            style={{ transformOrigin: 'top left' }}
+          >
+            {accountItems.map((item) => (
+              <li role="none" key={item.label}>
+                <Link
+                  to={item.to || '#'}
+                  role="menuitem"
+                  onClick={() => {
+                    setOpen(false);
+                    if (item.onClick) item.onClick();
+                  }}
+                >
+                  <i className={item.icon}></i> {item.label}
+                </Link>
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
 export default Dropdown;
