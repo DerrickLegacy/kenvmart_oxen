@@ -27,7 +27,7 @@ export default function SmallBanners() {
               <h2>{slide2.heading}</h2>
               <p>{slide2.subheading}</p>
               <div className="button">
-                <Link className="btn" to={`/products/${slide2.prodId}`}>
+                <Link className="btn" to={`/product/${slide2.prodId}`}>
                   Shop Now — {slide2.price}
                 </Link>
               </div>

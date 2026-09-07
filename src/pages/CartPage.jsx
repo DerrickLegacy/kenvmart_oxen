@@ -117,12 +117,12 @@ export default function CartPage() {
                     <div className="cart-product">
                       <Link to={`/product/${item.productId}`} className="cart-product-img-link">
                         <img
-                          src={item.image || '/assets/images/placeholder.jpg'}
+                          src={item.image || '/assets/images/placeholder.png'}
                           alt={item.name}
                           className="cart-product-img"
                           onError={e => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/assets/images/placeholder.jpg';
+                            e.currentTarget.src = '/assets/images/placeholder.png';
                           }}
                         />
                       </Link>

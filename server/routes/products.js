@@ -27,6 +27,7 @@ const PRODUCT_FROM = `
   LEFT JOIN geopos_product_cat gpc ON gpc.id = gp.pcat
   LEFT JOIN shop_category_meta scm ON scm.jpos_cat_id = gp.pcat
   WHERE gp.is_deleted = 0 AND gp.merge = 0 AND gp.shop_published = 1
+    AND gp.ecomm_price > 0
 `;
 
 // ── GET /api/products ──────────────────────────────────────────────────────
@@ -48,7 +49,7 @@ router.get('/', async (req, res) => {
       [...params, perPage, offset]
     );
 
-    return res.json({ status: true, data: { products: rows.map(formatProduct), pagination: { total, per_page: perPage, current_page: page, last_page: Math.max(1, Math.ceil(total / perPage)) } } });
+    return res.json({ status: true, data: { products: rows.map(formatProduct).filter(Boolean), pagination: { total, per_page: perPage, current_page: page, last_page: Math.max(1, Math.ceil(total / perPage)) } } });
   } catch (err) {
     console.error('[products/list]', err);
     res.status(500).json({ status: false, message: 'Server error.' });
@@ -64,7 +65,7 @@ router.get('/trending', async (req, res) => {
       `SELECT ${PRODUCT_SELECT} ${PRODUCT_FROM} AND (LOWER(TRIM(gp.shop_tag)) = 'trending' OR gp.rating >= 4.0) ORDER BY gp.rating DESC LIMIT ?`,
       [limit]
     );
-    return res.json({ status: true, data: { products: rows.map(formatProduct) } });
+    return res.json({ status: true, data: { products: rows.map(formatProduct).filter(Boolean) } });
   } catch (err) {
     console.error('[products/trending]', err);
     res.status(500).json({ status: false, message: 'Server error.' });
@@ -80,7 +81,7 @@ router.get('/new', async (req, res) => {
       `SELECT ${PRODUCT_SELECT} ${PRODUCT_FROM} AND LOWER(TRIM(gp.shop_tag)) = 'new' ORDER BY gp.created_at DESC LIMIT ?`,
       [limit]
     );
-    return res.json({ status: true, data: { products: rows.map(formatProduct) } });
+    return res.json({ status: true, data: { products: rows.map(formatProduct).filter(Boolean) } });
   } catch (err) {
     console.error('[products/new]', err);
     res.status(500).json({ status: false, message: 'Server error.' });
@@ -96,7 +97,7 @@ router.get('/deals', async (req, res) => {
       `SELECT ${PRODUCT_SELECT} ${PRODUCT_FROM} AND LOWER(TRIM(gp.shop_tag)) = 'deals' ORDER BY gp.created_at DESC LIMIT ?`,
       [limit]
     );
-    return res.json({ status: true, data: { products: rows.map(formatProduct) } });
+    return res.json({ status: true, data: { products: rows.map(formatProduct).filter(Boolean) } });
   } catch (err) {
     console.error('[products/deals]', err);
     res.status(500).json({ status: false, message: 'Server error.' });
@@ -112,7 +113,7 @@ router.get('/hot', async (req, res) => {
       `SELECT ${PRODUCT_SELECT} ${PRODUCT_FROM} AND LOWER(TRIM(gp.shop_tag)) = 'hot' ORDER BY gp.created_at DESC LIMIT ?`,
       [limit]
     );
-    return res.json({ status: true, data: { products: rows.map(formatProduct) } });
+    return res.json({ status: true, data: { products: rows.map(formatProduct).filter(Boolean) } });
   } catch (err) {
     console.error('[products/hot]', err);
     res.status(500).json({ status: false, message: 'Server error.' });
@@ -128,7 +129,7 @@ router.get('/sale', async (req, res) => {
       `SELECT ${PRODUCT_SELECT} ${PRODUCT_FROM} AND LOWER(TRIM(gp.shop_tag)) = 'sale' ORDER BY gp.sale_percent DESC LIMIT ?`,
       [limit]
     );
-    return res.json({ status: true, data: { products: rows.map(formatProduct) } });
+    return res.json({ status: true, data: { products: rows.map(formatProduct).filter(Boolean) } });
   } catch (err) {
     console.error('[products/sale]', err);
     res.status(500).json({ status: false, message: 'Server error.' });
@@ -283,7 +284,7 @@ router.get('/:id/related', async (req, res) => {
       `SELECT ${PRODUCT_SELECT} ${PRODUCT_FROM} AND gp.pcat = ? AND gp.pid != ? LIMIT 4`,
       [productRows[0].pcat, pid]
     );
-    return res.json({ status: true, data: { products: rows.map(formatProduct) } });
+    return res.json({ status: true, data: { products: rows.map(formatProduct).filter(Boolean) } });
   } catch (err) {
     console.error('[products/related]', err);
     res.status(500).json({ status: false, message: 'Server error.' });

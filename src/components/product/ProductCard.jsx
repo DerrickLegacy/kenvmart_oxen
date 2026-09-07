@@ -56,7 +56,7 @@ export default function ProductCard({ product }) {
   const isWishlisted  = wishlistItems.some(i => i.productId === product.id);
   const discountPrice = product.discount_price ?? product.discountPrice;
   const salePercent   = product.sale_percent   ?? product.salePercent;
-  const imageSrc      = product.images?.[0]    || '/assets/images/placeholder.jpg';
+  const imageSrc      = product.images?.[0]    || '/assets/images/placeholder.png';
 
   const toggleWishlist = (e) => {
     e.stopPropagation();
@@ -88,7 +88,7 @@ export default function ProductCard({ product }) {
           style={{ ...S.image, transform: isHovered ? 'scale(1.04)' : 'scale(1)' }}
           onError={e => {
             if (!e.currentTarget.src.includes('placeholder'))
-              e.currentTarget.src = '/assets/images/placeholder.jpg';
+              e.currentTarget.src = '/assets/images/placeholder.png';
           }}
         />
 

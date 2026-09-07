@@ -93,7 +93,7 @@ export default function WishlistPage() {
                       src={item.image}
                       alt={item.name}
                       onError={(e) => {
-                        e.currentTarget.src = "/assets/images/placeholder.jpg";
+                        e.currentTarget.src = "/assets/images/placeholder.png";
                       }}
                     />
                   </Link>
@@ -143,7 +143,7 @@ export default function WishlistPage() {
                       alt={item.name}
                       className="wishlist-list-img"
                       onError={(e) => {
-                        e.currentTarget.src = "/assets/images/placeholder.jpg";
+                        e.currentTarget.src = "/assets/images/placeholder.png";
                       }}
                     />
                   </Link>

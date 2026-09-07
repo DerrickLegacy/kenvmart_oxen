@@ -50,13 +50,33 @@ export function slugify(str) {
 
 export function formatProduct(p) {
   const images        = resolveImages(p);
-  // Use ecomm_price as the storefront price; fall back to retail_price
+
+  // ecomm_price is the storefront selling price — must be > 0 to be listed
   const ecommPrice    = parseFloat(p.ecomm_price) || 0;
   const retailPrice   = parseFloat(p.retail_price) || 0;
-  const displayPrice  = ecommPrice > 0 ? ecommPrice : retailPrice;
+
+  // If ecomm_price is 0 or missing, the product has no storefront price set.
+  // Return null so callers can filter it out. (The SQL WHERE also guards this,
+  // but formatProduct may be called in other contexts.)
+  if (ecommPrice <= 0) return null;
+
   const salePercent   = p.sale_percent ? parseInt(p.sale_percent, 10) : null;
-  // If sale_percent is set, show a crossed-out original retail price
-  const discountPrice = salePercent > 0 ? Math.round(displayPrice * (1 - salePercent / 100)) : null;
+
+  // ecomm_price is always the SELLING price (what customer pays).
+  // retail_price is the ORIGINAL / before-discount price shown crossed out.
+  // Only show the crossed-out original when:
+  //   a) sale_percent is explicitly set, OR
+  //   b) retail_price > ecomm_price (manually discounted)
+  let price        = Math.round(ecommPrice);
+  let originalPrice = null;   // crossed-out price (shown with line-through)
+
+  if (salePercent > 0 && retailPrice > 0) {
+    // sale_percent is set — retail_price is the original, ecomm_price is the sale price
+    originalPrice = Math.round(retailPrice);
+  } else if (retailPrice > ecommPrice && retailPrice > 0) {
+    // No explicit sale_percent but retail is higher than ecomm — show original crossed out
+    originalPrice = Math.round(retailPrice);
+  }
 
   return {
     id:             `prod-${p.pid}`,
@@ -66,8 +86,8 @@ export function formatProduct(p) {
     category_id:    parseInt(p.pcat, 10),
     category_slug:  p.cat_slug      || slugify(p.cat_title || ''),
     brand:          p.brand         || '',
-    price:          Math.round(displayPrice),
-    discount_price: discountPrice,
+    price,                          // selling price (what customer pays)
+    discount_price: originalPrice,  // original price shown crossed out (null if no discount)
     images,
     rating:         parseFloat(p.rating      || 0),
     rating_count:   parseInt(p.rating_count  || 0, 10),
@@ -81,8 +101,10 @@ export function formatProduct(p) {
 }
 
 export function formatProductFull(p) {
+  const base = formatProduct(p);
+  if (!base) return null;   // no ecomm price — don't expose this product
   return {
-    ...formatProduct(p),
+    ...base,
     description:      p.product_des        || '',
     features:         safeJson(p.features,         []),
     specifications:   safeJson(p.specifications,   {}),

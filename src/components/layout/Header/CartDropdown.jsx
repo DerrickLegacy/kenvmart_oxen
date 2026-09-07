@@ -37,7 +37,7 @@ export default function CartDropdown() {
                   <img
                     src={item.image}
                     alt={item.name}
-                    onError={e => { e.currentTarget.src = '/assets/images/placeholder.jpg'; }}
+                    onError={e => { e.currentTarget.src = '/assets/images/placeholder.png'; }}
                   />
                 </Link>
               </div>

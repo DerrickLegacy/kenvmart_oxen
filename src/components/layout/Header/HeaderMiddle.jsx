@@ -159,7 +159,7 @@ export default function HeaderMiddle() {
   const onPickSuggestion = (product) => {
     setDropdownOpen(false);
     setSearchTerm('');
-    navigate(`/products/${product.id}${product.slug ? `/${product.slug}` : ''}`);
+    navigate(`/product/${product.id}`);
   };
 
   const seeAllResultsUrl = useMemo(

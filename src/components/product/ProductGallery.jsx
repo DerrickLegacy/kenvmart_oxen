@@ -72,7 +72,7 @@ function Lightbox({ src, alt, onClose }) {
           boxShadow: '0 8px 48px rgba(0,0,0,0.6)',
           cursor: 'default', userSelect: 'none',
         }}
-        onError={e => { e.currentTarget.src = '/assets/images/placeholder.jpg'; }}
+        onError={e => { e.currentTarget.src = '/assets/images/placeholder.png'; }}
       />
 
       <p style={{
@@ -104,7 +104,7 @@ export default function ProductGallery({ images = [], productName = '' }) {
   const overBtnRef = useRef(false);
 
   const safeIndex  = current < images.length ? current : 0;
-  const currentSrc = images[safeIndex] || '/assets/images/placeholder.jpg';
+  const currentSrc = images[safeIndex] || '/assets/images/placeholder.png';
 
   // ── Single mousemove handler drives everything ──────────────────────
   const handleMouseMove = useCallback((e) => {
@@ -200,7 +200,7 @@ export default function ProductGallery({ images = [], productName = '' }) {
               transform:       panTransform,
               pointerEvents:   'none',
             }}
-            onError={e => { e.currentTarget.src = '/assets/images/placeholder.jpg'; }}
+            onError={e => { e.currentTarget.src = '/assets/images/placeholder.png'; }}
           />
 
           {/* Circular zoom lens */}
@@ -323,7 +323,7 @@ export default function ProductGallery({ images = [], productName = '' }) {
                   src={img}
                   className="img"
                   alt={`${productName} view ${i + 1}`}
-                  onError={e => { e.currentTarget.src = '/assets/images/placeholder.jpg'; }}
+                  onError={e => { e.currentTarget.src = '/assets/images/placeholder.png'; }}
                 />
               </div>
             ))}
