@@ -92,8 +92,9 @@ export default function ProductCard({ product }) {
           }}
         />
 
-        {(product.tag === 'sale' || product.tag === 'deals') && (
-          <span style={{ ...S.badge, background: '#e74c3c' }}>-{salePercent || 15}%</span>
+        {/* SALE badge — only when sale_percent is explicitly set */}
+        {(product.tag === 'sale' || product.tag === 'deals') && salePercent > 0 && (
+          <span style={{ ...S.badge, background: '#e74c3c' }}>-{salePercent}%</span>
         )}
         {product.tag === 'new' && (
           <span style={{ ...S.badge, background: '#2ecc71' }}>New</span>
@@ -112,8 +113,8 @@ export default function ProductCard({ product }) {
             type="button"
             style={{
               width: '100%', padding: '8px',
-              background: isCartHovered ? '#3fb1f3' : '#56bffc',
-              color: '#fff', border: 'none', borderRadius: '4px',
+              background: isCartHovered ? '#122e7a' : '#183B9B',
+              color: '#fff', border: 'none', borderRadius: '6px',
               fontSize: '13px', fontWeight: 500, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               gap: '6px', transition: 'background-color 0.15s ease',
@@ -130,7 +131,7 @@ export default function ProductCard({ product }) {
       {/* INFO */}
       <div style={S.info}>
         <span style={{
-          fontSize: '11px', color: '#3fb1f3', textTransform: 'uppercase',
+          fontSize: '11px', color: '#183B9B', textTransform: 'uppercase',
           letterSpacing: '0.5px', whiteSpace: 'nowrap', overflow: 'hidden',
           textOverflow: 'ellipsis', marginBottom: '3px', lineHeight: '16px',
         }}>

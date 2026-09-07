@@ -2,7 +2,6 @@
 // Each image has its own bottom header label - Accessories themed
 // Gray borders, clickable images, smaller cards, horizontal scroll on mobile
 
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const CategoryDeals = () => {
@@ -14,46 +13,46 @@ const CategoryDeals = () => {
       id: 1,
       title: "Power & Charge",
       images: [
-        { src: "https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=400&h=400&fit=crop&crop=center", label: "Chargers", link: "/products/chargers" },
-        { src: "https://images.unsplash.com/photo-1585792180666-f7347c490ee2?w=400&h=400&fit=crop&crop=center", label: "Batteries", link: "/products/batteries" },
-        { src: "https://images.unsplash.com/photo-1609599006353-e629aa8fe3c0?w=400&h=400&fit=crop&crop=center", label: "Powerbanks", link: "/products/powerbanks" },
-        { src: "https://images.unsplash.com/photo-1589003077984-894e133dabab?w=400&h=400&fit=crop&crop=center", label: "USB Cables", link: "/products/usb-cables" }
+        { src: "https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=400&h=400&fit=crop&crop=center", label: "Chargers",   link: "/products?q=charger" },
+        { src: "https://images.unsplash.com/photo-1585792180666-f7347c490ee2?w=400&h=400&fit=crop&crop=center", label: "Batteries",  link: "/products?q=battery" },
+        { src: "https://images.unsplash.com/photo-1609599006353-e629aa8fe3c0?w=400&h=400&fit=crop&crop=center", label: "Powerbanks", link: "/products?q=power+bank" },
+        { src: "https://images.unsplash.com/photo-1589003077984-894e133dabab?w=400&h=400&fit=crop&crop=center", label: "USB Cables", link: "/products?q=usb+cable" }
       ]
     },
     {
       id: 2,
       title: "Audio & Sound",
       images: [
-        { src: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center", label: "Wireless Speakers", link: "/products/wireless-speakers" },
-        { src: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400&h=400&fit=crop&crop=center", label: "Earphones", link: "/products/earphones" },
-        { src: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=400&fit=crop&crop=center", label: "Earpods", link: "/products/earpods" },
-        { src: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=400&fit=crop&crop=center", label: "Headsets", link: "/products/headsets" }
+        { src: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center", label: "Wireless Speakers", link: "/products?q=speaker" },
+        { src: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400&h=400&fit=crop&crop=center", label: "Earphones",          link: "/products?q=earphone" },
+        { src: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=400&fit=crop&crop=center", label: "Earpods",             link: "/products?q=earpod" },
+        { src: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=400&fit=crop&crop=center", label: "Headsets",            link: "/products?q=headset" }
       ]
     },
     {
       id: 3,
       title: "Wearables & More",
       images: [
-        { src: "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=400&fit=crop&crop=center", label: "Smart Watches", link: "/products/smart-watches" },
-        { src: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop&crop=center", label: "Earbuds", link: "/products/earbuds" },
-        { src: "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&h=400&fit=crop&crop=center", label: "Neck Band", link: "/products/neck-band" },
-        { src: "https://images.unsplash.com/photo-1558618666-fcd25c85f8b6?w=400&h=400&fit=crop&crop=center", label: "Flash Disks", link: "/products/flash-disks" }
+        { src: "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=400&fit=crop&crop=center", label: "Smart Watches", link: "/products?q=watch" },
+        { src: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop&crop=center", label: "Earbuds",        link: "/products?q=earbuds" },
+        { src: "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&h=400&fit=crop&crop=center", label: "Neck Band",      link: "/products?q=neck+band" },
+        { src: "https://images.unsplash.com/photo-1558618666-fcd25c85f8b6?w=400&h=400&fit=crop&crop=center", label: "Flash Disks",     link: "/products?q=flash+disk" }
       ]
     },
     {
       id: 4,
       title: "Connectivity & Car",
       images: [
-        { src: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400&h=400&fit=crop&crop=center", label: "Extension Cables", link: "/products/extension-cables" },
-        { src: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=400&fit=crop&crop=center", label: "Car MP3", link: "/products/car-mp3" },
-        { src: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=400&fit=crop&crop=center", label: "USB Cables", link: "/products/usb-cables" },
-        { src: "https://images.unsplash.com/photo-1591079819507-1d10e0ca5b7b?w=400&h=400&fit=crop&crop=center", label: "Car Accessories", link: "/products/car-accessories" }
+        { src: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400&h=400&fit=crop&crop=center", label: "Extension Cables", link: "/products?q=extension" },
+        { src: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=400&fit=crop&crop=center", label: "Car MP3",          link: "/products?q=car+mp3" },
+        { src: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=400&fit=crop&crop=center", label: "USB Cables",         link: "/products?q=usb" },
+        { src: "https://images.unsplash.com/photo-1591079819507-1d10e0ca5b7b?w=400&h=400&fit=crop&crop=center", label: "Car Accessories", link: "/products?q=car" }
       ]
     }
   ];
 
   return (
-    <section className="categosry-deals">
+    <section className="categosry-deals mt-3">
       <div className="container">
         {/* Section Header */}
         <div style={styles.sectionHeader}>
@@ -154,12 +153,12 @@ const CategoryDeals = () => {
           overflow: hidden;
           box-shadow: 0 2px 6px rgba(0,0,0,0.04);
           height: 100%;
-          border: 2px solid #9aa2b0;
+          border: 1.5px solid #e5e7eb;
         }
         .card-4img:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-          border-color: #7a8290;
+          box-shadow: 0 6px 16px rgba(24,59,155,0.1);
+          border-color: #183B9B;
         }
 
         .img-grid-4 {

@@ -47,7 +47,6 @@ export default function HomePage() {
       <TodaysDeals products={dealsData?.products ?? []} loading={dealsLoading} />
       <HotProducts products={hotData?.products ?? []} loading={hotLoading} />
       <SaleProducts products={saleData?.products ?? []} loading={saleLoading} />
-      <PromoBanners />
       <FeaturedVideos />
       <RecentlyViewed />
     </div>

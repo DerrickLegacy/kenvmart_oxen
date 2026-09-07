@@ -224,6 +224,48 @@ export default function OrdersPage() {
           </div>
         )}
 
+        {/* ── Promotional banner ──────────────────────────────────────── */}
+        <div style={{
+          background:    'linear-gradient(135deg, #0167F3 0%, #3fb1f3 100%)',
+          borderRadius:  12,
+          padding:       '18px 24px',
+          marginBottom:  24,
+          display:       'flex',
+          alignItems:    'center',
+          justifyContent:'space-between',
+          gap:           16,
+          flexWrap:      'wrap',
+          color:         '#fff',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <span style={{ fontSize: 32 }}>🎉</span>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 2 }}>
+                New arrivals just dropped!
+              </div>
+              <div style={{ fontSize: 13, opacity: 0.88 }}>
+                Check out the latest accessories — chargers, earbuds &amp; more.
+              </div>
+            </div>
+          </div>
+          <a
+            href="/products?tag=new"
+            style={{
+              background:    '#fff',
+              color:         '#0167F3',
+              fontWeight:    700,
+              fontSize:      13,
+              padding:       '9px 22px',
+              borderRadius:  999,
+              textDecoration:'none',
+              whiteSpace:    'nowrap',
+              flexShrink:    0,
+            }}
+          >
+            Shop Now →
+          </a>
+        </div>
+
         {loading ? (
           <div className="orders-loading" aria-live="polite">
             {[...Array(3)].map((_, i) => (

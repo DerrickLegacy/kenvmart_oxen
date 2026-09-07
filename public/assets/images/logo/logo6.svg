@@ -1,16 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 220" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 220" width="100%" height="100%">
   <defs>
     <style>
-      .brand-text-kenvie {
+      .brand-text {
         font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         font-weight: 800;
         fill: #183B9B;
-        letter-spacing: -0.02em;
-      }
-      .brand-text-stores {
-        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        font-weight: 800;
-        fill: #E18F27;
         letter-spacing: -0.02em;
       }
     </style>
@@ -29,9 +23,7 @@
     <circle cx="88" cy="86" r="11" fill="#FFFFFF"/>
     <circle cx="162" cy="86" r="11" fill="#FFFFFF"/>
 
-    <!-- Two-Color Single-Line Text -->
-    <text x="235" y="165" font-size="130">
-      <tspan class="brand-text-kenvie">Kenvie</tspan><tspan class="brand-text-stores">Stores</tspan>
-    </text>
+    <!-- Single-Line Text Aligned 1:1 in Height -->
+    <text x="235" y="165" class="brand-text" font-size="130">KenvieStores</text>
   </g>
 </svg>
