@@ -6,215 +6,92 @@ import { Link } from "react-router-dom";
 function PromoCarousel() {
   const [index, setIndex] = useState(0);
 
-  const handleSelect = (selectedIndex) => {
-    setIndex(selectedIndex);
-  };
-
   return (
-    <section>
+    <section className="promo-carousel-section">
       <div className="container">
-        <div className="row">
-          <div className="col-12">
-            <div
-              className="inner my-3 promo-card-background-color"
-              style={{ borderRadius: "10px" }}
-            >
-              <Carousel
-                activeIndex={index}
-                onSelect={handleSelect}
-                interval={5000}
-                style={{ borderRadius: "10px" }}
-              >
-                {/* SLIDE 1 */}
-                <Carousel.Item>
-                  <CarouselImage
-                    text="Enjoy Your Music"
-                    imageUrl="/assets/images/carousel/listen-to-music.png"
-                  />
+        <Carousel
+          activeIndex={index}
+          onSelect={setIndex}
+          interval={5000}
+          className="promo-carousel"
+          prevIcon={<span className="promo-carousel-arrow promo-carousel-arrow--prev">&#8249;</span>}
+          nextIcon={<span className="promo-carousel-arrow promo-carousel-arrow--next">&#8250;</span>}
+        >
 
-                  <Carousel.Caption className="custom-carousel-caption">
-                    <h3>Turn Up the Joy 🎧</h3>
-                    <p>
-                      Feel every beat with quality earphones and headsets made
-                      for your everyday listening experience.
-                    </p>
+          {/* ── Slide 1 — Earphones ─────────────────────────────────── */}
+          <Carousel.Item>
+            <CarouselImage
+              imageUrl="/assets/images/carousel/listen-to-music.png"
+              altText="Enjoy Your Music"
+            />
+            <Carousel.Caption className="promo-caption promo-caption--center">
+              <h2>Turn Up the Joy 🎧</h2>
+              <p>Feel every beat with quality earphones made for everyday life.</p>
+              <Link to="/products?category=audio" className="promo-cta-btn">
+                Explore Audio
+              </Link>
+            </Carousel.Caption>
+          </Carousel.Item>
 
-                    <Link
-                      to="/products?category=audio"
-                      className="btn btn-primary"
-                    >
-                      Explore Audio
-                    </Link>
-                  </Carousel.Caption>
-                </Carousel.Item>
+          {/* ── Slide 2 — Charging Cables ───────────────────────────── */}
+          <Carousel.Item>
+            <CarouselImage
+              imageUrl="/assets/images/carousel/C-toC.png"
+              altText="Durable Charging Cables"
+            />
+            <Carousel.Caption className="promo-caption promo-caption--left">
+              <h2>Built to Keep You<br />Connected ⚡</h2>
+              <p>Charge faster. Stay connected longer.</p>
+              <Link to="/products?category=charger" className="promo-cta-btn">
+                Explore Charging
+              </Link>
+            </Carousel.Caption>
+          </Carousel.Item>
 
-                <Carousel.Item>
-                  <CarouselImage
-                    text="Durable Charging Cables"
-                    imageUrl="/assets/images/carousel/C-toC.png"
-                    textAlign="left"
-                  />
+          {/* ── Slide 3 — Premium Sound ─────────────────────────────── */}
+          <Carousel.Item>
+            <CarouselImage
+              imageUrl="/assets/images/carousel/earphones-black-bg.jpg"
+              altText="Premium Sound"
+            />
+            <Carousel.Caption className="promo-caption promo-caption--center">
+              <h2>Experience Sound<br />Differently 🎧</h2>
+              <p>From deep bass to crystal-clear audio.</p>
+              <Link to="/products?category=earphones" className="promo-cta-btn">
+                Explore Audio
+              </Link>
+            </Carousel.Caption>
+          </Carousel.Item>
 
-                  <Carousel.Caption className="carousel-caption-left">
-                    <div className="text-left">
-                      <h3 style={{ color: "#9be7eb" }}>
-                        Built to Keep You Connected ⚡
-                      </h3>
-
-                      <p>
-                        Charge faster. Stay connected longer. Discover durable
-                        cables designed for everyday life.
-                      </p>
-
-                      <Link
-                        to="/products?category=charger"
-                        className="btn btn-primary"
-                      >
-                        Explore Charging
-                      </Link>
-                    </div>
-                  </Carousel.Caption>
-                </Carousel.Item>
-
-                <Carousel.Item>
-                  <CarouselImage
-                    text="Premium Sound"
-                    imageUrl="/assets/images/carousel/earphones-black-bg.jpg"
-                  />
-
-                  <Carousel.Caption
-                    className="carousel-caption-left"
-                    style={{ color: "#fff" }}
-                  >
-                    <h3 style={{ color: "#9be7eb" }}>
-                      Experience Sound Differently 🎧
-                    </h3>
-
-                    <p>
-                      From deep bass to crystal-clear audio, find the perfect
-                      sound for every moment.
-                    </p>
-
-                    <Link
-                      to="/products?category=earphones"
-                      className="btn btn-primary"
-                    >
-                      Explore Audio
-                    </Link>
-                  </Carousel.Caption>
-                </Carousel.Item>
-
-                <Carousel.Item>
-                  <div className="custom-promo-slide">
-                    {/* LEFT CONTENT */}
-                    <div className="promo-slide-content">
-                      <h1>
-                        Power up your
-                        <br />
-                        everyday life
-                      </h1>
-
-                      <p>
-                        Discover chargers, power banks and accessories designed
-                        to keep you connected.
-                      </p>
-
-                      <Link to="/products" className="promo-shop-button">
-                        Shop now
-                      </Link>
-                    </div>
-
-                    <div className="promo-slide-categories">
-                      <Link to="/products?q=charger" className="promo-category">
-                        <div className="promo-category-image">
-                          <img
-                            src="assets/images/carousel/floating-ark-charger-2-65W.png"
-                            alt="Chargers"
-                            style={{
-                              height: "180px",
-                              width: "180px",
-                              borderRadius: "50%",
-                              hover: { transform: "scale(1.05)" },
-                            }}
-                          />
-                        </div>
-
-                        <h3
-                          className="promo-category-title"
-                          style={{
-                            fontSize: "18px",
-                            fontWeight: "600",
-                            textDecoration: "underline",
-                          }}
-                        >
-                          Chargers
-                          <span>›</span>
-                        </h3>
-                      </Link>
-
-                      <Link
-                        to="/products?q=power bank"
-                        className="promo-category"
-                      >
-                        <div className="promo-category-image">
-                          <img
-                            src="assets/images/carousel/floating-ark-power-bank.png"
-                            alt="Power Banks"
-                            style={{
-                              height: "180px",
-                              width: "180px",
-                              borderRadius: "50%",
-                              hover: { transform: "scale(1.05)" },
-                            }}
-                          />
-                        </div>
-
-                        <h3
-                          className="promo-category-title"
-                          style={{
-                            fontSize: "18px",
-                            fontWeight: "600",
-                            textDecoration: "underline",
-                          }}
-                        >
-                          Power Banks
-                          <span>›</span>
-                        </h3>
-                      </Link>
-
-                      <Link to="/products?q=headset" className="promo-category">
-                        <div className="promo-category-image">
-                          <img
-                            src="assets/images/carousel/floating-ark-earbuds.png"
-                            alt="Headsets"
-                            style={{
-                              height: "180px",
-                              width: "180px",
-                              borderRadius: "50%",
-                              hover: { transform: "scale(1.05)" },
-                            }}
-                          />
-                        </div>
-
-                        <h3
-                          className="promo-category-title"
-                          style={{
-                            fontSize: "18px",
-                            fontWeight: "600",
-                            textDecoration: "underline",
-                          }}
-                        >
-                          Headsets
-                          <span>›</span>
-                        </h3>
-                      </Link>
-                    </div>
-                  </div>
-                </Carousel.Item>
-              </Carousel>
+          {/* ── Slide 4 — Power Up (simple layout, no giant circles) ── */}
+          <Carousel.Item>
+            <div className="promo-power-slide">
+              <div className="promo-power-content">
+                <p className="promo-power-eyebrow">Featured</p>
+                <h2 className="promo-power-heading">Power up your<br />everyday life</h2>
+                <p className="promo-power-sub">
+                  Chargers, power banks &amp; accessories designed to keep you connected.
+                </p>
+                <Link to="/products" className="promo-cta-btn promo-cta-btn--dark">
+                  Shop Now
+                </Link>
+              </div>
+              <div className="promo-power-chips">
+                {[
+                  { href: '/products?q=charger',    img: 'assets/images/carousel/floating-ark-charger-2-65W.png',  label: 'Chargers' },
+                  { href: '/products?q=power+bank', img: 'assets/images/carousel/floating-ark-power-bank.png',    label: 'Power Banks' },
+                  { href: '/products?q=headset',    img: 'assets/images/carousel/floating-ark-earbuds.png',       label: 'Headsets' },
+                ].map(({ href, img, label }) => (
+                  <Link key={label} to={href} className="promo-power-chip">
+                    <img src={img} alt={label} />
+                    <span>{label} ›</span>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
+          </Carousel.Item>
+
+        </Carousel>
       </div>
     </section>
   );

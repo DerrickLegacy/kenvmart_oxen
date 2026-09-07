@@ -9875,3 +9875,1353 @@ button:not(.navbar-toggler):not(.mobile-menu-btn):not(.cart-qty-btn):active {
     transform: translate3d(0, -5px, 0);
   }
 }
+
+
+/* ═════════════════════════════════════════════════════════════════════════════
+   GLOBAL OVERRIDES — button brand style, nav underline removal, skeleton fix
+   These rules are placed at the end so they win the cascade.
+═════════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Remove underline from ALL nav links ─────────────────────────────── */
+.navbar-nav .nav-item a,
+.navbar-nav .nav-item a:hover,
+.navbar-nav .nav-item a:focus,
+.navbar-nav .nav-item a:active,
+.header-bottom .navbar-nav li a,
+.sub-menu-bar .navbar-nav a {
+  text-decoration: none !important;
+}
+
+/* ── 2. Global button — brand sky-blue, pill shape ──────────────────────── */
+/*
+   Button hierarchy (matches the screenshots):
+   Primary  .btn           → sky-blue fill   (#3fb1f3), white text, pill
+   Outline  .btn-outline   → transparent bg, sky-blue border + text, pill
+   Dark     .btn-dark      → dark fill        (#081828), white text, pill
+*/
+
+/* Reset base .btn everywhere to the brand style */
+.btn,
+a.btn,
+button.btn {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             6px;
+  padding:         12px 28px;
+  font-size:       14px;
+  font-weight:     600;
+  line-height:     1;
+  border-radius:   999px !important;   /* pill */
+  border:          2px solid transparent;
+  background:      #3fb1f3;
+  color:           #fff !important;
+  text-decoration: none !important;
+  cursor:          pointer;
+  transition:      background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+  white-space:     nowrap;
+}
+
+.btn:hover,
+a.btn:hover,
+button.btn:hover {
+  background:  #2a9fdf;
+  color:       #fff !important;
+  text-decoration: none !important;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* Outline variant */
+.btn.btn-outline,
+a.btn.btn-outline {
+  background:   transparent;
+  border-color: #3fb1f3;
+  color:        #3fb1f3 !important;
+}
+
+.btn.btn-outline:hover,
+a.btn.btn-outline:hover {
+  background:   #3fb1f3;
+  color:        #fff !important;
+}
+
+/* Dark variant (e.g. "Go Home" button) */
+.btn.btn-dark,
+a.btn.btn-dark {
+  background:   #0167F3;
+  border-color: #0167F3;
+  color:        #fff !important;
+}
+
+.btn.btn-dark:hover {
+  background:   #0050c9;
+  border-color: #0050c9;
+}
+
+/* Danger / cancel */
+.btn.btn-danger,
+button.btn-danger {
+  background:   #e74c3c;
+  border-color: #e74c3c;
+}
+
+/* Small */
+.btn.btn-sm { padding: 7px 18px; font-size: 13px; }
+
+/* Keep cart / checkout button full-width when inside .button wrapper */
+.button .btn,
+.cart-button .btn,
+.item-details .product-info .cart-button .btn {
+  width: 100%;
+  border-radius: 999px !important;
+}
+
+/* Not-found page buttons */
+.not-found-actions .btn {
+  min-width: 160px;
+  border-radius: 999px !important;
+}
+.not-found-actions .btn:first-child {
+  background:   #0167F3;
+  border-color: #0167F3;
+}
+.not-found-actions .btn.btn-outline {
+  background:   transparent;
+  border-color: #0167F3;
+  color:        #0167F3 !important;
+}
+.not-found-actions .btn.btn-outline:hover {
+  background:   #0167F3;
+  color:        #fff !important;
+}
+
+/* ── 3. Skeleton loader — matches actual ProductCard shape ──────────────── */
+/*
+   ProductCard is 370px tall with a 200px image area + ~170px info area.
+   The skeleton must mirror that layout exactly.
+*/
+.product-skeleton {
+  height:        370px !important;
+  min-height:    unset !important;
+  border-radius: 8px !important;
+  overflow:      hidden;
+  position:      relative;
+  background:    #f0f0f0;
+}
+
+/* Image placeholder strip */
+.product-skeleton::before {
+  content:     '';
+  display:     block;
+  width:       100%;
+  height:      200px;
+  background:  linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+  background-size: 600px 100%;
+  animation:   skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+/* Info placeholder lines below the image */
+.product-skeleton::after {
+  content:    '';
+  display:    block;
+  position:   absolute;
+  top:        208px;
+  left:       12px;
+  right:      12px;
+  bottom:     12px;
+  background: repeating-linear-gradient(
+    to bottom,
+    #e8e8e8 0px,    #e8e8e8 12px,
+    transparent 12px, transparent 20px,
+    #e8e8e8 20px,   #e8e8e8 30px,
+    transparent 30px, transparent 38px,
+    #e8e8e8 38px,   #e8e8e8 46px,
+    transparent 46px, transparent 70px,
+    #e8e8e8 70px,   #e8e8e8 90px
+  );
+  border-radius: 4px;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+/* ── 4. Order skeleton row — matches order accordion row shape ───────────── */
+.order-skeleton-row {
+  height:        72px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background:    linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 800px 100%;
+  animation:     skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+   DESIGN SYSTEM v2 — Professional polish matching reference UI
+   Tokens, buttons, cards, inputs, nav, forms — end of file wins cascade.
+═════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Design tokens ──────────────────────────────────────────────────────── */
+:root {
+  /* Brand */
+  --c-primary:       #2563EB;   /* matches reference blue */
+  --c-primary-hover: #1d4ed8;
+  --c-primary-light: #eff6ff;
+  --c-accent:        #3b82f6;
+
+  /* Neutrals */
+  --c-heading:  #0f172a;
+  --c-body:     #374151;
+  --c-muted:    #6b7280;
+  --c-border:   #e5e7eb;
+  --c-border-2: #d1d5db;
+  --c-bg:       #f9fafb;
+  --c-surface:  #ffffff;
+
+  /* Status */
+  --c-success:  #16a34a;
+  --c-danger:   #dc2626;
+  --c-warning:  #d97706;
+
+  /* Shape */
+  --r-sm:   4px;
+  --r-md:   8px;
+  --r-lg:   12px;
+  --r-xl:   16px;
+  --r-pill: 999px;
+
+  /* Shadow */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.04);
+}
+
+/* ── Body & typography polish ────────────────────────────────────────────── */
+body {
+  color:            var(--c-body);
+  background-color: var(--c-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 { color: var(--c-heading); }
+
+/* ── Button system — matches reference: 8px radius, flat solid, clean ────── */
+.btn,
+a.btn,
+button.btn {
+  display:          inline-flex;
+  align-items:      center;
+  justify-content:  center;
+  gap:              8px;
+  padding:          10px 24px;
+  font-family:      inherit;
+  font-size:        14px;
+  font-weight:      600;
+  line-height:      1.25;
+  border-radius:    var(--r-md) !important;
+  border:           1.5px solid transparent;
+  background:       var(--c-primary);
+  color:            #fff !important;
+  text-decoration:  none !important;
+  cursor:           pointer;
+  transition:       background-color 0.15s ease, border-color 0.15s ease,
+                    box-shadow 0.15s ease, transform 0.1s ease;
+  white-space:      nowrap;
+  letter-spacing:   0.01em;
+}
+
+.btn:hover, a.btn:hover, button.btn:hover {
+  background:       var(--c-primary-hover);
+  color:            #fff !important;
+  box-shadow:       var(--shadow-md);
+  text-decoration:  none !important;
+}
+
+.btn:active { transform: scale(0.97); }
+
+/* Outline */
+.btn.btn-outline, a.btn.btn-outline {
+  background:    transparent;
+  border-color:  var(--c-primary);
+  color:         var(--c-primary) !important;
+}
+.btn.btn-outline:hover, a.btn.btn-outline:hover {
+  background:   var(--c-primary);
+  color:        #fff !important;
+  box-shadow:   var(--shadow-sm);
+}
+
+/* Ghost (white bg, subtle border) */
+.btn.btn-ghost, a.btn.btn-ghost {
+  background:   var(--c-surface);
+  border-color: var(--c-border-2);
+  color:        var(--c-heading) !important;
+  box-shadow:   var(--shadow-xs);
+}
+.btn.btn-ghost:hover {
+  border-color: var(--c-primary);
+  color:        var(--c-primary) !important;
+}
+
+/* Danger */
+.btn.btn-danger { background: var(--c-danger); border-color: var(--c-danger); }
+.btn.btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
+
+/* Size variants */
+.btn.btn-sm { padding: 7px 16px; font-size: 13px; border-radius: var(--r-sm) !important; }
+.btn.btn-lg { padding: 13px 32px; font-size: 15px; }
+
+/* Full-width context */
+.button .btn, .cart-button .btn,
+.item-details .product-info .cart-button .btn {
+  width:         100%;
+  border-radius: var(--r-md) !important;
+}
+
+/* NOT-FOUND page uses two side-by-side buttons */
+.not-found-actions .btn { min-width: 148px; }
+.not-found-actions .btn:first-child { background: #0167F3; border-color: #0167F3; }
+
+/* ── Inputs & forms — matches reference exactly ──────────────────────────── */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="search"],
+input[type="number"],
+textarea,
+select.form-control {
+  width:         100%;
+  padding:       10px 14px;
+  font-family:   inherit;
+  font-size:     14px;
+  font-weight:   400;
+  color:         var(--c-heading);
+  background:    var(--c-surface);
+  border:        1.5px solid var(--c-border);
+  border-radius: var(--r-md);
+  outline:       none;
+  transition:    border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance:    none;
+  box-shadow:    var(--shadow-xs);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+  border-color: var(--c-primary);
+  box-shadow:   0 0 0 3px rgba(37,99,235,0.12);
+}
+
+input::placeholder, textarea::placeholder { color: var(--c-muted); }
+
+/* ── Card polish ─────────────────────────────────────────────────────────── */
+.product-card,
+.single-product {
+  background:    var(--c-surface);
+  border:        1px solid var(--c-border) !important;
+  border-radius: var(--r-md) !important;
+  box-shadow:    var(--shadow-xs);
+  transition:    box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .product-card:hover, .single-product:hover {
+    box-shadow: var(--shadow-lg);
+    transform:  translateY(-2px);
+    border-color: var(--c-border-2) !important;
+  }
+}
+
+/* ── Nav links — no underlines anywhere ──────────────────────────────────── */
+.navbar-nav .nav-item a,
+.navbar-nav .nav-item a:hover,
+.navbar-nav .nav-item a:focus,
+.header-bottom .navbar-nav li a,
+.sub-menu-bar .navbar-nav a,
+.topbar a, .topbar-dropdown-toggle,
+.topbar-dropdown-menu a,
+.footer a {
+  text-decoration: none !important;
+}
+
+/* Active nav link — bottom border accent instead of underline */
+.navbar-nav .nav-item a.active {
+  color:         var(--c-primary) !important;
+  font-weight:   700;
+}
+
+/* ── Header refinements ──────────────────────────────────────────────────── */
+.header .header-middle {
+  background:  var(--c-surface);
+  box-shadow:  var(--shadow-sm);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.header .header-bottom {
+  background:  var(--c-surface);
+  border-top:  1px solid var(--c-border);
+}
+
+/* Search bar */
+.navbar-search .search-input input {
+  border:        1.5px solid var(--c-border);
+  border-radius: var(--r-md) 0 0 var(--r-md) !important;
+  padding:       10px 16px;
+  font-size:     14px;
+  transition:    border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.navbar-search .search-input input:focus {
+  border-color: var(--c-primary);
+  box-shadow:   0 0 0 3px rgba(37,99,235,0.1);
+  outline:      none;
+}
+.navbar-search .search-btn button {
+  border-radius: 0 var(--r-md) var(--r-md) 0 !important;
+  background:    var(--c-primary);
+  border:        1.5px solid var(--c-primary);
+  color:         #fff;
+  padding:       10px 16px;
+  transition:    background-color 0.15s ease;
+}
+.navbar-search .search-btn button:hover { background: var(--c-primary-hover); }
+
+/* ── Product card price — make the discount clearly readable ─────────────── */
+.product-card .discount-price {
+  color:           var(--c-muted);
+  text-decoration: line-through;
+  font-weight:     400;
+  font-size:       13px;
+}
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.sale-tag, .new-tag {
+  border-radius: var(--r-sm);
+  font-size:     11px;
+  font-weight:   700;
+  letter-spacing: 0.03em;
+  padding:       3px 8px;
+}
+
+/* ── Wishlist / cart empty state ─────────────────────────────────────────── */
+.cart-empty, .orders-empty, .wishlist-empty {
+  text-align:  center;
+  padding:     60px 20px;
+  background:  var(--c-surface);
+  border:      1px solid var(--c-border);
+  border-radius: var(--r-xl);
+  box-shadow:  var(--shadow-xs);
+  margin:      24px 0;
+}
+
+.cart-empty h3, .orders-empty h3, .wishlist-empty h3 {
+  font-size:   20px;
+  font-weight: 700;
+  color:       var(--c-heading);
+  margin:      16px 0 8px;
+}
+
+.cart-empty p, .orders-empty p, .wishlist-empty p {
+  color:      var(--c-muted);
+  margin-bottom: 24px;
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────────── */
+.breadcrumb-area {
+  padding:    10px 0;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* ── Section headings ────────────────────────────────────────────────────── */
+.section-title-categories h2 {
+  font-size:   22px;
+  font-weight: 800;
+  color:       var(--c-heading);
+  letter-spacing: -0.01em;
+}
+
+/* ── Cart & summary panels ───────────────────────────────────────────────── */
+.cart-summary-panel,
+.cart-list-wrap {
+  background:    var(--c-surface);
+  border:        1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow:    var(--shadow-xs);
+  padding:       20px 24px;
+}
+
+.cart-summary-title {
+  font-size:   16px;
+  font-weight: 700;
+  color:       var(--c-heading);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* Send order button */
+.cart-send-btn {
+  width:         100%;
+  background:    var(--c-primary) !important;
+  border-color:  var(--c-primary) !important;
+  border-radius: var(--r-md) !important;
+  font-size:     15px;
+  font-weight:   700;
+  padding:       13px 24px;
+  margin-top:    12px;
+}
+.cart-send-btn:hover { background: var(--c-primary-hover) !important; }
+
+/* ── Orders page ─────────────────────────────────────────────────────────── */
+.order-accordion-item {
+  background:    var(--c-surface);
+  border:        1px solid var(--c-border);
+  border-radius: var(--r-md);
+  box-shadow:    var(--shadow-xs);
+  margin-bottom: 10px;
+  transition:    box-shadow 0.15s ease;
+}
+.order-accordion-item.open { box-shadow: var(--shadow-md); border-color: #bfdbfe; }
+
+.order-accordion-header {
+  background:    transparent;
+  border-radius: var(--r-md);
+}
+.order-accordion-header:hover { background: var(--c-bg); }
+
+/* Status pills */
+.orders-pill {
+  border-radius: var(--r-sm) !important;
+  font-size:     13px;
+  padding:       5px 14px;
+  border:        1.5px solid var(--c-border);
+  background:    var(--c-surface);
+  color:         var(--c-body);
+  font-weight:   500;
+  transition:    all 0.15s ease;
+}
+.orders-pill.active {
+  background:    var(--c-primary);
+  border-color:  var(--c-primary);
+  color:         #fff;
+  font-weight:   600;
+}
+.orders-pill:hover:not(.active) { border-color: var(--c-primary); color: var(--c-primary); }
+
+/* ── Filter pills on products page ──────────────────────────────────────── */
+.filter-pill {
+  border-radius: var(--r-sm) !important;
+  border:        1.5px solid var(--c-border) !important;
+  background:    var(--c-surface) !important;
+  color:         var(--c-body) !important;
+  font-weight:   500;
+  font-size:     13px;
+  padding:       6px 14px;
+  transition:    all 0.15s ease;
+}
+.filter-pill.filter-pill-active,
+.filter-pill:hover {
+  background:   var(--c-primary) !important;
+  border-color: var(--c-primary) !important;
+  color:        #fff !important;
+}
+
+/* ── Login / register card ───────────────────────────────────────────────── */
+.login-standalone-page {
+  background: var(--c-bg);
+  min-height: 100vh;
+  display:    flex;
+  align-items: center;
+  justify-content: center;
+  padding:    24px 16px;
+}
+
+.login-card {
+  background:    var(--c-surface);
+  border:        1px solid var(--c-border);
+  border-radius: var(--r-xl);
+  box-shadow:    var(--shadow-lg);
+  padding:       40px 36px;
+  width:         100%;
+  max-width:     420px;
+}
+
+.login-input {
+  border:        1.5px solid var(--c-border) !important;
+  border-radius: var(--r-md) !important;
+  padding:       11px 14px !important;
+  font-size:     14px !important;
+  background:    var(--c-surface) !important;
+  color:         var(--c-heading) !important;
+  transition:    border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow:    var(--shadow-xs);
+}
+.login-input:focus {
+  border-color: var(--c-primary) !important;
+  box-shadow:   0 0 0 3px rgba(37,99,235,0.12) !important;
+  outline:      none !important;
+}
+.login-input--error { border-color: var(--c-danger) !important; }
+
+.login-btn-primary {
+  width:         100%;
+  background:    var(--c-primary) !important;
+  border:        1.5px solid var(--c-primary) !important;
+  border-radius: var(--r-md) !important;
+  color:         #fff !important;
+  font-size:     15px !important;
+  font-weight:   600 !important;
+  padding:       12px 24px !important;
+  margin-top:    8px;
+  transition:    background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+.login-btn-primary:hover { background: var(--c-primary-hover) !important; box-shadow: var(--shadow-md); }
+.login-btn-primary:active { transform: scale(0.98) !important; }
+.login-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.login-btn-google {
+  width:         100%;
+  background:    var(--c-surface) !important;
+  border:        1.5px solid var(--c-border) !important;
+  border-radius: var(--r-md) !important;
+  color:         var(--c-heading) !important;
+  font-size:     14px !important;
+  font-weight:   600 !important;
+  padding:       11px 24px !important;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  gap:           10px;
+  box-shadow:    var(--shadow-xs);
+  transition:    border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.login-btn-google:hover { border-color: var(--c-border-2) !important; box-shadow: var(--shadow-sm); }
+
+/* ── Not-found page ──────────────────────────────────────────────────────── */
+.not-found-page {
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  min-height:      60vh;
+  padding:         48px 24px;
+  text-align:      center;
+  background:      var(--c-surface);
+  border:          1px solid var(--c-border);
+  border-radius:   var(--r-xl);
+  margin:          32px auto;
+  max-width:       520px;
+  box-shadow:      var(--shadow-md);
+}
+
+.not-found-code {
+  font-size:   88px;
+  font-weight: 900;
+  color:       var(--c-primary);
+  line-height: 1;
+  margin-bottom: 12px;
+  letter-spacing: -0.05em;
+}
+
+.not-found-title {
+  font-size:   26px;
+  font-weight: 800;
+  color:       var(--c-heading);
+  margin-bottom: 10px;
+}
+
+.not-found-message {
+  color:         var(--c-muted);
+  font-size:     15px;
+  line-height:   1.6;
+  margin-bottom: 28px;
+}
+
+.not-found-actions {
+  display:   flex;
+  gap:       12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.not-found-actions .btn {
+  min-width:     140px;
+  border-radius: var(--r-md) !important;
+}
+
+.not-found-actions .btn:first-child {
+  background:   var(--c-primary);
+  border-color: var(--c-primary);
+}
+
+.not-found-actions .btn.btn-outline {
+  background:   transparent;
+  border-color: var(--c-border-2);
+  color:        var(--c-heading) !important;
+}
+
+.not-found-actions .btn.btn-outline:hover {
+  border-color: var(--c-primary);
+  color:        var(--c-primary) !important;
+}
+
+/* ── Footer links ────────────────────────────────────────────────────────── */
+.footer .single-footer.f-link ul li a {
+  color: #ccc;
+  font-size: 14px;
+  transition: color 0.15s ease;
+}
+.footer .single-footer.f-link ul li a:hover { color: #fff; }
+
+/* ── Scroll-to-top button ────────────────────────────────────────────────── */
+.scroll-top {
+  background:    var(--c-primary) !important;
+  border-radius: var(--r-md) !important;
+  box-shadow:    var(--shadow-md);
+  width:         42px;
+  height:        42px;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  padding:       0;
+  transition:    background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .scroll-top:hover {
+    background:    var(--c-primary-hover) !important;
+    box-shadow:    var(--shadow-lg);
+    transform:     translateY(-3px);
+  }
+}
+
+
+/* ═════════════════════════════════════════════════════════════════════════════
+   BRAND COLOUR OVERRIDE — KenvieStores logo colours
+   Primary:  #183B9B  (deep royal blue — from logo bag + "Kenvie" text)
+   Accent:   #E18F27  (warm amber/gold — from "Stores" text)
+   All previous --c-primary references are overridden here.
+═════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Brand ── */
+  --c-primary:        #183B9B;
+  --c-primary-hover:  #122e7a;
+  --c-primary-light:  #eef1fb;
+  --c-primary-50:     rgba(24, 59, 155, 0.08);
+
+  --c-accent:         #E18F27;
+  --c-accent-hover:   #c47a18;
+  --c-accent-light:   #fef6e7;
+
+  /* ── Neutrals (unchanged) ── */
+  --c-heading:  #0f172a;
+  --c-body:     #374151;
+  --c-muted:    #6b7280;
+  --c-border:   #e5e7eb;
+  --c-border-2: #d1d5db;
+  --c-bg:       #f8f9fc;
+  --c-surface:  #ffffff;
+
+  /* ── Status ── */
+  --c-success:  #16a34a;
+  --c-danger:   #dc2626;
+  --c-warning:  #d97706;
+
+  /* ── Shape ── */
+  --r-sm:   4px;
+  --r-md:   8px;
+  --r-lg:   12px;
+  --r-xl:   16px;
+  --r-pill: 999px;
+
+  /* ── Shadows ── */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+}
+
+/* ── Buttons — use brand blue ────────────────────────────────────────────── */
+.btn, a.btn, button.btn {
+  background:    var(--c-primary);
+  border-color:  var(--c-primary);
+  color:         #fff !important;
+  border-radius: var(--r-md) !important;
+}
+.btn:hover, a.btn:hover, button.btn:hover {
+  background:    var(--c-primary-hover);
+  border-color:  var(--c-primary-hover);
+  color:         #fff !important;
+}
+
+/* Outline variant */
+.btn.btn-outline, a.btn.btn-outline {
+  background:   transparent;
+  border-color: var(--c-primary);
+  color:        var(--c-primary) !important;
+}
+.btn.btn-outline:hover {
+  background:   var(--c-primary);
+  color:        #fff !important;
+}
+
+/* Ghost */
+.btn.btn-ghost {
+  background:   var(--c-surface);
+  border-color: var(--c-border-2);
+  color:        var(--c-heading) !important;
+}
+.btn.btn-ghost:hover {
+  border-color: var(--c-primary);
+  color:        var(--c-primary) !important;
+}
+
+/* Accent button (use for "View More", secondary CTAs) */
+.btn.btn-accent, a.btn.btn-accent {
+  background:   var(--c-accent);
+  border-color: var(--c-accent);
+  color:        #fff !important;
+}
+.btn.btn-accent:hover {
+  background:   var(--c-accent-hover);
+  border-color: var(--c-accent-hover);
+}
+
+/* ── Login / Register ────────────────────────────────────────────────────── */
+.login-btn-primary {
+  background:    var(--c-primary) !important;
+  border-color:  var(--c-primary) !important;
+}
+.login-btn-primary:hover { background: var(--c-primary-hover) !important; }
+
+/* ── Search bar ──────────────────────────────────────────────────────────── */
+.navbar-search .search-btn button {
+  background:  var(--c-primary);
+  border-color: var(--c-primary);
+}
+.navbar-search .search-btn button:hover { background: var(--c-primary-hover); }
+.navbar-search .search-input input:focus {
+  border-color: var(--c-primary);
+  box-shadow:   0 0 0 3px rgba(24, 59, 155, 0.12);
+}
+
+/* ── Nav active state ────────────────────────────────────────────────────── */
+.navbar-nav .nav-item a.active,
+.navbar-nav .nav-item a:hover,
+.header-bottom .navbar-nav a.active {
+  color: var(--c-primary) !important;
+}
+
+/* ── Cart badge ──────────────────────────────────────────────────────────── */
+.total-items {
+  background: var(--c-primary) !important;
+}
+
+/* ── Order total price / highlighted text ────────────────────────────────── */
+.order-item-subtotal { color: var(--c-primary); }
+.oah-id              { color: var(--c-primary); }
+
+/* ── Filter pills & orders pills ─────────────────────────────────────────── */
+.orders-pill.active,
+.filter-pill.filter-pill-active,
+.filter-pill:hover {
+  background:   var(--c-primary) !important;
+  border-color: var(--c-primary) !important;
+  color:        #fff !important;
+}
+
+/* ── Input focus ring ────────────────────────────────────────────────────── */
+input:focus, textarea:focus {
+  border-color: var(--c-primary) !important;
+  box-shadow:   0 0 0 3px rgba(24, 59, 155, 0.12) !important;
+}
+.login-input:focus {
+  border-color: var(--c-primary) !important;
+  box-shadow:   0 0 0 3px rgba(24, 59, 155, 0.12) !important;
+}
+
+/* ── Cart send button ────────────────────────────────────────────────────── */
+.cart-send-btn {
+  background:   var(--c-primary) !important;
+  border-color: var(--c-primary) !important;
+}
+.cart-send-btn:hover { background: var(--c-primary-hover) !important; }
+
+/* ── Scroll-to-top ───────────────────────────────────────────────────────── */
+.scroll-top { background: var(--c-primary) !important; }
+@media (hover: hover) and (pointer: fine) {
+  .scroll-top:hover { background: var(--c-primary-hover) !important; }
+}
+
+/* ── 404 page number ─────────────────────────────────────────────────────── */
+.not-found-code { color: var(--c-primary); }
+.not-found-actions .btn:first-child {
+  background:   var(--c-primary);
+  border-color: var(--c-primary);
+}
+
+/* ── Topbar links active ─────────────────────────────────────────────────── */
+.topbar a:hover { color: var(--c-primary) !important; }
+
+/* ── Wishlist count badge ────────────────────────────────────────────────── */
+.header .navbar-cart .wishlist a:hover i,
+.header .navbar-cart a:hover i { color: var(--c-primary); }
+
+/* ── Category / product accent text ─────────────────────────────────────── */
+.product-card .category-text,
+.product-card span[style*="3fb1f3"],
+.product-card span[style*="3FB1F3"] {
+  color: var(--c-primary) !important;
+}
+
+/* ── Accent uses gold (#E18F27) for star ratings & sale badges ─────────── */
+.star-rating .filled,
+.lni-star-filled { color: var(--c-accent) !important; }
+
+.sale-tag { background: var(--c-accent) !important; }
+
+/* ── Order status — use primary blue for key states ─────────────────────── */
+.order-status--processing { color: var(--c-primary); background: var(--c-primary-light); }
+
+/* ── "Latest" badge on orders ────────────────────────────────────────────── */
+.oah-latest-badge {
+  background:    var(--c-accent) !important;
+  border-radius: var(--r-sm);
+  color:         #fff;
+  font-size:     10px;
+  font-weight:   700;
+  padding:       2px 7px;
+}
+
+/* ── PromoHeader / CTA card ──────────────────────────────────────────────── */
+.todays-deals-card-background-color {
+  background: linear-gradient(135deg, #183B9B 0%, #1e4dbf 100%) !important;
+}
+
+/* ── Footer newsletter button ────────────────────────────────────────────── */
+.footer .newsletter-form .button .btn,
+.footer-top .newsletter-form .button .btn {
+  background:   var(--c-primary) !important;
+  border-color: var(--c-primary) !important;
+}
+
+/* ── Section title underline accent ─────────────────────────────────────── */
+.section-title-categories h2::after {
+  background: var(--c-accent);
+}
+
+/* ── Hero / Carousel CTA buttons ─────────────────────────────────────────── */
+.hero-slider-react .single-slider .content .button .btn,
+.promo-shop-button {
+  background:    var(--c-primary) !important;
+  border-color:  var(--c-primary) !important;
+  color:         #fff !important;
+}
+.hero-slider-react .single-slider .content .button .btn:hover,
+.promo-shop-button:hover {
+  background:    var(--c-primary-hover) !important;
+  border-color:  var(--c-primary-hover) !important;
+}
+
+/* ── Product details add-to-cart ─────────────────────────────────────────── */
+.item-details .product-info .cart-button .btn {
+  background:    var(--c-primary) !important;
+  border-color:  var(--c-primary) !important;
+}
+.item-details .product-info .cart-button .btn:hover {
+  background:    var(--c-primary-hover) !important;
+}
+
+/* ── Header sticky state ─────────────────────────────────────────────────── */
+.header.sticky .button .btn {
+  background:    var(--c-primary) !important;
+  border-color:  var(--c-primary) !important;
+}
+
+/* ── Checkout / order-send confirmation button ───────────────────────────── */
+.cart-send-btn, .btn.animate {
+  background:   var(--c-primary) !important;
+  border-color: var(--c-primary) !important;
+}
+
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+.pagination-btn.pagination-active {
+  background:    var(--c-primary) !important;
+  border-color:  var(--c-primary) !important;
+  color:         #fff !important;
+}
+.pagination-btn:hover:not(.pagination-active):not(.pagination-disabled) {
+  border-color:  var(--c-primary) !important;
+  color:         var(--c-primary) !important;
+}
+
+/* ── Form-check active (checkboxes / radio in product details) ───────────── */
+.form-check-input:checked {
+  background-color: var(--c-primary) !important;
+  border-color:     var(--c-primary) !important;
+}
+
+
+/* ── Catch-all: replace any surviving old sky-blue with brand navy ────────── */
+/* category text in product cards */
+.product-card [style*="color: #3fb1f3"],
+.product-card [style*="color:#3fb1f3"],
+.product-card [style*="color: #3FB1F3"] { color: #183B9B !important; }
+
+/* any .btn that somehow still has the old color */
+a.btn[style*="background: #3fb1f3"],
+a.btn[style*="backgroundColor: #3fb1f3"],
+button.btn[style*="background: #3fb1f3"] {
+  background: #183B9B !important;
+  border-color: #183B9B !important;
+}
+
+/* Wishlist page view-product button */
+.wishlist-view-btn,
+.wishlist-view-btn-sm {
+  background:    #183B9B !important;
+  border-color:  #183B9B !important;
+  color:         #fff !important;
+  border-radius: 6px !important;
+}
+.wishlist-view-btn:hover, .wishlist-view-btn-sm:hover {
+  background: #122e7a !important;
+}
+
+/* Filter pill active (products page) */
+.filter-pill-active { background: #183B9B !important; border-color: #183B9B !important; }
+
+/* Cart quantity stepper hover */
+.order-qty-btn:hover:not(:disabled),
+.cart-qty-btn:hover:not(:disabled) {
+  background: #183B9B !important;
+  color: #fff !important;
+}
+
+/* View More link buttons (section headers) */
+a[style*="#0066c0"], a[style*="#0167F3"] { color: #183B9B !important; }
+button[style*="#0066c0"], button[style*="#0167F3"] { color: #183B9B !important; }
+
+/* CategoryDeals & Hero CTA */
+.promo-category-title { color: #183B9B !important; }
+
+/* Sign In link */
+.user-login li a:hover { color: #183B9B !important; }
+
+/* Breadcrumb active */
+.breadcrumb li a:hover { color: #183B9B !important; }
+
+/* Link colour throughout */
+a:not(.btn):hover { color: #183B9B !important; }
+
+/* Nav active bottom indicator */
+.navbar-nav .nav-item a.active::after {
+  content:    '';
+  display:    block;
+  height:     2px;
+  background: #183B9B;
+  width:      100%;
+  position:   absolute;
+  bottom:     0;
+  left:       0;
+  border-radius: 2px;
+}
+
+
+/* ═════════════════════════════════════════════════════════════════════════════
+   PROMO CAROUSEL — consistent height, readable captions, always-visible arrows
+═════════════════════════════════════════════════════════════════════════════ */
+
+.promo-carousel-section { padding: 12px 0 0; }
+
+/* Carousel wrapper */
+.promo-carousel {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+/* ── Slide image ──────────────────────────────────────────────────────────── */
+.promo-carousel-img-wrap {
+  position:   relative;
+  height:     380px;      /* fixed desktop height */
+  overflow:   hidden;
+  background: #0a1628;
+}
+
+.promo-carousel-img {
+  width:         100%;
+  height:        100%;
+  object-fit:    cover;
+  object-position: center;
+  display:       block;
+}
+
+/* Darkens image so white text is always legible */
+.promo-carousel-overlay {
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.15) 0%,
+    rgba(0,0,0,0.45) 60%,
+    rgba(0,0,0,0.65) 100%
+  );
+}
+
+/* ── Caption base ─────────────────────────────────────────────────────────── */
+.promo-caption {
+  position:   absolute !important;
+  bottom:     0 !important;
+  top:        auto !important;
+  left:       0 !important;
+  right:      0 !important;
+  padding:    24px 32px 28px !important;
+  text-align: center;
+  background: none !important;
+}
+
+.promo-caption--left { text-align: left; }
+
+.promo-caption h2 {
+  font-size:   28px;
+  font-weight: 800;
+  color:       #fff;
+  line-height: 1.25;
+  margin:      0 0 8px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.promo-caption p {
+  font-size:  14px;
+  color:      rgba(255,255,255,0.88);
+  margin:     0 0 16px;
+  line-height: 1.5;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  max-width:  420px;
+}
+
+.promo-caption--center p { margin-left: auto; margin-right: auto; }
+
+/* ── CTA button ───────────────────────────────────────────────────────────── */
+.promo-cta-btn {
+  display:       inline-flex;
+  align-items:   center;
+  padding:       10px 26px;
+  background:    #183B9B;
+  color:         #fff !important;
+  font-size:     14px;
+  font-weight:   700;
+  border-radius: 8px;
+  text-decoration: none !important;
+  border:        none;
+  transition:    background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  box-shadow:    0 2px 8px rgba(24,59,155,0.35);
+}
+.promo-cta-btn:hover {
+  background: #122e7a;
+  box-shadow: 0 4px 14px rgba(24,59,155,0.45);
+  transform:  translateY(-1px);
+  color:      #fff !important;
+}
+.promo-cta-btn--dark {
+  background: #0f172a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.promo-cta-btn--dark:hover { background: #1e293b; }
+
+/* ── Navigation arrows — ALWAYS visible, even on mobile ─────────────────── */
+.carousel-control-prev,
+.carousel-control-next {
+  width:      44px !important;
+  height:     44px !important;
+  background: rgba(0,0,0,0.45) !important;
+  border-radius: 50% !important;
+  top:        50% !important;
+  bottom:     auto !important;
+  transform:  translateY(-50%) !important;
+  opacity:    1 !important;
+}
+
+.carousel-control-prev { left:  10px !important; }
+.carousel-control-next { right: 10px !important; }
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+  background: rgba(24,59,155,0.7) !important;
+}
+
+/* Custom arrow icons */
+.promo-carousel-arrow {
+  display:      flex;
+  align-items:  center;
+  justify-content: center;
+  color:        #fff;
+  font-size:    28px;
+  font-weight:  400;
+  line-height:  1;
+  width:        44px;
+  height:       44px;
+}
+
+/* Hide Bootstrap's default icon spans */
+.carousel-control-prev-icon,
+.carousel-control-next-icon { display: none; }
+
+/* ── Dots ─────────────────────────────────────────────────────────────────── */
+.carousel-indicators {
+  bottom:     10px !important;
+  margin:     0 !important;
+  gap:        6px;
+}
+.carousel-indicators [data-bs-target],
+.carousel-indicators button {
+  width:         28px !important;
+  height:        4px !important;
+  border-radius: 2px !important;
+  background:    rgba(255,255,255,0.5) !important;
+  border:        none !important;
+  transition:    background 0.2s ease, width 0.2s ease;
+  opacity:       1 !important;
+}
+.carousel-indicators .active {
+  background: #fff !important;
+  width:      40px !important;
+}
+
+/* ── Slide 4 — Power Up slide (no image background) ─────────────────────── */
+.promo-power-slide {
+  display:         flex;
+  align-items:     center;
+  height:          380px;
+  background:      linear-gradient(135deg, #f0f2f8 0%, #e8ecf8 100%);
+  padding:         32px;
+  gap:             32px;
+  overflow:        hidden;
+}
+
+.promo-power-content {
+  flex:    1;
+  min-width: 0;
+}
+
+.promo-power-eyebrow {
+  font-size:     11px;
+  font-weight:   700;
+  color:         #183B9B;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin:        0 0 8px;
+}
+
+.promo-power-heading {
+  font-size:   32px;
+  font-weight: 800;
+  color:       #0f172a;
+  line-height: 1.2;
+  margin:      0 0 12px;
+}
+
+.promo-power-sub {
+  font-size:  14px;
+  color:      #555;
+  line-height: 1.6;
+  margin:     0 0 20px;
+  max-width:  280px;
+}
+
+.promo-power-chips {
+  display:        flex;
+  flex-direction: column;
+  gap:            12px;
+  flex-shrink:    0;
+}
+
+.promo-power-chip {
+  display:        flex;
+  align-items:    center;
+  gap:            12px;
+  background:     #fff;
+  border:         1px solid #e5e7eb;
+  border-radius:  10px;
+  padding:        8px 16px 8px 8px;
+  text-decoration: none !important;
+  width:          180px;
+  box-shadow:     0 1px 3px rgba(0,0,0,0.06);
+  transition:     border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.promo-power-chip:hover {
+  border-color: #183B9B;
+  box-shadow:   0 2px 8px rgba(24,59,155,0.15);
+  transform:    translateX(2px);
+}
+
+.promo-power-chip img {
+  width:         44px;
+  height:        44px;
+  object-fit:    contain;
+  border-radius: 6px;
+  flex-shrink:   0;
+}
+
+.promo-power-chip span {
+  font-size:  13px;
+  font-weight: 600;
+  color:       #183B9B;
+  white-space: nowrap;
+}
+
+/* ── Mobile ───────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .promo-carousel-img-wrap { height: 260px; }
+
+  .promo-caption { padding: 16px 16px 20px !important; }
+  .promo-caption h2 { font-size: 18px; }
+  .promo-caption p  { font-size: 13px; margin-bottom: 12px; }
+  .promo-cta-btn    { padding: 8px 20px; font-size: 13px; }
+
+  /* Slide 4 on mobile — stack vertically */
+  .promo-power-slide {
+    flex-direction: column;
+    height:         auto;
+    min-height:     260px;
+    padding:        24px 16px 20px;
+    gap:            16px;
+    align-items:    flex-start;
+  }
+
+  .promo-power-heading { font-size: 22px; }
+  .promo-power-sub     { display: none; }  /* hide desc to save space */
+
+  .promo-power-chips {
+    flex-direction: row;
+    overflow-x:     auto;
+    width:          100%;
+    padding-bottom: 4px;
+  }
+
+  .promo-power-chip {
+    width:      140px;
+    flex-shrink: 0;
+    padding:    6px 12px 6px 6px;
+  }
+
+  .promo-power-chip img { width: 36px; height: 36px; }
+  .promo-power-chip span { font-size: 12px; }
+
+  /* Arrows on mobile — smaller but still visible */
+  .carousel-control-prev,
+  .carousel-control-next {
+    width:  36px !important;
+    height: 36px !important;
+  }
+  .promo-carousel-arrow { width: 36px; height: 36px; font-size: 22px; }
+}
