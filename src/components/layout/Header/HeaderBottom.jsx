@@ -129,7 +129,7 @@ export default function HeaderBottom() {
                       style={({ isActive }) => ({
                         display: 'block',
                         padding: '10px 16px',
-                        color: isActive ? '#0066c0' : '#081828',
+                        color: isActive ? '#183B9B' : '#081828',
                         fontWeight: isActive ? 600 : 400,
                         textDecoration: 'none',
                         borderBottom: '1px solid #f2f2f2',

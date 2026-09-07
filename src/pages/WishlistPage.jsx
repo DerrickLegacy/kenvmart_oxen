@@ -115,7 +115,7 @@ export default function WishlistPage() {
                   <Link
                     to={`/product/${item.productId}`}
                     className="btn wishlist-view-btn"
-                    style={{ backgroundColor: '#3fb1f3' }}
+                    style={{ backgroundColor: '#183B9B' }}
                   >
                     View Product
                   </Link>

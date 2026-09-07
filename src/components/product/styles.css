@@ -94,7 +94,7 @@
 }
 
 .title a:hover {
-  color: #0066c0;
+  color: #183B9B;
 }
 
 /* Star Rating - fixed height */
@@ -199,7 +199,7 @@
 .button .btn {
   width: 100%;
   padding: 8px;
-  background: #0066c0;
+  background: #183B9B;
   color: #fff;
   border: none;
   border-radius: 4px;

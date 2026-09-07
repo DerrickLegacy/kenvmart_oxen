@@ -19,7 +19,7 @@ export default function ScrollToTop() {
     <button
       data-testid="scroll-to-top"
       onClick={handleClick}
-      style={{ display: visible ? 'block' : 'none', backgroundColor: '#3fb1f3' }}
+      style={{ display: visible ? 'block' : 'none', backgroundColor: '#183B9B' }}
       className="scroll-top"
       aria-label="Scroll to top"
     >

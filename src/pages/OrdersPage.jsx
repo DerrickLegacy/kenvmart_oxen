@@ -160,7 +160,7 @@ export default function OrdersPage() {
                 <Link
                   to="/login"
                   state={{ from: { pathname: "/orders" } }}
-                  style={{ backgroundColor: "#3fb1f3" }}
+                  style={{ backgroundColor: "#183B9B" }}
                   className="btn"
                 >
                   Sign In
@@ -226,7 +226,7 @@ export default function OrdersPage() {
 
         {/* ── Promotional banner ──────────────────────────────────────── */}
         <div style={{
-          background:    'linear-gradient(135deg, #0167F3 0%, #3fb1f3 100%)',
+          background:    'linear-gradient(135deg, #183B9B 0%, #1e4dbf 100%)',
           borderRadius:  12,
           padding:       '18px 24px',
           marginBottom:  24,
@@ -252,7 +252,7 @@ export default function OrdersPage() {
             href="/products?tag=new"
             style={{
               background:    '#fff',
-              color:         '#0167F3',
+              color:         '#183B9B',
               fontWeight:    700,
               fontSize:      13,
               padding:       '9px 22px',

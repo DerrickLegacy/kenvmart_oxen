@@ -8,7 +8,7 @@ const videos = [
     title: "When you realise the best charger",
     subtitle: "Halloween outdoor decor",
     buttonText: "Shop now",
-    bgColor: "#3FB1F3",
+    bgColor: "#183B9B",
   },
   {
     id: 2,
@@ -16,7 +16,7 @@ const videos = [
     title: "From weak to strong.",
     subtitle: "Easy & affordable super chargers for your devices",
     buttonText: "Shop now",
-    bgColor: "#3FB1F3",
+    bgColor: "#183B9B",
     href:""
   },
   {
@@ -294,7 +294,7 @@ const styles = {
     display: 'inline-block',
     marginTop: '12px',
     padding: '6px 16px',
-    backgroundColor: '#3fb1f3',
+    backgroundColor: '#183B9B',
     borderRadius: '20px',
     fontSize: '13px',
     fontWeight: '600',
