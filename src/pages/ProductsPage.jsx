@@ -314,7 +314,7 @@ export default function ProductsPage() {
 			<Breadcrumb crumbs={[{ label: "Home", to: "/" }, { label: "Shop" }]} />
 
 			<div className="row">
-				<div className="col-lg-2 col-12">
+				<div className="col-lg-2 col-12" style={{ position: 'sticky', top: 52, alignSelf: 'flex-start', zIndex: 100 }}>
 					<CategorySidebar />
 				</div>
 

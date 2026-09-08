@@ -7,10 +7,7 @@ const categories = [
     title: "Charging",
     items: ["Fast Chargers", "Wireless Chargers", "Power Banks", "Charging Cables"],
   },
-  {
-    title: "Protection",
-    items: ["Screen Protectors", "Phone Cases", "Tempered Glass"],
-  },
+ 
   {
     title: "Smart Devices",
     items: ["Smart Watches", "Fitness Bands"],

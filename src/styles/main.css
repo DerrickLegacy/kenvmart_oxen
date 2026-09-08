@@ -8323,6 +8323,14 @@ top: 2px;
   .product-grids .col-lg-2 { margin-bottom: 12px; }
 }
 
+/* Desktop sticky sidebar — scrolls internally if taller than the viewport */
+@media (min-width: 992px) {
+  .mega-category-menu.sidebar-variant {
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+}
+
 @media (max-width: 767px) {
   .sidebar-drawer-toggle {
     width: 100%;
@@ -10267,6 +10275,9 @@ input::placeholder, textarea::placeholder { color: var(--c-muted); }
 .header .header-bottom {
   background:  var(--c-surface);
   border-top:  1px solid var(--c-border);
+  position:    sticky;
+  top:         0;
+  z-index:     999;
 }
 
 /* Search bar */
