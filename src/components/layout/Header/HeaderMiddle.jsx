@@ -76,7 +76,16 @@ const DROPDOWN_STYLES = {
 };
 
 /**
- * HeaderMiddle — Top bar: logo, search (with live suggestions), auth, wishlist, cart.
+ * HeaderMiddle
+ *
+ * Desktop layout (lg+):
+ *   [Logo]  [Search — flex:1, inside .main-menu-search]  [Phone]  [♡ Cart]
+ *
+ * The search form needs .main-menu-search as a parent so the existing CSS rule
+ *   `.header .main-menu-search .navbar-search { display: flex; }`
+ * fires and keeps input + button on the same row.
+ *
+ * The cart dropdown needs .navbar-cart → .cart-items so the hover-panel CSS works.
  */
 export default function HeaderMiddle() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -98,7 +107,6 @@ export default function HeaderMiddle() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close suggestions dropdown on click outside / Escape
   useEffect(() => {
     const onDocClick = (e) => {
       if (!searchWrapRef.current) return;
@@ -113,7 +121,6 @@ export default function HeaderMiddle() {
     };
   }, []);
 
-  // Fetch suggestions with debounce
   useEffect(() => {
     const q = searchTerm.trim();
     if (!q) {
@@ -123,11 +130,9 @@ export default function HeaderMiddle() {
       if (debounceRef.current) clearTimeout(debounceRef.current);
       return;
     }
-
     setSuggestionsLoading(true);
     setDropdownOpen(true);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-
     debounceRef.current = setTimeout(async () => {
       try {
         const res = await productsApi.list({ q, limit: 6 });
@@ -138,13 +143,10 @@ export default function HeaderMiddle() {
         setSuggestionsLoading(false);
       }
     }, 280);
-
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [searchTerm]);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
+  const handleSearch = (e) => setSearchTerm(e.target.value);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -172,131 +174,191 @@ export default function HeaderMiddle() {
     navigate('/');
   };
 
+  /* Shared suggestions panel — rendered inside whichever search wrapper is visible */
+  const SuggestionsPanel = () => (
+    dropdownOpen && searchTerm.trim() ? (
+      <div style={DROPDOWN_STYLES.container} role="listbox">
+        {suggestionsLoading && (
+          <div style={DROPDOWN_STYLES.loading}>Searching…</div>
+        )}
+        {!suggestionsLoading && suggestions.length === 0 && (
+          <div style={DROPDOWN_STYLES.empty}>
+            No products match <strong>"{searchTerm.trim()}"</strong>
+          </div>
+        )}
+        {!suggestionsLoading && suggestions.map((p) => (
+          <div
+            key={p.id}
+            style={DROPDOWN_STYLES.item}
+            onClick={() => onPickSuggestion(p)}
+            onMouseEnter={(e) => (e.currentTarget.style.background = '#f6f7f9')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = '')}
+            role="option"
+          >
+            <img
+              src={imageUrl(p.images?.[0] || p.image)}
+              alt={p.name}
+              style={DROPDOWN_STYLES.thumb}
+              onError={(e) => { e.currentTarget.src = imageUrl(''); }}
+            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={DROPDOWN_STYLES.name} className="truncate">{p.name}</div>
+              <div style={DROPDOWN_STYLES.price}>
+                {p.price_text || `UGX ${(p.price ?? 0).toLocaleString()}`}
+              </div>
+            </div>
+            <i className="lni lni-arrow-right" style={{ color: '#c2c6cc', fontSize: 14 }} />
+          </div>
+        ))}
+        {!suggestionsLoading && (
+          <Link
+            to={seeAllResultsUrl}
+            onClick={() => setDropdownOpen(false)}
+            style={DROPDOWN_STYLES.footer}
+          >
+            See all results for "{searchTerm.trim()}" →
+          </Link>
+        )}
+      </div>
+    ) : null
+  );
+
   return (
     <>
       {sticky && <div className="header-middle-spacer" />}
 
       <div className={`header-middle${sticky ? ' header-middle-sticky' : ''}`}>
         <div className="container">
-          <div className="row align-items-center">
 
-            <div className="col-lg-3 col-md-3 d-none d-lg-block">
-              <Link className="navbar-brand" to="/">
-                <img src="/assets/images/logo/logo.svg" alt={siteConfig.name} />
-              </Link>
+          {/* ═══════════════════════════════════════════════════════
+              DESKTOP  lg+
+              [Logo] [Search — flex:1] [Phone] [♡] [Cart]
+          ═══════════════════════════════════════════════════════ */}
+          <div
+            className="d-none d-lg-flex align-items-center"
+            style={{ gap: 20, padding: '8px 0' }}
+          >
+
+            {/* Logo */}
+            <Link className="navbar-brand" to="/" style={{ flexShrink: 0, lineHeight: 1 }}>
+              <img
+                src="/assets/images/logo/logo.svg"
+                alt={siteConfig.name}
+                style={{ height: 36, display: 'block' }}
+              />
+            </Link>
+
+            {/* Search
+                Wrapper must be .main-menu-search so the existing CSS rule
+                `.header .main-menu-search .navbar-search { display: flex }`
+                keeps input and button on the same line.                    */}
+            <div
+              className="main-menu-search"
+              ref={searchWrapRef}
+              style={{ flex: 1, position: 'relative' }}
+            >
+              <form className="navbar-search search-style-5" onSubmit={handleSearchSubmit}>
+                <div className="search-input">
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    onFocus={() => searchTerm.trim() && setDropdownOpen(true)}
+                    data-testid="search-input"
+                  />
+                </div>
+                <div className="search-btn">
+                  <button type="submit" aria-label="Search">
+                    <i className="lni lni-search-alt" />
+                  </button>
+                </div>
+              </form>
+              <SuggestionsPanel />
             </div>
 
-            <div className="col-lg-5 col-md-7 d-xs-none">
-              <div className="main-menu-search" ref={searchWrapRef} style={{ position: 'relative' }}>
-                <form className="navbar-search search-style-5" onSubmit={handleSearchSubmit}>
-                  <div className="search-input">
-                    <input
-                      type="text"
-                      placeholder="Search products..."
-                      value={searchTerm}
-                      onChange={handleSearch}
-                      onFocus={() => searchTerm.trim() && setDropdownOpen(true)}
-                      data-testid="search-input"
-                    />
-                  </div>
-                  <div className="search-btn">
-                    <button type="submit" aria-label="Search"><i className="lni lni-search-alt"></i></button>
-                  </div>
-                </form>
-
-                {dropdownOpen && searchTerm.trim() && (
-                  <div style={DROPDOWN_STYLES.container} role="listbox">
-                    {suggestionsLoading && (
-                      <div style={DROPDOWN_STYLES.loading}>Searching…</div>
-                    )}
-                    {!suggestionsLoading && suggestions.length === 0 && (
-                      <div style={DROPDOWN_STYLES.empty}>
-                        No products match <strong>“{searchTerm.trim()}”</strong>
-                      </div>
-                    )}
-                    {!suggestionsLoading && suggestions.map((p) => (
-                      <div
-                        key={p.id}
-                        style={DROPDOWN_STYLES.item}
-                        onClick={() => onPickSuggestion(p)}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = '#f6f7f9')}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = '')}
-                        role="option"
-                      >
-                        <img
-                          src={imageUrl(p.images?.[0] || p.image)}
-                          alt={p.name}
-                          style={DROPDOWN_STYLES.thumb}
-                          onError={(e) => { e.currentTarget.src = imageUrl(''); }}
-                        />
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={DROPDOWN_STYLES.name} className="truncate">
-                            {p.name}
-                          </div>
-                          <div style={DROPDOWN_STYLES.price}>
-                            {p.price_text || `UGX ${(p.price ?? 0).toLocaleString()}`}
-                          </div>
-                        </div>
-                        <i className="lni lni-arrow-right" style={{ color: '#c2c6cc', fontSize: 14 }} />
-                      </div>
-                    ))}
-                    {!suggestionsLoading && (
-                      <Link
-                        to={seeAllResultsUrl}
-                        onClick={() => setDropdownOpen(false)}
-                        style={DROPDOWN_STYLES.footer}
-                      >
-                        See all results for “{searchTerm.trim()}” →
-                      </Link>
-                    )}
-                  </div>
-                )}
+            {/* Right group — phone + wishlist + cart
+                Keep .middle-right-area → .navbar-cart → .cart-items chain
+                intact so the hover-dropdown CSS keeps working.             */}
+            <div className="middle-right-area" style={{ flexShrink: 0 }}>
+              <div className="nav-hotline">
+                <i className="lni lni-phone" />
+                <h3>
+                  <span>
+                    <a
+                      href={`tel:${siteConfig.phoneRaw}`}
+                      style={{ color: 'inherit', textDecoration: 'none' }}
+                    >
+                      {siteConfig.phone}
+                    </a>
+                  </span>
+                </h3>
               </div>
-            </div>
 
-            <div className="col-lg-4 col-md-2 d-none d-lg-flex">
-              <div className="middle-right-area">
-                <div className="nav-hotline">
-                  <i className="lni lni-phone"></i>
-                  <h3>
-                    <span>
-                      <a href={`tel:${siteConfig.phoneRaw}`} style={{ color: 'inherit', textDecoration: 'none' }}>
-                        {siteConfig.phone}
-                      </a>
-                    </span>
-                  </h3>
+              <div className="navbar-cart">
+                <div className="wishlist">
+                  <Link to="/wishlist">
+                    <i className="lni lni-heart" />
+                    <span className="total-items">{wishlistItems.length}</span>
+                  </Link>
                 </div>
-{/* 
-                {!loading && (
-                  <div className="header-auth-links">
-                    {user ? (
-                      <div className="header-user-menu">
-                        <span className="header-username">
-                          <i className="lni lni-user"></i>{' '}
-                          {user.full_name?.split(' ')[0] ?? 'Account'}
-                        </span>
-                      </div>
-                    ) : (
-                      <Link to="/login" className="header-signin-link">
-                        <i className="lni lni-enter"></i> Sign In
-                      </Link>
-                    )}
-                  </div>
-                )} */}
-
-                <div className="navbar-cart">
-                  <div className="wishlist">
-                    <Link to="/wishlist">
-                      <i className="lni lni-heart"></i>
-                      <span className="total-items">{wishlistItems.length}</span>
-                    </Link>
-                  </div>
-                  <CartDropdown />
-                </div>
+                <CartDropdown />
               </div>
             </div>
 
           </div>
+
+          {/* ═══════════════════════════════════════════════════════
+              TABLET  md–lg
+              [Logo] [Search — flex:1] [♡] [Cart]
+              (phone hidden — not enough room)
+          ═══════════════════════════════════════════════════════ */}
+          <div
+            className="d-none d-md-flex d-lg-none align-items-center"
+            style={{ gap: 12, padding: '8px 0' }}
+          >
+            <Link className="navbar-brand" to="/" style={{ flexShrink: 0, lineHeight: 1 }}>
+              <img
+                src="/assets/images/logo/logo.svg"
+                alt={siteConfig.name}
+                style={{ height: 32, display: 'block' }}
+              />
+            </Link>
+
+            <div
+              className="main-menu-search"
+              style={{ flex: 1, position: 'relative' }}
+            >
+              <form className="navbar-search search-style-5" onSubmit={handleSearchSubmit}>
+                <div className="search-input">
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    onFocus={() => searchTerm.trim() && setDropdownOpen(true)}
+                    data-testid="search-input-md"
+                  />
+                </div>
+                <div className="search-btn">
+                  <button type="submit" aria-label="Search">
+                    <i className="lni lni-search-alt" />
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div className="navbar-cart" style={{ flexShrink: 0 }}>
+              <div className="wishlist">
+                <Link to="/wishlist">
+                  <i className="lni lni-heart" />
+                  <span className="total-items">{wishlistItems.length}</span>
+                </Link>
+              </div>
+              <CartDropdown />
+            </div>
+          </div>
+
         </div>
       </div>
     </>
