@@ -10266,6 +10266,20 @@ input::placeholder, textarea::placeholder { color: var(--c-muted); }
 }
 
 /* ── Header refinements ──────────────────────────────────────────────────── */
+
+/* ── Container max-width cap ────────────────────────────────────────────────
+   Bootstrap 5's default container goes up to 1320px on a 1400px+ monitor,
+   which looks stretched on high-res Windows desktops.
+   Cap at 1100px so content stays comfortably centred on wide screens.        */
+.container,
+.container-sm,
+.container-md,
+.container-lg,
+.container-xl,
+.container-xxl {
+  max-width: 1100px !important;
+}
+
 .header .header-middle {
   background:  var(--c-surface);
   box-shadow:  var(--shadow-sm);
