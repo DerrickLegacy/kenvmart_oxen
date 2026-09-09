@@ -10965,7 +10965,7 @@ a:not(.btn):hover { color: #183B9B !important; }
    PROMO CAROUSEL — consistent height, readable captions, always-visible arrows
 ═════════════════════════════════════════════════════════════════════════════ */
 
-.promo-carousel-section { padding: 12px 0 0; }
+.promo-carousel-section { padding: 12px 0 0; margin-bottom: 10px; }
 
 /* Carousel wrapper */
 .promo-carousel {

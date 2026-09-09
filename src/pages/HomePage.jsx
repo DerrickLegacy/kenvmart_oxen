@@ -2,6 +2,7 @@ import TrendingProducts from '../components/home/TrendingProducts';
 import TodaysDeals from '../components/home/TodaysDeals';
 import NewArrivals from '../components/home/NewArrivals';
 import HotProducts from '../components/home/HotProducts';
+import BrandShowcase from '../components/home/BrandShowcase';
 import SaleProducts from '../components/home/SaleProducts';
 import Hero from '../components/home/Hero';
 import RecentlyViewed from '../components/home/RecentlyViewed';
@@ -38,6 +39,7 @@ export default function HomePage() {
       <NewArrivals products={newData?.products ?? []} loading={newLoading} />
       <TodaysDeals products={dealsData?.products ?? []} loading={dealsLoading} />
       <HotProducts products={hotData?.products ?? []} loading={hotLoading} />
+      <BrandShowcase />
       <SaleProducts products={saleData?.products ?? []} loading={saleLoading} />
       <FeaturedVideos />
       <RecentlyViewed />
