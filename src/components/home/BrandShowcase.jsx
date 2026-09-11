@@ -13,18 +13,18 @@ const BRANDS = [
     image: '/assets/images/categories/iaccess.jpeg',
     bg:    '#1a1640',
   },
-  {
-    id:    2,
-    title: 'Oraimo',
-    image: '/assets/images/categories/oraimo.png',
-    bg:    '#155a10',
-  },
-  {
-    id:    3,
-    title: 'Excellent',
-    image: '/assets/images/categories/execellent.png',
-    bg:    '#6b1208',
-  },
+  // {
+  //   id:    2,
+  //   title: 'Oraimo',
+  //   image: '/assets/images/categories/oraimo.png',
+  //   bg:    '#155a10',
+  // },
+  // {
+  //   id:    3,
+  //   title: 'Excellent',
+  //   image: '/assets/images/categories/execellent.png',
+  //   bg:    '#6b1208',
+  // },
   {
     id:    4,
     title: 'Floating Ark',
@@ -112,7 +112,7 @@ function BrandChip({ brand, onClick }) {
           opacity:       0.85,
           letterSpacing: '0.02em',
         }}>
-          Shop →
+          Shop
         </span>
       </div>
     </button>
@@ -152,7 +152,7 @@ export default function BrandShowcase() {
             onMouseEnter={e => { e.currentTarget.style.opacity = '0.7'; }}
             onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
           >
-            View all →
+            View all
           </button>
         </div>
 
@@ -237,7 +237,7 @@ export default function BrandShowcase() {
           <div style={{
             display:             'grid',
             gridTemplateColumns: '1fr 1fr',
-            gridTemplateRows:    '1fr 1fr',
+            // gridTemplateRows:    '1fr 1fr',
             gap:                 10,
             height:              '100%',
           }}>

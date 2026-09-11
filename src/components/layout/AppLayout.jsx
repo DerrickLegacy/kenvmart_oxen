@@ -3,6 +3,7 @@ import Header from './Header/Header';
 import Footer from './Footer/Footer';
 import ScrollToTop from './ScrollToTop';
 import Preloader from './Preloader';
+import CookieBanner from './CookieBanner';
 
 export default function AppLayout() {
   return (
@@ -12,6 +13,7 @@ export default function AppLayout() {
       <Footer />
       <ScrollToTop />
       <Preloader />
+      <CookieBanner />
     </>
   );
 }

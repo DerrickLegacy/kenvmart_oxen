@@ -10268,16 +10268,15 @@ input::placeholder, textarea::placeholder { color: var(--c-muted); }
 /* ── Header refinements ──────────────────────────────────────────────────── */
 
 /* ── Container max-width cap ────────────────────────────────────────────────
-   Bootstrap 5's default container goes up to 1320px on a 1400px+ monitor,
-   which looks stretched on high-res Windows desktops.
-   Cap at 1100px so content stays comfortably centred on wide screens.        */
+   Slightly wider than before (1200px) so the category sidebar has room for
+   the price filter without clipping. Still comfortably centred on Windows.  */
 .container,
 .container-sm,
 .container-md,
 .container-lg,
 .container-xl,
 .container-xxl {
-  max-width: 1100px !important;
+  max-width: 1200px !important;
 }
 
 .header .header-middle {
@@ -10455,7 +10454,7 @@ input::placeholder, textarea::placeholder { color: var(--c-muted); }
 .filter-pill:hover {
   background:   var(--c-primary) !important;
   border-color: var(--c-primary) !important;
-  color:        #fff !important;
+  color:        #e18f27 !important;
 }
 
 /* ── Login / register card ───────────────────────────────────────────────── */
@@ -10760,7 +10759,7 @@ input::placeholder, textarea::placeholder { color: var(--c-muted); }
 .filter-pill:hover {
   background:   var(--c-primary) !important;
   border-color: var(--c-primary) !important;
-  color:        #fff !important;
+  color:        #e18f27 !important;
 }
 
 /* ── Input focus ring ────────────────────────────────────────────────────── */
@@ -10922,7 +10921,7 @@ button.btn[style*="background: #183B9B"] {
 }
 
 /* Filter pill active (products page) */
-.filter-pill-active { background: #183B9B !important; border-color: #183B9B !important; }
+.filter-pill-active { background: #183B9B !important; border-color: #183B9B !important; color: #e18f27 !important; }
 
 /* Cart quantity stepper hover */
 .order-qty-btn:hover:not(:disabled),
@@ -11249,4 +11248,59 @@ a:not(.btn):hover { color: #183B9B !important; }
     height: 36px !important;
   }
   .promo-carousel-arrow { width: 36px; height: 36px; font-size: 22px; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BRAND YELLOW (#e18f27) — borders, search button, input focus
+   All overrides live here so they win specificity battles.
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* Search button — yellow bg, blue icon */
+.navbar-search .search-btn button,
+.header .main-menu-search .search-btn button {
+  background:    #e18f27 !important;
+  border-color:  #e18f27 !important;
+  color:         #183B9B !important;
+}
+.navbar-search .search-btn button:hover,
+.header .main-menu-search .search-btn button:hover {
+  background:    #c97d1e !important;
+  border-color:  #c97d1e !important;
+}
+
+/* Search input border */
+.navbar-search .search-input input,
+.header .main-menu-search .search-input input {
+  border-color:  #e18f27 !important;
+  border-right:  none !important;
+}
+.navbar-search .search-input input:focus,
+.header .main-menu-search .search-input input:focus {
+  border-color:  #e18f27 !important;
+  box-shadow:    0 0 0 3px rgba(225, 143, 39, 0.15) !important;
+}
+
+/* Global input focus — yellow ring */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color:  #e18f27 !important;
+  box-shadow:    0 0 0 3px rgba(225, 143, 39, 0.12) !important;
+  outline:       none !important;
+}
+
+/* Cart dropdown btn text */
+.shopping-item .bottom .button .btn {
+  color: #e18f27 !important;
+}
+
+/* Continue Shopping button on cart page */
+.cart-continue-btn {
+  border: 1.5px solid #e18f27 !important;
+  color:  #183B9B !important;
+}
+.cart-continue-btn:hover {
+  background: #e18f27 !important;
+  color:      #183B9B !important;
 }

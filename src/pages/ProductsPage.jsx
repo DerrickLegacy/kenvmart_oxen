@@ -231,17 +231,17 @@ function Pagination({ current, total, onChange }) {
 }
 
 const TAG_FILTERS = [
-	{ label: "🔥 Trending", value: "trending" },
-	{ label: "🆕 New", value: "new" },
-	{ label: "💸 Deals", value: "deals" },
-	{ label: "🏷 Sale", value: "sale" },
-	{ label: "🌶 Hot", value: "hot" },
+	{ label: "Trending", value: "trending" },
+	{ label: "New",      value: "new"      },
+	{ label: "Deals",    value: "deals"    },
+	{ label: "Sale",     value: "sale"     },
+	{ label: "Hot",      value: "hot"      },
 ];
 
 const SORT_OPTIONS = [
 	{ label: "Newest", value: "newest" },
-	{ label: "Price ↑", value: "price_asc" },
-	{ label: "Price ↓", value: "price_desc" },
+	{ label: "Low to High", value: "price_asc" },
+	{ label: "High to Low", value: "price_desc" },
 	{ label: "Top Rated", value: "rating_desc" },
 ];
 
@@ -314,11 +314,11 @@ export default function ProductsPage() {
 			<Breadcrumb crumbs={[{ label: "Home", to: "/" }, { label: "Shop" }]} />
 
 			<div className="row">
-				<div className="col-lg-2 col-12" style={{ position: 'sticky', top: 52, alignSelf: 'flex-start', zIndex: 100 }}>
+				<div className="col-lg-3 col-12" style={{ position: 'sticky', top: 52, alignSelf: 'flex-start', zIndex: 100 }}>
 					<CategorySidebar />
 				</div>
 
-				<div className="col-lg-10 col-12">
+				<div className="col-lg-9 col-12">
 					{/* ===== FILTER STRIP ===== */}
 					<div className="filter-strip-wrapper">
 						<div className="filter-strip">
@@ -381,7 +381,7 @@ export default function ProductsPage() {
 									)}
 								</span>
 								<button className="filter-clear-btn" onClick={clearAll}>
-									Clear all ✕
+									Clear filters
 								</button>
 							</motion.div>
 						)}
@@ -405,19 +405,6 @@ export default function ProductsPage() {
 							animate={{ opacity: 1 }}
 							data-testid="no-results"
 						>
-							<div style={{ fontSize: "3rem", marginBottom: 8 }}>
-								{tag === "trending"
-									? "🔥"
-									: tag === "new"
-										? "🆕"
-										: tag === "deals"
-											? "💸"
-											: tag === "sale"
-												? "🏷"
-												: tag === "hot"
-													? "🌶"
-													: "🔍"}
-							</div>
 							<h4 style={{ color: "#555" }}>
 								{tag
 									? `No ${tag} items available right now`
@@ -511,37 +498,39 @@ export default function ProductsPage() {
 
 				/* ===== FILTER PILLS ===== */
 				.filter-pill {
-					padding: 6px 16px;
+					padding: 6px 18px;
 					border-radius: 20px;
 					border: 1.5px solid #dce0e6;
 					background: #f7f8fa;
 					color: #3d414a;
-					font-size: 0.8rem;
+					font-size: 0.82rem;
 					font-weight: 500;
 					cursor: pointer;
-					transition: all 0.2s ease;
+					transition: all 0.18s ease;
 					white-space: nowrap;
 					font-family: inherit;
-					letter-spacing: -0.01em;
+					letter-spacing: 0.01em;
 				}
 				.filter-pill:hover {
 					background: #eef0f4;
-					border-color: #bcc3cd;
-					transform: translateY(-1px);
+					border-color: #183B9B;
+					color: #183B9B;
 				}
 				.filter-pill:active {
 					transform: scale(0.96);
 				}
 
 				.filter-pill-active {
-					background: #0b1a33;
-					color: #fff;
-					border-color: #0b1a33;
-					box-shadow: 0 2px 8px rgba(11, 26, 51, 0.15);
+					background: #183B9B;
+					color: #e18f27;
+					border-color: #183B9B;
+					font-weight: 700;
+					box-shadow: 0 2px 8px rgba(24, 59, 155, 0.18);
 				}
 				.filter-pill-active:hover {
-					background: #1a2d4a;
-					border-color: #1a2d4a;
+					background: #122e7a;
+					border-color: #122e7a;
+					color: #e18f27;
 				}
 
 				/* ===== SORT SELECT ===== */

@@ -32,20 +32,23 @@ export default function ProductCard({ product }) {
         .product-card {
           display: flex;
           flex-direction: column;
-          background: #fff;
+          background: #ffffff;
           border-radius: 10px;
           overflow: hidden;
           border: 1px solid #e8ecf4;
           cursor: pointer;
           position: relative;
           transition: box-shadow 0.22s ease, transform 0.22s ease;
+          /* fixed total height — every card identical regardless of content */
+          height: 330px;
         }
 
-        /* Image wrapper — aspect-ratio keeps it square & proportional */
+        /* Image wrapper — fixed height, not aspect-ratio, so info section
+           always starts at the same Y position                              */
         .product-card__img-wrap {
           position: relative;
           width: 100%;
-          aspect-ratio: 1 / 1;          /* square on every screen size      */
+          height: 180px;
           background: #f7f8fa;
           overflow: hidden;
           flex-shrink: 0;
@@ -59,11 +62,13 @@ export default function ProductCard({ product }) {
           transition: transform 0.28s ease;
         }
 
+        /* info section fills the remaining height exactly */
         .product-card__info {
-          padding: 10px 10px 12px;
+          flex: 1;
+          padding: 9px 10px 10px;
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          overflow: hidden;
         }
 
         /* badge */
@@ -115,11 +120,11 @@ export default function ProductCard({ product }) {
           width: 100%;
           padding: 7px;
           background: #183B9B;
-          color: #fff;
+          color: #e18f27;
           border: none;
           border-radius: 6px;
           font-size: 12px;
-          font-weight: 600;
+          font-weight: 700;
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -145,13 +150,15 @@ export default function ProductCard({ product }) {
           color: #0f172a;
           margin: 0;
           line-height: 1.35;
-          /* clamp to 2 lines */
+          /* always exactly 2 lines — short names don't collapse the row */
+          height: calc(13px * 1.35 * 2);
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
 
+        /* push price to the bottom of the info section */
         .product-card__price {
           font-size: 15px;
           font-weight: 800;
@@ -159,7 +166,7 @@ export default function ProductCard({ product }) {
           display: flex;
           align-items: center;
           gap: 6px;
-          margin-top: 4px;
+          margin-top: auto;
           padding-top: 6px;
           border-top: 1px solid #f0f2f5;
         }
@@ -173,11 +180,13 @@ export default function ProductCard({ product }) {
 
         /* ── Mobile tweaks (≤480px) ── */
         @media (max-width: 480px) {
-          .product-card__info     { padding: 8px 8px 10px; gap: 3px; }
-          .product-card__name     { font-size: 12px; }
-          .product-card__price    { font-size: 13px; margin-top: 3px; padding-top: 5px; }
+          .product-card         { height: 280px; }
+          .product-card__img-wrap { height: 140px; }
+          .product-card__info   { padding: 7px 8px 8px; }
+          .product-card__name   { font-size: 12px; height: calc(12px * 1.35 * 2); }
+          .product-card__price  { font-size: 13px; padding-top: 5px; }
           .product-card__cart-btn { font-size: 11px; padding: 6px; }
-          .product-card__badge    { font-size: 9px; padding: 2px 6px; }
+          .product-card__badge  { font-size: 9px; padding: 2px 6px; }
         }
       `}</style>
 

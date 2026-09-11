@@ -32,14 +32,14 @@ export default function HomePage() {
   return (
     <div data-testid="home-page">
       <PromoCarousel />
-      <CategoryGridBanner />
+      <CategoryGridBanner />        {/* Main Items chip strip */}
       <TrendingProducts products={trendingData?.products ?? []} loading={trendingLoading} />
       <PromoHeader />
       <Hero />
       <NewArrivals products={newData?.products ?? []} loading={newLoading} />
       <TodaysDeals products={dealsData?.products ?? []} loading={dealsLoading} />
       <HotProducts products={hotData?.products ?? []} loading={hotLoading} />
-      <BrandShowcase />
+      <BrandShowcase />              {/* Shop by Brand — hero + 2×2 brand chips */}
       <SaleProducts products={saleData?.products ?? []} loading={saleLoading} />
       <FeaturedVideos />
       <RecentlyViewed />

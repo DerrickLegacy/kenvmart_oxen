@@ -6,127 +6,96 @@ import CartDropdown from './CartDropdown';
 import { siteConfig } from '../../../data/siteConfig';
 import { productsApi, imageUrl } from '../../../services/api';
 
-const DROPDOWN_STYLES = {
+const DROP = {
   container: {
-    position: 'absolute',
-    top: 'calc(100% + 6px)',
-    left: 0,
-    right: 0,
-    zIndex: 60,
-    background: '#fff',
-    border: '1px solid #e6e8eb',
+    position:    'absolute',
+    top:         'calc(100% + 4px)',
+    left:        0,
+    right:       0,
+    zIndex:      1100,          /* must be above sticky header-bottom (999) */
+    background:  '#fff',
+    border:      '1.5px solid #e18f27',
     borderRadius: 10,
-    boxShadow: '0 12px 32px rgba(10, 22, 50, 0.12)',
-    overflow: 'hidden',
+    boxShadow:   '0 12px 32px rgba(10,22,50,0.14)',
+    overflow:    'hidden',
   },
   item: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    padding: '10px 14px',
-    cursor: 'pointer',
-    borderBottom: '1px solid #f2f3f5',
-    transition: 'background 0.15s ease',
+    display:        'flex',
+    alignItems:     'center',
+    gap:            12,
+    padding:        '10px 14px',
+    cursor:         'pointer',
+    borderBottom:   '1px solid #f2f3f5',
+    transition:     'background 0.15s ease',
     textDecoration: 'none',
-    color: 'inherit',
+    color:          'inherit',
   },
   thumb: {
-    width: 48,
-    height: 48,
-    borderRadius: 8,
-    objectFit: 'cover',
-    background: '#f6f7f9',
-    flexShrink: 0,
-    border: '1px solid #eef0f3',
+    width: 44, height: 44,
+    borderRadius: 6,
+    objectFit:   'cover',
+    background:  '#f6f7f9',
+    flexShrink:  0,
+    border:      '1px solid #eef0f3',
   },
-  name: {
-    fontSize: 14,
-    fontWeight: 600,
-    color: '#0b1a33',
-    lineHeight: 1.3,
-    margin: 0,
-  },
-  price: {
-    fontSize: 13,
-    fontWeight: 700,
-    color: '#ef2c4a',
-    marginTop: 2,
-  },
+  name:  { fontSize: 14, fontWeight: 600, color: '#0b1a33', lineHeight: 1.3, margin: 0 },
+  price: { fontSize: 13, fontWeight: 700, color: '#e18f27', marginTop: 2 },
   footer: {
-    padding: '10px 14px',
-    fontSize: 13,
+    padding:    '10px 14px',
+    fontSize:   13,
     fontWeight: 600,
-    color: '#0b1a33',
+    color:      '#183B9B',
     background: '#fafbfd',
-    textAlign: 'center',
-    cursor: 'pointer',
+    textAlign:  'center',
+    cursor:     'pointer',
+    display:    'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
   },
-  empty: {
-    padding: '18px 14px',
-    fontSize: 13,
-    color: '#6c7380',
-    textAlign: 'center',
-  },
-  loading: {
-    padding: '14px 14px',
-    fontSize: 13,
-    color: '#8b929f',
-    textAlign: 'center',
-  },
+  empty:   { padding: '18px 14px', fontSize: 13, color: '#6c7380', textAlign: 'center' },
+  loading: { padding: '14px',      fontSize: 13, color: '#8b929f', textAlign: 'center' },
 };
 
-/**
- * HeaderMiddle
- *
- * Desktop layout (lg+):
- *   [Logo]  [Search — flex:1, inside .main-menu-search]  [Phone]  [♡ Cart]
- *
- * The search form needs .main-menu-search as a parent so the existing CSS rule
- *   `.header .main-menu-search .navbar-search { display: flex; }`
- * fires and keeps input + button on the same row.
- *
- * The cart dropdown needs .navbar-cart → .cart-items so the hover-panel CSS works.
- */
 export default function HeaderMiddle() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sticky, setSticky] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
-  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchTerm,        setSearchTerm]        = useState('');
+  const [sticky,            setSticky]            = useState(false);
+  const [suggestions,       setSuggestions]       = useState([]);
+  const [suggestionsLoading,setSuggestionsLoading]= useState(false);
+  const [dropdownOpen,      setDropdownOpen]      = useState(false);
   const navigate = useNavigate();
 
   const { state: wishlistItems } = useWishlist();
-  const { user, loading, logout } = useAuth();
 
   const searchWrapRef = useRef(null);
-  const debounceRef = useRef(null);
+  const debounceRef   = useRef(null);
 
+  /* sticky on scroll */
   useEffect(() => {
     const onScroll = () => setSticky(window.scrollY > 70);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  /* close on outside click or Escape */
   useEffect(() => {
     const onDocClick = (e) => {
-      if (!searchWrapRef.current) return;
-      if (!searchWrapRef.current.contains(e.target)) setDropdownOpen(false);
+      if (!searchWrapRef.current?.contains(e.target)) setDropdownOpen(false);
     };
     const onKey = (e) => { if (e.key === 'Escape') setDropdownOpen(false); };
     document.addEventListener('mousedown', onDocClick);
-    document.addEventListener('keydown', onKey);
+    document.addEventListener('keydown',   onKey);
     return () => {
       document.removeEventListener('mousedown', onDocClick);
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('keydown',   onKey);
     };
   }, []);
 
+  /* fetch suggestions */
   useEffect(() => {
     const q = searchTerm.trim();
     if (!q) {
-      setSuggestions([]);
-      setSuggestionsLoading(false);
-      setDropdownOpen(false);
+      setSuggestions([]); setSuggestionsLoading(false); setDropdownOpen(false);
       if (debounceRef.current) clearTimeout(debounceRef.current);
       return;
     }
@@ -137,90 +106,103 @@ export default function HeaderMiddle() {
       try {
         const res = await productsApi.list({ q, limit: 6 });
         setSuggestions(res?.products || []);
-      } catch (_err) {
-        setSuggestions([]);
-      } finally {
-        setSuggestionsLoading(false);
-      }
+      } catch { setSuggestions([]); }
+      finally  { setSuggestionsLoading(false); }
     }, 280);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [searchTerm]);
 
-  const handleSearch = (e) => setSearchTerm(e.target.value);
-
-  const handleSearchSubmit = (e) => {
+  const handleSearch      = (e) => setSearchTerm(e.target.value);
+  const handleSearchSubmit= (e) => {
     e.preventDefault();
-    if (searchTerm.trim()) {
-      navigate(`/products?q=${encodeURIComponent(searchTerm.trim())}`);
-    } else {
-      navigate('/products');
-    }
+    navigate(searchTerm.trim()
+      ? `/products?q=${encodeURIComponent(searchTerm.trim())}`
+      : '/products');
     setDropdownOpen(false);
   };
-
-  const onPickSuggestion = (product) => {
-    setDropdownOpen(false);
-    setSearchTerm('');
-    navigate(`/product/${product.id}`);
+  const onPickSuggestion  = (p) => {
+    setDropdownOpen(false); setSearchTerm('');
+    navigate(`/product/${p.id}`);
   };
-
-  const seeAllResultsUrl = useMemo(
+  const seeAllUrl = useMemo(
     () => `/products?q=${encodeURIComponent(searchTerm.trim())}`,
     [searchTerm]
   );
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
-
-  /* Shared suggestions panel — rendered inside whichever search wrapper is visible */
-  const SuggestionsPanel = () => (
+  /* ── Suggestions dropdown ──────────────────────────────────────── */
+  const SuggestionsPanel = () =>
     dropdownOpen && searchTerm.trim() ? (
-      <div style={DROPDOWN_STYLES.container} role="listbox">
-        {suggestionsLoading && (
-          <div style={DROPDOWN_STYLES.loading}>Searching…</div>
-        )}
+      <div style={DROP.container} role="listbox">
+        {suggestionsLoading && <div style={DROP.loading}>Searching…</div>}
+
         {!suggestionsLoading && suggestions.length === 0 && (
-          <div style={DROPDOWN_STYLES.empty}>
+          <div style={DROP.empty}>
             No products match <strong>"{searchTerm.trim()}"</strong>
           </div>
         )}
+
         {!suggestionsLoading && suggestions.map((p) => (
           <div
             key={p.id}
-            style={DROPDOWN_STYLES.item}
+            style={DROP.item}
+            role="option"
             onClick={() => onPickSuggestion(p)}
             onMouseEnter={(e) => (e.currentTarget.style.background = '#f6f7f9')}
             onMouseLeave={(e) => (e.currentTarget.style.background = '')}
-            role="option"
           >
             <img
               src={imageUrl(p.images?.[0] || p.image)}
               alt={p.name}
-              style={DROPDOWN_STYLES.thumb}
+              style={DROP.thumb}
               onError={(e) => { e.currentTarget.src = imageUrl(''); }}
             />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={DROPDOWN_STYLES.name} className="truncate">{p.name}</div>
-              <div style={DROPDOWN_STYLES.price}>
+              <div style={DROP.name} className="truncate">{p.name}</div>
+              <div style={DROP.price}>
                 {p.price_text || `UGX ${(p.price ?? 0).toLocaleString()}`}
               </div>
             </div>
-            <i className="lni lni-arrow-right" style={{ color: '#c2c6cc', fontSize: 14 }} />
+            <i className="lni lni-chevron-right" style={{ color: '#c2c6cc', fontSize: 13 }} />
           </div>
         ))}
+
         {!suggestionsLoading && (
           <Link
-            to={seeAllResultsUrl}
+            to={seeAllUrl}
             onClick={() => setDropdownOpen(false)}
-            style={DROPDOWN_STYLES.footer}
+            style={DROP.footer}
           >
-            See all results for "{searchTerm.trim()}" →
+            See all results for "{searchTerm.trim()}"
           </Link>
         )}
       </div>
-    ) : null
+    ) : null;
+
+  /* ── Search form (reused in desktop + tablet) ──────────────────── */
+  const SearchForm = ({ testId = 'search-input' }) => (
+    <form className="navbar-search search-style-5" onSubmit={handleSearchSubmit}>
+      <div className="search-input">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={handleSearch}
+          onFocus={() => searchTerm.trim() && setDropdownOpen(true)}
+          data-testid={testId}
+          style={{ border: '1.5px solid #e18f27', borderRight: 'none' }}
+        />
+      </div>
+      <div className="search-btn">
+        {/* yellow/orange bg, blue icon */}
+        <button
+          type="submit"
+          aria-label="Search"
+          style={{ background: '#e18f27', borderColor: '#e18f27' }}
+        >
+          <i className="lni lni-search-alt" style={{ color: '#183B9B' }} />
+        </button>
+      </div>
+    </form>
   );
 
   return (
@@ -230,71 +212,38 @@ export default function HeaderMiddle() {
       <div className={`header-middle${sticky ? ' header-middle-sticky' : ''}`}>
         <div className="container">
 
-          {/* ═══════════════════════════════════════════════════════
-              DESKTOP  lg+
-              [Logo] [Search — flex:1] [Phone] [♡] [Cart]
-          ═══════════════════════════════════════════════════════ */}
+          {/* ── DESKTOP lg+ ─────────────────────────────────── */}
           <div
             className="d-none d-lg-flex align-items-center"
             style={{ gap: 20, padding: '8px 0' }}
           >
-
-            {/* Logo */}
             <Link className="navbar-brand" to="/" style={{ flexShrink: 0, lineHeight: 1 }}>
-              <img
-                src="/assets/images/logo/logo.svg"
-                alt={siteConfig.name}
-                style={{ height: 36, display: 'block' }}
-              />
+              <img src="/assets/images/logo/logo.svg" alt={siteConfig.name}
+                style={{ height: 36, display: 'block' }} />
             </Link>
 
-            {/* Search
-                Wrapper must be .main-menu-search so the existing CSS rule
-                `.header .main-menu-search .navbar-search { display: flex }`
-                keeps input and button on the same line.                    */}
+            {/* Search — overflow visible so dropdown is not clipped */}
             <div
               className="main-menu-search"
               ref={searchWrapRef}
-              style={{ flex: 1, position: 'relative' }}
+              style={{ flex: 1, position: 'relative', overflow: 'visible' }}
             >
-              <form className="navbar-search search-style-5" onSubmit={handleSearchSubmit}>
-                <div className="search-input">
-                  <input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchTerm}
-                    onChange={handleSearch}
-                    onFocus={() => searchTerm.trim() && setDropdownOpen(true)}
-                    data-testid="search-input"
-                  />
-                </div>
-                <div className="search-btn">
-                  <button type="submit" aria-label="Search">
-                    <i className="lni lni-search-alt" />
-                  </button>
-                </div>
-              </form>
+              <SearchForm testId="search-input" />
               <SuggestionsPanel />
             </div>
 
-            {/* Right group — phone + wishlist + cart
-                Keep .middle-right-area → .navbar-cart → .cart-items chain
-                intact so the hover-dropdown CSS keeps working.             */}
             <div className="middle-right-area" style={{ flexShrink: 0 }}>
               <div className="nav-hotline">
                 <i className="lni lni-phone" />
                 <h3>
                   <span>
-                    <a
-                      href={`tel:${siteConfig.phoneRaw}`}
-                      style={{ color: 'inherit', textDecoration: 'none' }}
-                    >
+                    <a href={`tel:${siteConfig.phoneRaw}`}
+                      style={{ color: 'inherit', textDecoration: 'none' }}>
                       {siteConfig.phone}
                     </a>
                   </span>
                 </h3>
               </div>
-
               <div className="navbar-cart">
                 <div className="wishlist">
                   <Link to="/wishlist">
@@ -305,47 +254,23 @@ export default function HeaderMiddle() {
                 <CartDropdown />
               </div>
             </div>
-
           </div>
 
-          {/* ═══════════════════════════════════════════════════════
-              TABLET  md–lg
-              [Logo] [Search — flex:1] [♡] [Cart]
-              (phone hidden — not enough room)
-          ═══════════════════════════════════════════════════════ */}
+          {/* ── TABLET md–lg ────────────────────────────────── */}
           <div
             className="d-none d-md-flex d-lg-none align-items-center"
             style={{ gap: 12, padding: '8px 0' }}
           >
             <Link className="navbar-brand" to="/" style={{ flexShrink: 0, lineHeight: 1 }}>
-              <img
-                src="/assets/images/logo/logo.svg"
-                alt={siteConfig.name}
-                style={{ height: 32, display: 'block' }}
-              />
+              <img src="/assets/images/logo/logo.svg" alt={siteConfig.name}
+                style={{ height: 32, display: 'block' }} />
             </Link>
 
-            <div
-              className="main-menu-search"
-              style={{ flex: 1, position: 'relative' }}
-            >
-              <form className="navbar-search search-style-5" onSubmit={handleSearchSubmit}>
-                <div className="search-input">
-                  <input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchTerm}
-                    onChange={handleSearch}
-                    onFocus={() => searchTerm.trim() && setDropdownOpen(true)}
-                    data-testid="search-input-md"
-                  />
-                </div>
-                <div className="search-btn">
-                  <button type="submit" aria-label="Search">
-                    <i className="lni lni-search-alt" />
-                  </button>
-                </div>
-              </form>
+            <div className="main-menu-search"
+              ref={searchWrapRef}
+              style={{ flex: 1, position: 'relative', overflow: 'visible' }}>
+              <SearchForm testId="search-input-md" />
+              <SuggestionsPanel />
             </div>
 
             <div className="navbar-cart" style={{ flexShrink: 0 }}>

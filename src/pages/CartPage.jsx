@@ -145,10 +145,14 @@ export default function CartPage() {
                       <span className="cart-label d-md-none">Qty: </span>
                       <div className="cart-qty-stepper">
                         <button className="cart-qty-btn" aria-label="Decrease"
-                          onClick={() => updateQty(item.productId, item.variant, item.quantity - 1)}>−</button>
+                          onClick={() => updateQty(item.productId, item.variant, item.quantity - 1)}>
+                          <i className="lni lni-minus" />
+                        </button>
                         <span className="cart-qty-value">{item.quantity}</span>
                         <button className="cart-qty-btn" aria-label="Increase"
-                          onClick={() => updateQty(item.productId, item.variant, item.quantity + 1)}>+</button>
+                          onClick={() => updateQty(item.productId, item.variant, item.quantity + 1)}>
+                          <i className="lni lni-plus" />
+                        </button>
                       </div>
                     </div>
 
