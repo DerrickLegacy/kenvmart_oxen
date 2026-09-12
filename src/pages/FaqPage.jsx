@@ -39,7 +39,6 @@ export default function FaqPage() {
                       id={`faq-question-${index}`}
                     >
                       <span>{item.q}</span>
-                      <i className={`lni ${isOpen ? 'lni-chevron-up' : 'lni-chevron-down'}`}></i>
                     </button>
                     {isOpen && (
                       <div

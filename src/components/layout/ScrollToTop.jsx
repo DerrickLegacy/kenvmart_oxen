@@ -23,7 +23,7 @@ export default function ScrollToTop() {
       className="scroll-top"
       aria-label="Scroll to top"
     >
-      <i className="lni lni-chevron-up"></i>
+      ↑
     </button>
   );
 }

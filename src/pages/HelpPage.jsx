@@ -92,7 +92,6 @@ function Accordion({ items }) {
               aria-expanded={isOpen}
             >
               <span>{item.q}</span>
-              <i className={`lni ${isOpen ? 'lni-chevron-up' : 'lni-chevron-down'}`} />
             </button>
             {isOpen && <div className="help-accordion-a"><p>{item.a}</p></div>}
           </div>

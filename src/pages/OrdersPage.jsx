@@ -28,7 +28,7 @@ const formatDate = (iso) =>
     hour: "2-digit",
     minute: "2-digit",
   });
-const formatPrice = (p) => `UGX ${Number(p).toLocaleString()}`;
+const formatPrice = (p) => `Shs. ${Number(p).toLocaleString()}`;
 
 function QtyStepper({ value, onDecrement, onIncrement }) {
   return (
@@ -149,7 +149,7 @@ export default function OrdersPage() {
 
   if (!user && !loading) {
     return (
-      <section className="">
+      <section className="section">
         <div className="container">
           <div data-testid="orders-page" className="orsders-page">
             <div className="my-4">
@@ -226,16 +226,16 @@ export default function OrdersPage() {
 
         {/* ── Promotional banner ──────────────────────────────────────── */}
         <div style={{
-          background:    'linear-gradient(135deg, #183B9B 0%, #1e4dbf 100%)',
-          borderRadius:  12,
-          padding:       '18px 24px',
-          marginBottom:  24,
-          display:       'flex',
-          alignItems:    'center',
-          justifyContent:'space-between',
-          gap:           16,
-          flexWrap:      'wrap',
-          color:         '#fff',
+          background: 'linear-gradient(135deg, #183B9B 0%, #1e4dbf 100%)',
+          borderRadius: 12,
+          padding: '18px 24px',
+          marginBottom: 24,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+          flexWrap: 'wrap',
+          color: '#fff',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <span style={{ fontSize: 32 }}>🎉</span>
@@ -251,18 +251,18 @@ export default function OrdersPage() {
           <a
             href="/products?tag=new"
             style={{
-              background:    '#fff',
-              color:         '#183B9B',
-              fontWeight:    700,
-              fontSize:      13,
-              padding:       '9px 22px',
-              borderRadius:  999,
-              textDecoration:'none',
-              whiteSpace:    'nowrap',
-              flexShrink:    0,
+              background: '#fff',
+              color: '#183B9B',
+              fontWeight: 700,
+              fontSize: 13,
+              padding: '9px 22px',
+              borderRadius: 999,
+              textDecoration: 'none',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
-            Shop Now →
+            Shop Now
           </a>
         </div>
 
@@ -325,9 +325,7 @@ export default function OrdersPage() {
                       >
                         {order.status}
                       </span>
-                      <i
-                        className={`lni ${isOpen ? "lni-chevron-up" : "lni-chevron-down"} oah-caret`}
-                      ></i>
+
                     </div>
                   </button>
 

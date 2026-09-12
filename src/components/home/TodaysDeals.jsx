@@ -15,8 +15,8 @@ export default function TodaysDeals({ products = [], loading = false }) {
               <div className="section-title-categories" style={{ marginBottom: 0 }}>
                 <h2>Check Out Today's Greatest Deals.</h2>
               </div>
-              <Link to="/products?tag=deals" style={VIEW_MORE_STYLES.button}>
-                View More <span aria-hidden>→</span>
+              <Link to="/products?tag=deals" style={VIEW_MORE_STYLES.button} className="btn">
+                View More
               </Link>
             </div>
           </div>

@@ -9,7 +9,7 @@ import OrdersPage         from './pages/OrdersPage';
 import LoginPage          from './pages/LoginPage';
 import RegisterPage       from './pages/RegisterPage';
 import AboutPage          from './pages/AboutPage';
-import FaqPage            from './pages/FaqPage';
+import CookiesPolicyPage  from './pages/CookiesPolicyPage';
 import ContactPage        from './pages/ContactPage';
 import NotFoundPage       from './pages/NotFoundPage';
 import WishlistPage       from './pages/WishlistPage';
@@ -42,7 +42,8 @@ export default function App() {
           <Route path="settings"         element={<SettingsPage />} />
           <Route path="help"             element={<HelpPage />} />
           <Route path="about"            element={<AboutPage />} />
-          <Route path="faq"              element={<FaqPage />} />
+          <Route path="faq"              element={<CookiesPolicyPage />} />
+          <Route path="cookies-policy"   element={<CookiesPolicyPage />} />
           <Route path="contact"          element={<ContactPage />} />
           <Route path="checkout"         element={<CartPage />} />
           <Route path="*"                element={<NotFoundPage />} />

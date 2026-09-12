@@ -15,7 +15,7 @@ export const products = [
     specifications: { "Driver Size": "10mm", "Frequency Response": "20Hz–20kHz", "Bluetooth": "5.3", "Playtime (buds)": "7 hours", "Total Playtime": "30 hours", "Charging": "USB-C", "Water Resistance": "IPX5" },
     variants: ["Black", "White"],
     colors: ["#1a1a1a", "#f5f5f5"],
-    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "UGX 5,000" }],
+    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "Shs. 5,000" }],
   },
   {
     id: "prod-002",
@@ -33,7 +33,7 @@ export const products = [
     specifications: { "Output Power": "65W max", "Port": "USB-C", "Input": "100–240V AC", "Technology": "GaN", "Dimensions": "38 × 38 × 38 mm", "Weight": "65 g" },
     variants: ["65W USB-C"],
     colors: ["#1a1a1a"],
-    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "UGX 5,000" }],
+    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "Shs. 5,000" }],
   },
   {
     id: "prod-003",
@@ -51,7 +51,7 @@ export const products = [
     specifications: { "Length": "150 cm", "Max Power": "60W", "Data Speed": "480 Mbps", "Connector": "USB-C to USB-C", "Material": "Nylon Braided" },
     variants: ["150cm"],
     colors: ["#1a1a1a"],
-    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "UGX 5,000" }],
+    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "Shs. 5,000" }],
   },
   {
     id: "prod-004",
@@ -69,7 +69,7 @@ export const products = [
     specifications: { "Capacity": "20,000 mAh", "Input": "USB-C 18W", "Output 1": "USB-A 18W", "Output 2": "USB-A 12W", "Output 3": "USB-C 18W", "Weight": "320 g", "Dimensions": "16 × 7.5 × 1.8 cm" },
     variants: ["20,000mAh", "10,000mAh"],
     colors: ["#1a1a1a", "#ffffff"],
-    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "UGX 5,000" }],
+    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "Shs. 5,000" }],
   },
   {
     id: "prod-005",
@@ -87,7 +87,7 @@ export const products = [
     specifications: { "Hardness": "9H", "Transparency": "99%", "Thickness": "0.33mm", "Material": "Tempered Glass", "Compatibility": "Universal (multiple models available)" },
     variants: ["Samsung A series", "iPhone 14/15 series", "Tecno Spark series", "Infinix series"],
     colors: ["#transparent"],
-    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "UGX 5,000" }],
+    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "Shs. 5,000" }],
   },
   {
     id: "prod-006",
@@ -105,7 +105,7 @@ export const products = [
     specifications: { "Bluetooth": "5.0", "Playtime": "12 hours", "Water Resistance": "IPX5", "Driver": "5W × 2", "Charging": "USB-C", "Weight": "460 g" },
     variants: ["Black", "Blue", "Red"],
     colors: ["#1a1a1a", "#1e3a8a", "#b91c1c"],
-    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "UGX 5,000" }],
+    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "Shs. 5,000" }],
   },
   {
     id: "prod-007",
@@ -123,7 +123,7 @@ export const products = [
     specifications: { "Connector": "3.5mm", "Driver Size": "8mm", "Cable Length": "120 cm", "Impedance": "16Ω", "Sensitivity": "105 dB", "Microphone": "Yes" },
     variants: ["3.5mm", "USB-C"],
     colors: ["#1a1a1a", "#ffffff"],
-    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "UGX 5,000" }],
+    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "Shs. 5,000" }],
   },
   {
     id: "prod-008",
@@ -141,6 +141,6 @@ export const products = [
     specifications: { "Display": "1.7-inch TFT, 240×280", "Battery": "230mAh — 7 days", "Water Resistance": "IP68", "Bluetooth": "5.0", "Compatibility": "iOS 8+ / Android 4.4+", "Weight": "38 g" },
     variants: ["Black", "Pink", "Silver"],
     colors: ["#1a1a1a", "#f9a8d4", "#c0c0c0"],
-    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "UGX 5,000" }],
+    shippingOptions: [{ method: "Standard Delivery", duration: "2–4 business days", cost: "Free" }, { method: "Express Delivery", duration: "Same day", cost: "Shs. 5,000" }],
   },
 ];

@@ -25,6 +25,7 @@
     "logs:list": "node server/utils/readLogs.js --list"
   },
   "dependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.3.3",
     "dotenv": "^16.6.1",
@@ -37,9 +38,9 @@
     "react-dom": "^19.2.7",
     "react-icons": "^5.7.0",
     "react-router-dom": "^7.18.1",
+    "sonner": "^2.0.8",
     "tiny-slider": "2.9.4",
-    "vite": "^5.4.11",
-    "@vitejs/plugin-react": "^4.7.0"
+    "vite": "^5.4.11"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

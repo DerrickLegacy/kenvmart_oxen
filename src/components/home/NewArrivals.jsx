@@ -15,8 +15,8 @@ export default function NewArrivals({ products = [], loading = false }) {
               <div className="section-title-categories" style={{ marginBottom: 0 }}>
                 <h2>New Arrivals.</h2>
               </div>
-              <Link to="/products?tag=new" style={VIEW_MORE_STYLES.button}>
-                View More <span aria-hidden>→</span>
+              <Link to="/products?tag=new" style={VIEW_MORE_STYLES.button} className="btn">
+                View More
               </Link>
             </div>
           </div>

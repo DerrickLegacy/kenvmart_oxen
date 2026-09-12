@@ -63,26 +63,6 @@ export default function HeroSlider({ slides = [] }) {
         ))}
       </div>
 
-      {/* Prev / Next arrows */}
-      {slides.length > 1 && (
-        <>
-          <button
-            className="hero-slider-arrow hero-slider-prev"
-            onClick={() => { prev(); resetTimer(); }}
-            aria-label="Previous slide"
-          >
-            <i className="lni lni-chevron-left"></i>
-          </button>
-          <button
-            className="hero-slider-arrow hero-slider-next"
-            onClick={() => { next(); resetTimer(); }}
-            aria-label="Next slide"
-          >
-            <i className="lni lni-chevron-right"></i>
-          </button>
-        </>
-      )}
-
       {/* Dot navigation */}
       {slides.length > 1 && (
         <div className="hero-slider-dots" role="tablist">

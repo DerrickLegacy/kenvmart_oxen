@@ -39,15 +39,15 @@ export default function CookieBanner() {
           z-index: 9999;
           background: #0f172a;
           color: #e2e8f0;
-          padding: 14px 20px;
+          padding: 10px 24px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 16px;
-          flex-wrap: wrap;
           box-shadow: 0 -2px 16px rgba(0,0,0,0.18);
           font-size: 13px;
-          line-height: 1.5;
+          line-height: 1.4;
+          min-height: 0;
         }
 
         .cookie-banner__text {
@@ -70,13 +70,14 @@ export default function CookieBanner() {
         }
 
         .cookie-btn {
-          padding: 8px 20px;
+          padding: 6px 16px;
           border-radius: 6px;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 600;
           cursor: pointer;
           transition: opacity 0.15s ease;
           font-family: inherit;
+          white-space: nowrap;
         }
         .cookie-btn:hover { opacity: 0.85; }
 
@@ -107,7 +108,7 @@ export default function CookieBanner() {
         <p className="cookie-banner__text">
           We use cookies to improve your experience and show you personalised content.
           By continuing you agree to our{" "}
-          <Link to="/faq">Privacy Policy</Link>.
+          <Link to="/cookies-policy">Cookies Policy</Link>.
         </p>
         <div className="cookie-banner__actions">
           <button className="cookie-btn cookie-btn--decline" onClick={decline} type="button">

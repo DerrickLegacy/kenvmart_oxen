@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCart }    from '../context/CartContext';
-import { useAuth }    from '../context/AuthContext';
+import { toast } from 'sonner';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { ordersApi, cartApi } from '../services/api';
 import Breadcrumb from '../components/layout/Breadcrumb';
 
-const formatPrice = (p) => `${Number(p).toLocaleString()}`;
+const formatPrice = (p) => `Shs. ${Number(p).toLocaleString()}`;
 
 export default function CartPage() {
   const { state: cartItems, dispatch } = useCart();
   const { user } = useAuth();
-  const navigate  = useNavigate();
-  const [sending, setSending]   = useState(false);
-  const [sent,    setSent]      = useState(false);
-  const [error,   setError]     = useState('');
+  const navigate = useNavigate();
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -21,37 +22,64 @@ export default function CartPage() {
     const clamped = Math.min(Math.max(qty, 1), 99);
     dispatch({ type: 'UPDATE_QUANTITY', payload: { productId, variant, quantity: clamped } });
     if (user) {
-      cartApi.update(productId, clamped, variant).catch(() => {});
+      cartApi.update(productId, clamped, variant).catch(() => { });
     }
   };
 
   const removeItem = (productId, variant) => {
     dispatch({ type: 'REMOVE_FROM_CART', payload: { productId, variant } });
     if (user) {
-      cartApi.remove(productId, variant).catch(() => {});
+      cartApi.remove(productId, variant).catch(() => { });
     }
   };
 
   const handleSendOrder = async () => {
     if (cartItems.length === 0) return;
+
+    /* require login */
+    if (!user) {
+      toast.error('Please sign in to place an order.', {
+        description: 'Create a free account or log in to continue.',
+        action: {
+          label: 'Sign In',
+          onClick: () => navigate('/login', { state: { from: { pathname: '/cart' } } }),
+        },
+        duration: 5000,
+      });
+      return;
+    }
+
     setSending(true);
     setError('');
     try {
-      if (user) {
-        const items = cartItems.map(item => ({
-          product_id:     item.productId,
-          name:           item.name,
-          price:          item.price,
-          original_price: item.originalPrice ?? item.price,
-          quantity:       item.quantity,
-          variant:        item.variant ?? null,
-          image:          item.image ?? null,
-        }));
-        await ordersApi.place(items);
-        await cartApi.clear();
-      }
+      const items = cartItems.map(item => ({
+        product_id: item.productId,
+        name: item.name,
+        price: item.price,
+        original_price: item.originalPrice ?? item.price,
+        quantity: item.quantity,
+        variant: item.variant ?? null,
+        image: item.image ?? null,
+      }));
+      await ordersApi.place(items);
+      await cartApi.clear();
       dispatch({ type: 'CLEAR_CART' });
       setSent(true);
+
+      toast.success('Order sent successfully!', {
+        description: 'Your order has been received and is being reviewed.',
+        position: 'top-center',
+        duration: 4000,
+        style: {
+          background: '#fff',
+          border: '1.5px solid #e18f27',
+          color: '#0f172a',
+        },
+        classNames: {
+          icon: 'text-green-600',
+        },
+      });
+
       setTimeout(() => navigate('/orders'), 1800);
     } catch (err) {
       setError(err.message ?? 'Failed to place order. Please try again.');
@@ -110,7 +138,7 @@ export default function CartPage() {
               </div>
 
               {cartItems.map(item => {
-                const key      = `${item.productId}::${item.variant ?? ''}`;
+                const key = `${item.productId}::${item.variant ?? ''}`;
                 const subtotal = item.price * item.quantity;
                 return (
                   <div key={key} className="cart-row" data-testid="cart-item">
@@ -175,7 +203,7 @@ export default function CartPage() {
 
             <div className="cart-actions mb-3">
               <Link to="/products" className="btn cart-continue-btn">
-                <i className="lni lni-arrow-left"></i> Continue Shopping
+                Continue Shopping
               </Link>
             </div>
           </div>
@@ -203,14 +231,13 @@ export default function CartPage() {
 
               {!user && (
                 <p className="cart-summary-note">
-                  <i className="lni lni-information"></i>&nbsp;
                   <Link to="/login" state={{ from: { pathname: '/cart' } }}>Sign in</Link>
                   {' '}to save your order history.
                 </p>
               )}
 
               <p className="cart-summary-note">
-                <i className="lni lni-information"></i>&nbsp;
+
                 No payment required — we&apos;ll review your order and contact you about shipping.
               </p>
 

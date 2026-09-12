@@ -15,8 +15,8 @@ export default function HotProducts({ products = [], loading = false }) {
               <div className="section-title-categories" style={{ marginBottom: 0 }}>
                 <h2>Hot Products. 🔥</h2>
               </div>
-              <Link to="/products?tag=hot" style={VIEW_MORE_STYLES.button}>
-                View More <span aria-hidden>→</span>
+              <Link className="btn" to="/products?tag=hot" style={VIEW_MORE_STYLES.button}>
+                View More
               </Link>
             </div>
           </div>

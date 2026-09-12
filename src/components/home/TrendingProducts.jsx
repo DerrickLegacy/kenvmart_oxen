@@ -15,8 +15,8 @@ export default function TrendingProducts({ products = [], loading = false }) {
               <div className="section-title-categories" style={{ marginBottom: 0 }}>
                 <h2>Trending Products.</h2>
               </div>
-              <Link to="/products?tag=trending" style={VIEW_MORE_STYLES.button}>
-                View More <span aria-hidden>→</span>
+              <Link to="/products?tag=trending" style={VIEW_MORE_STYLES.button} className="btn">
+                View More
               </Link>
             </div>
           </div>

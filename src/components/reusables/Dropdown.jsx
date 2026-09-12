@@ -30,7 +30,6 @@ function Dropdown({
         aria-haspopup="true"
       >
         <i className={buttonIcon}></i> {buttonLabel}
-        <i className={`lni lni-chevron-down topbar-caret${open ? " open" : ""}`}></i>
       </button>
 
       <AnimatePresence>

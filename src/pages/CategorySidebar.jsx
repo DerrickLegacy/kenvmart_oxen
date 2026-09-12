@@ -55,9 +55,6 @@ function SidebarMenu({ onClose }) {
               aria-expanded={!!open[cat.title]}
             >
               {cat.title}
-              <i
-                className={`lni ${open[cat.title] ? "lni-chevron-down" : "lni-chevron-right"}`}
-              ></i>
             </button>
             {open[cat.title] && (
               <ul className="inner-sub-category static">

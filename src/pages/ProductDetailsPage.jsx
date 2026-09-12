@@ -142,6 +142,13 @@ export default function ProductDetailsPage() {
       payload: { product, variant, quantity },
     });
 
+    if (isWishlisted) {
+      wishlistDispatch({ type: "REMOVE_FROM_WISHLIST", payload: { productId: product.id } });
+      if (user) {
+        try { await wishlistApi.remove(product.id); } catch { }
+      }
+    }
+
     if (user) {
       setApiBusy(true);
       try {
@@ -161,12 +168,12 @@ export default function ProductDetailsPage() {
     if (isWishlisted) {
       wishlistDispatch({ type: "REMOVE_FROM_WISHLIST", payload: { productId: product.id } });
       if (user) {
-        try { await wishlistApi.remove(product.id); } catch {}
+        try { await wishlistApi.remove(product.id); } catch { }
       }
     } else {
       wishlistDispatch({ type: "ADD_TO_WISHLIST", payload: { product } });
       if (user) {
-        try { await wishlistApi.add(product.id); } catch {}
+        try { await wishlistApi.add(product.id); } catch { }
       }
     }
   };
@@ -174,7 +181,7 @@ export default function ProductDetailsPage() {
   const hasDiscount = (product.discount_price ?? product.discountPrice) != null;
 
   return (
-    <div data-testid="product-details-page">
+    <div data-testid="product-details-page mt-3">
       <section className="item-details mb-3">
         <div className="container">
           <Breadcrumb
@@ -374,7 +381,7 @@ export default function ProductDetailsPage() {
                       >
                         <i className="lni lni-checkmark-circle"></i> Added to cart!{" "}
                         <Link to="/cart" className="cart-toast-link">
-                          View Cart →
+                          View Cart
                         </Link>
                       </motion.div>
                     )}
@@ -415,22 +422,22 @@ export default function ProductDetailsPage() {
                   <div className="info-body">
                     {product.specifications &&
                       Object.keys(product.specifications).length > 0 && (
-                      <>
-                        <h4>Specifications</h4>
-                        <ul
-                          className="normal-list"
-                          data-testid="product-specifications"
-                        >
-                          {Object.entries(product.specifications).map(
-                            ([key, val]) => (
-                              <li key={key}>
-                                <span>{key}:</span> {String(val)}
-                              </li>
-                            ),
-                          )}
-                        </ul>
-                      </>
-                    )}
+                        <>
+                          <h4>Specifications</h4>
+                          <ul
+                            className="normal-list"
+                            data-testid="product-specifications"
+                          >
+                            {Object.entries(product.specifications).map(
+                              ([key, val]) => (
+                                <li key={key}>
+                                  <span>{key}:</span> {String(val)}
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        </>
+                      )}
 
                     {product.shipping_options &&
                       product.shipping_options.length > 0 && (
@@ -472,7 +479,7 @@ export default function ProductDetailsPage() {
                   </div>
                 </div>
               </div>
-            </div>                
+            </div>
 
           </div>
 

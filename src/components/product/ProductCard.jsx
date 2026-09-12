@@ -7,18 +7,18 @@ import StarRating from './StarRating';
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
   const { state: wishlistItems, dispatch } = useWishlist();
-  const [isHovered,     setIsHovered]     = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [isCartHovered, setIsCartHovered] = useState(false);
 
-  const isWishlisted  = wishlistItems.some(i => i.productId === product.id);
+  const isWishlisted = wishlistItems.some(i => i.productId === product.id);
   const discountPrice = product.discount_price ?? product.discountPrice;
-  const salePercent   = product.sale_percent   ?? product.salePercent;
-  const imageSrc      = product.images?.[0]    || '/assets/images/placeholder.png';
+  const salePercent = product.sale_percent ?? product.salePercent;
+  const imageSrc = product.images?.[0] || '/assets/images/placeholder.png';
 
   const toggleWishlist = (e) => {
     e.stopPropagation();
     dispatch({
-      type:    isWishlisted ? 'REMOVE_FROM_WISHLIST' : 'ADD_TO_WISHLIST',
+      type: isWishlisted ? 'REMOVE_FROM_WISHLIST' : 'ADD_TO_WISHLIST',
       payload: isWishlisted ? { productId: product.id } : { product },
     });
   };
@@ -35,12 +35,14 @@ export default function ProductCard({ product }) {
           background: #ffffff;
           border-radius: 10px;
           overflow: hidden;
-          border: 1px solid #e8ecf4;
+          border: 1.5px solid #e8ecf4;
           cursor: pointer;
           position: relative;
-          transition: box-shadow 0.22s ease, transform 0.22s ease;
-          /* fixed total height — every card identical regardless of content */
+          transition: box-shadow 0.22s ease, transform 0.22s ease, border-color 0.22s ease;
           height: 330px;
+        }
+        .product-card:hover {
+          border-color: #e18f27;
         }
 
         /* Image wrapper — fixed height, not aspect-ratio, so info section
@@ -90,9 +92,9 @@ export default function ProductCard({ product }) {
           position: absolute;
           top: 8px;
           right: 8px;
-          width: 30px;
-          height: 30px;
-          border: none;
+          width: 32px;
+          height: 32px;
+          border: 1.5px solid #e18f27;
           border-radius: 50%;
           background: #fff;
           font-size: 15px;
@@ -101,9 +103,37 @@ export default function ProductCard({ product }) {
           align-items: center;
           justify-content: center;
           z-index: 4;
-          transition: color 0.15s ease;
+          transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
           padding: 0;
           box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+        }
+        .product-card__wish:hover {
+          background: #e18f27;
+          border-color: #e18f27;
+          color: #fff !important;
+        }
+        /* tooltip */
+        .product-card__wish::after {
+          content: attr(data-tip);
+          position: absolute;
+          top: calc(100% + 6px);
+          right: 0;
+          background: #0f172a;
+          color: #fff;
+          font-size: 11px;
+          font-weight: 500;
+          white-space: nowrap;
+          padding: 4px 8px;
+          border-radius: 5px;
+          pointer-events: none;
+          opacity: 0;
+          transform: translateY(-4px);
+          transition: opacity 0.15s ease, transform 0.15s ease;
+          z-index: 10;
+        }
+        .product-card__wish:hover::after {
+          opacity: 1;
+          transform: translateY(0);
         }
 
         /* add-to-cart overlay */
@@ -195,6 +225,8 @@ export default function ProductCard({ product }) {
         style={{
           boxShadow: isHovered ? '0 6px 20px rgba(0,0,0,0.11)' : '0 1px 3px rgba(0,0,0,0.05)',
           transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
+          borderColor: isHovered ? '#e18f27' : '#e8ecf4',
+          borderWidth: isHovered ? '2px' : '1.5px',
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => { setIsHovered(false); setIsCartHovered(false); }}
@@ -237,6 +269,7 @@ export default function ProductCard({ product }) {
             style={{ color: isWishlisted ? '#ef2c4a' : '#9ca3af' }}
             onClick={toggleWishlist}
             aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            data-tip={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
           >
             <i className={isWishlisted ? 'lni lni-heart-filled' : 'lni lni-heart'} />
           </button>
@@ -245,7 +278,7 @@ export default function ProductCard({ product }) {
           <div
             className="product-card__cart-overlay"
             style={{
-              opacity:   isHovered ? 1 : 0,
+              opacity: isHovered ? 1 : 0,
               transform: isHovered ? 'translateY(0)' : 'translateY(8px)',
               pointerEvents: isHovered ? 'auto' : 'none',
             }}
@@ -282,11 +315,11 @@ export default function ProductCard({ product }) {
           <div className="product-card__price">
             {discountPrice ? (
               <>
-                <span>Shs {fmt(discountPrice)}</span>
-                <span className="product-card__price-old">Shs {fmt(product.price)}</span>
+                <span>Shs. {fmt(discountPrice)}</span>
+                <span className="product-card__price-old">Shs. {fmt(product.price)}</span>
               </>
             ) : (
-              <span>Shs {fmt(product.price)}</span>
+              <span>Shs. {fmt(product.price)}</span>
             )}
           </div>
         </div>

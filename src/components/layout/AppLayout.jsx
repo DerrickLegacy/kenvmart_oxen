@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import Header from './Header/Header';
 import Footer from './Footer/Footer';
 import ScrollToTop from './ScrollToTop';
@@ -9,11 +10,14 @@ export default function AppLayout() {
   return (
     <>
       <Header />
-      <Outlet />
+      <main className="app-main-content">
+        <Outlet />
+      </main>
       <Footer />
       <ScrollToTop />
       <Preloader />
       <CookieBanner />
+      <Toaster position="top-right" richColors closeButton />
     </>
   );
 }

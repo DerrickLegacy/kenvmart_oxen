@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import ProductCard from '../product/ProductCard';
 
@@ -18,37 +18,6 @@ export default function RecentlyViewed() {
   const products = getRecentlyViewed();
   const scrollRef = useRef(null);
 
-  const [showLeft, setShowLeft] = useState(false);
-  const [showRight, setShowRight] = useState(false);
-
-  const updateArrows = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setShowLeft(el.scrollLeft > 5);
-    setShowRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 5);
-  };
-
-  useEffect(() => {
-    updateArrows();
-    const el = scrollRef.current;
-    if (!el) return;
-    el.addEventListener('scroll', updateArrows);
-    window.addEventListener('resize', updateArrows);
-    return () => {
-      el.removeEventListener('scroll', updateArrows);
-      window.removeEventListener('resize', updateArrows);
-    };
-  }, [products.length]);
-
-  const scroll = (dir) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollBy({
-      left: dir === 'left' ? -(el.clientWidth * 0.8) : el.clientWidth * 0.8,
-      behavior: 'smooth'
-    });
-  };
-
   if (!products.length) return null;
 
   return (
@@ -62,39 +31,7 @@ export default function RecentlyViewed() {
           </div>
         </div>
 
-        {/* Carousel wrapper with relative positioning */}
-        <div className="position-relative" style={{ padding: '0 40px' }}>
-          {/* Left Arrow */}
-          {showLeft && (
-            <button
-              className="rv-arrow rv-arrow-left"
-              onClick={() => scroll('left')}
-              aria-label="Scroll left"
-              style={{
-                position: 'absolute',
-                left: '0',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 10,
-                background: 'white',
-                border: '1px solid #ddd',
-                borderRadius: '50%',
-                width: '40px',
-                height: '40px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '24px',
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                transition: 'all 0.2s'
-              }}
-            >
-              ‹
-            </button>
-          )}
-
-          {/* Scroll container */}
+        <div className="position-relative">
           <div
             ref={scrollRef}
             className="d-flex overflow-auto"
@@ -125,36 +62,6 @@ export default function RecentlyViewed() {
               </motion.div>
             ))}
           </div>
-
-          {/* Right Arrow */}
-          {showRight && (
-            <button
-              className="rv-arrow rv-arrow-right"
-              onClick={() => scroll('right')}
-              aria-label="Scroll right"
-              style={{
-                position: 'absolute',
-                right: '0',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 10,
-                background: 'white',
-                border: '1px solid #ddd',
-                borderRadius: '50%',
-                width: '40px',
-                height: '40px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '24px',
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                transition: 'all 0.2s'
-              }}
-            >
-              ›
-            </button>
-          )}
         </div>
       </div>
       <hr />

@@ -135,7 +135,7 @@ const VideoCard = ({ video, height, isMobile }) => {
           fontWeight: 600,
           color: '#fff',
         }}>
-          {video.buttonText} →
+          {video.buttonText}
         </span>
       </div>
     </div>

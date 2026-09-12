@@ -14,7 +14,7 @@ export const heroSlides = [
     heading: "20,000mAh Power — Never Run Out",
     subheading: "Slim power banks that charge your phone up to 5 times on a single charge.",
     prodId: "prod-004",
-    price: "UGX 72,000",
+    price: "Shs. 72,000",
   },
 ];
 

@@ -155,7 +155,7 @@ export default function PriceFilter() {
 
       {/* Header */}
       <div className="pf-header">
-        <span className="pf-title">Price (UGX)</span>
+        <span className="pf-title">Price (Shs.)</span>
         <button className="pf-apply" onClick={apply} type="button">
           Apply
         </button>

@@ -6,14 +6,14 @@ import { useCart } from "../../../context/CartContext";
 import CartDropdown from "./CartDropdown";
 import { siteConfig } from "../../../data/siteConfig";
 
-export default function HeaderBottom() {
+export default function HeaderBottom({ sticky = false }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { state: wishlistItems } = useWishlist();
   const { state: cartItems } = useCart();
   const totalCartItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="header-bottom">
+    <div className={`header-bottom${sticky ? ' header-bottom--stuck' : ''}`}>
       <div className="container">
 
         {/* ════════════════════════════════════════

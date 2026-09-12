@@ -14,8 +14,8 @@ function PromoCarousel() {
           onSelect={setIndex}
           interval={5000}
           className="promo-carousel"
-          prevIcon={<span className="promo-carousel-arrow promo-carousel-arrow--prev">&#8249;</span>}
-          nextIcon={<span className="promo-carousel-arrow promo-carousel-arrow--next">&#8250;</span>}
+          prevIcon={<span className="promo-carousel-arrow" aria-hidden="true"><i className="lni lni-chevron-left"></i></span>}
+          nextIcon={<span className="promo-carousel-arrow" aria-hidden="true"><i className="lni lni-chevron-right"></i></span>}
         >
 
           {/* ── Slide 1 — Earphones ─────────────────────────────────── */}
@@ -78,13 +78,13 @@ function PromoCarousel() {
               </div>
               <div className="promo-power-chips">
                 {[
-                  { href: '/products?q=charger',    img: 'assets/images/carousel/floating-ark-charger-2-65W.png',  label: 'Chargers' },
-                  { href: '/products?q=power+bank', img: 'assets/images/carousel/floating-ark-power-bank.png',    label: 'Power Banks' },
-                  { href: '/products?q=headset',    img: 'assets/images/carousel/floating-ark-earbuds.png',       label: 'Headsets' },
+                  { href: '/products?q=charger', img: 'assets/images/carousel/floating-ark-charger-2-65W.png', label: 'Chargers' },
+                  { href: '/products?q=power+bank', img: 'assets/images/carousel/floating-ark-power-bank.png', label: 'Power Banks' },
+                  { href: '/products?q=headset', img: 'assets/images/carousel/floating-ark-earbuds.png', label: 'Headsets' },
                 ].map(({ href, img, label }) => (
                   <Link key={label} to={href} className="promo-power-chip">
                     <img src={img} alt={label} />
-                    <span>{label} ›</span>
+                    <span>{label}</span>
                   </Link>
                 ))}
               </div>

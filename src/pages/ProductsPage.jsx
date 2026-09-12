@@ -232,10 +232,10 @@ function Pagination({ current, total, onChange }) {
 
 const TAG_FILTERS = [
 	{ label: "Trending", value: "trending" },
-	{ label: "New",      value: "new"      },
-	{ label: "Deals",    value: "deals"    },
-	{ label: "Sale",     value: "sale"     },
-	{ label: "Hot",      value: "hot"      },
+	{ label: "New", value: "new" },
+	{ label: "Deals", value: "deals" },
+	{ label: "Sale", value: "sale" },
+	{ label: "Hot", value: "hot" },
 ];
 
 const SORT_OPTIONS = [
@@ -310,158 +310,159 @@ export default function ProductsPage() {
 	const isFiltered = q || category || tag || minPrice || maxPrice;
 
 	return (
-		<div className="container">
-			<Breadcrumb crumbs={[{ label: "Home", to: "/" }, { label: "Shop" }]} />
+		<div className="section">
+			<div className=" container">
+				<Breadcrumb crumbs={[{ label: "Home", to: "/" }, { label: "Shop" }]} />
 
-			<div className="row">
-				<div className="col-lg-3 col-12" style={{ position: 'sticky', top: 52, alignSelf: 'flex-start', zIndex: 100 }}>
-					<CategorySidebar />
-				</div>
-
-				<div className="col-lg-9 col-12">
-					{/* ===== FILTER STRIP ===== */}
-					<div className="filter-strip-wrapper">
-						<div className="filter-strip">
-							<div className="filter-buttons">
-								{TAG_FILTERS.map((tf) => (
-									<motion.button
-										key={tf.value}
-										className={`filter-pill ${tag === tf.value ? "filter-pill-active" : ""}`}
-										onClick={() => setParam("tag", tag === tf.value ? "" : tf.value)}
-										whileTap={{ scale: 0.95 }}
-									>
-										{tf.label}
-									</motion.button>
-								))}
-							</div>
-
-							<div className="filter-sort-wrapper">
-								<select
-									className="sort-select"
-									value={sort}
-									onChange={(e) => setParam("sort", e.target.value)}
-									aria-label="Sort products"
-								>
-									{SORT_OPTIONS.map((o) => (
-										<option key={o.value} value={o.value}>
-											{o.label}
-										</option>
-									))}
-								</select>
-							</div>
-						</div>
-
-						{/* Active filters bar */}
-						{isFiltered && !loading && (
-							<motion.div
-								className="filter-active-bar"
-								initial={{ opacity: 0, y: -6 }}
-								animate={{ opacity: 1, y: 0 }}
-							>
-								<span>
-									{pagination &&
-										`${pagination.total} ${pagination.total === 1 ? "product" : "products"}`}
-									{q && (
-										<>
-											{" "}
-											matching <strong>"{q}"</strong>
-										</>
-									)}
-									{category && (
-										<>
-											{" "}
-											in <strong>{category}</strong>
-										</>
-									)}
-									{tag && (
-										<>
-											{" "}
-											tagged <strong>{tag}</strong>
-										</>
-									)}
-								</span>
-								<button className="filter-clear-btn" onClick={clearAll}>
-									Clear filters
-								</button>
-							</motion.div>
-						)}
+				<div className="row">
+					<div className="col-lg-3 col-12 shop-sidebar-col">
+						<CategorySidebar />
 					</div>
 
-					{/* ===== PRODUCTS ===== */}
-					{error && <div className="alert alert-danger">{error}</div>}
-
-					{loading ? (
-						<div className="row">
-							{[...Array(8)].map((_, i) => (
-								<div key={i} className="col-xl-3 col-lg-4 col-md-6 col-6">
-									<div className="product-skeleton" aria-hidden="true" />
-								</div>
-							))}
-						</div>
-					) : products.length === 0 ? (
-						<motion.div
-							className="no-results text-center py-5"
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							data-testid="no-results"
-						>
-							<h4 style={{ color: "#555" }}>
-								{tag
-									? `No ${tag} items available right now`
-									: "No products found"}
-							</h4>
-							<p className="text-muted" style={{ fontSize: "0.9rem" }}>
-								{tag
-									? "Check back soon — products with this tag will appear here."
-									: "Try adjusting your filters or browsing all products."}
-							</p>
-							<button className="btn mt-3" onClick={clearAll}>
-								Browse All Products
-							</button>
-						</motion.div>
-					) : (
-						<>
-							<AnimatePresence mode="wait">
-								<motion.div
-									key={`${q}-${category}-${tag}-${page}`}
-									className="row"
-									initial={{ opacity: 0 }}
-									animate={{ opacity: 1 }}
-									exit={{ opacity: 0 }}
-									transition={{ duration: 0.2 }}
-								>
-									{products.map((product, i) => (
-										<motion.div
-											key={product.id}
-											className="col-xl-3 col-lg-4 col-md-6 col-6"
-											initial={{ opacity: 0, transform: 'translateY(16px)' }}
-											animate={{ opacity: 1, transform: 'translateY(0px)' }}
-											transition={{
-												delay: Math.min(i, 5) * 0.04,
-												duration: 0.25,
-												ease: [0.23, 1, 0.32, 1],
-											}}
+					<div className="col-lg-9 col-12">
+						{/* ===== FILTER STRIP ===== */}
+						<div className="filter-strip-wrapper">
+							<div className="filter-strip">
+								<div className="filter-buttons">
+									{TAG_FILTERS.map((tf) => (
+										<motion.button
+											key={tf.value}
+											className={`btn ${tag === tf.value ? "filter-pill-active" : ""}`}
+											onClick={() => setParam("tag", tag === tf.value ? "" : tf.value)}
+											whileTap={{ scale: 0.95 }}
 										>
-											<ProductCard product={product} />
-										</motion.div>
+											{tf.label}
+										</motion.button>
 									))}
+								</div>
+
+								<div className="filter-sort-wrapper">
+									<select
+										className="sort-select"
+										value={sort}
+										onChange={(e) => setParam("sort", e.target.value)}
+										aria-label="Sort products"
+									>
+										{SORT_OPTIONS.map((o) => (
+											<option key={o.value} value={o.value}>
+												{o.label}
+											</option>
+										))}
+									</select>
+								</div>
+							</div>
+
+							{/* Active filters bar */}
+							{isFiltered && !loading && (
+								<motion.div
+									className="filter-active-bar"
+									initial={{ opacity: 0, y: -6 }}
+									animate={{ opacity: 1, y: 0 }}
+								>
+									<span>
+										{pagination &&
+											`${pagination.total} ${pagination.total === 1 ? "product" : "products"}`}
+										{q && (
+											<>
+												{" "}
+												matching <strong>"{q}"</strong>
+											</>
+										)}
+										{category && (
+											<>
+												{" "}
+												in <strong>{category}</strong>
+											</>
+										)}
+										{tag && (
+											<>
+												{" "}
+												tagged <strong>{tag}</strong>
+											</>
+										)}
+									</span>
+									<button className="filter-clear-btn" onClick={clearAll}>
+										Clear filters
+									</button>
 								</motion.div>
-							</AnimatePresence>
-
-							{pagination && pagination.last_page > 1 && (
-								<Pagination
-									current={pagination.current_page}
-									total={pagination.last_page}
-									onChange={setPage}
-								/>
 							)}
-						</>
-					)}
-				</div>
-			</div>
+						</div>
 
-			{/* ===== FILTER STRIP STYLES ===== */}
-			<style>{`
+						{/* ===== PRODUCTS ===== */}
+						{error && <div className="alert alert-danger">{error}</div>}
+
+						{loading ? (
+							<div className="row">
+								{[...Array(8)].map((_, i) => (
+									<div key={i} className="col-xl-3 col-lg-4 col-md-6 col-6">
+										<div className="product-skeleton" aria-hidden="true" />
+									</div>
+								))}
+							</div>
+						) : products.length === 0 ? (
+							<motion.div
+								className="no-results text-center py-5"
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								data-testid="no-results"
+							>
+								<h4 style={{ color: "#555" }}>
+									{tag
+										? `No ${tag} items available right now`
+										: "No products found"}
+								</h4>
+								<p className="text-muted" style={{ fontSize: "0.9rem" }}>
+									{tag
+										? "Check back soon — products with this tag will appear here."
+										: "Try adjusting your filters or browsing all products."}
+								</p>
+								<button className="btn mt-3" onClick={clearAll}>
+									Browse All Products
+								</button>
+							</motion.div>
+						) : (
+							<>
+								<AnimatePresence mode="wait">
+									<motion.div
+										key={`${q}-${category}-${tag}-${page}`}
+										className="row"
+										initial={{ opacity: 0 }}
+										animate={{ opacity: 1 }}
+										exit={{ opacity: 0 }}
+										transition={{ duration: 0.2 }}
+									>
+										{products.map((product, i) => (
+											<motion.div
+												key={product.id}
+												className="col-xl-3 col-lg-4 col-md-6 col-6"
+												initial={{ opacity: 0, transform: 'translateY(16px)' }}
+												animate={{ opacity: 1, transform: 'translateY(0px)' }}
+												transition={{
+													delay: Math.min(i, 5) * 0.04,
+													duration: 0.25,
+													ease: [0.23, 1, 0.32, 1],
+												}}
+											>
+												<ProductCard product={product} />
+											</motion.div>
+										))}
+									</motion.div>
+								</AnimatePresence>
+
+								{pagination && pagination.last_page > 1 && (
+									<Pagination
+										current={pagination.current_page}
+										total={pagination.last_page}
+										onChange={setPage}
+									/>
+								)}
+							</>
+						)}
+					</div>
+				</div>
+
+				{/* ===== FILTER STRIP STYLES ===== */}
+				<style>{`
 				/* ===== FILTER STRIP WRAPPER ===== */
 				.filter-strip-wrapper {
 					width: 100%;
@@ -500,8 +501,8 @@ export default function ProductsPage() {
 				.filter-pill {
 					padding: 6px 18px;
 					border-radius: 20px;
-					border: 1.5px solid #dce0e6;
-					background: #f7f8fa;
+					border: 1.5px solid #e18f27;
+					background: #fff;
 					color: #3d414a;
 					font-size: 0.82rem;
 					font-weight: 500;
@@ -512,9 +513,9 @@ export default function ProductsPage() {
 					letter-spacing: 0.01em;
 				}
 				.filter-pill:hover {
-					background: #eef0f4;
-					border-color: #183B9B;
-					color: #183B9B;
+					background: #fff8ee;
+					border-color: #e18f27;
+					color: #e18f27;
 				}
 				.filter-pill:active {
 					transform: scale(0.96);
@@ -651,7 +652,27 @@ export default function ProductsPage() {
 						min-width: 90px;
 					}
 				}
+
+				/* Shop sidebar — sticky below the fixed header */
+				.shop-sidebar-col {
+					position: sticky;
+					top: 148px;
+					align-self: flex-start;
+					z-index: 80;
+				}
+				@media (min-width: 768px) and (max-width: 991px) {
+					.shop-sidebar-col {
+						top: 120px;
+					}
+				}
+				@media (max-width: 991px) {
+					.shop-sidebar-col {
+						position: static;
+						z-index: auto;
+					}
+				}
 			`}</style>
+			</div>
 		</div>
 	);
 }
