@@ -35,14 +35,16 @@ export default function ProductCard({ product }) {
           background: #ffffff;
           border-radius: 10px;
           overflow: hidden;
-          border: 1.5px solid #e8ecf4;
+          border: 1px solid #e8ecf4;
           cursor: pointer;
           position: relative;
           transition: box-shadow 0.22s ease, transform 0.22s ease, border-color 0.22s ease;
           height: 330px;
+          z-index: 1;
         }
         .product-card:hover {
-          border-color: #e18f27;
+          border-color: #e18f27 !important;
+          box-shadow: inset 0 0 0 1px #e18f27, 0 4px 14px rgba(0,0,0,0.08) !important;
         }
 
         /* Image wrapper — fixed height, not aspect-ratio, so info section
@@ -223,10 +225,7 @@ export default function ProductCard({ product }) {
       <div
         className="product-card mb-3"
         style={{
-          boxShadow: isHovered ? '0 6px 20px rgba(0,0,0,0.11)' : '0 1px 3px rgba(0,0,0,0.05)',
-          transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
-          borderColor: isHovered ? '#e18f27' : '#e8ecf4',
-          borderWidth: isHovered ? '2px' : '1.5px',
+          transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => { setIsHovered(false); setIsCartHovered(false); }}
