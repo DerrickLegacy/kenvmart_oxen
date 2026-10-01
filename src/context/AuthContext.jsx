@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authApi, cartApi, wishlistApi, tokenStore } from '../services/api';
-
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
@@ -33,6 +32,20 @@ export function AuthProvider({ children }) {
         setUser(data.user);
         await _syncLocalDataToServer();
         return data;
+    }, []);
+
+    const googleLoginFromCallback = useCallback(async ({ code, redirect_uri }) => {
+        const data = await authApi.google({ code, redirect_uri });
+        tokenStore.set(data.token);
+        setUser(data.user);
+        await _syncLocalDataToServer();
+        return data;
+    }, []);
+
+    const acceptServerRedirectAuth = useCallback(async ({ token, user: userObj }) => {
+        tokenStore.set(token);
+        setUser(userObj);
+        try { await _syncLocalDataToServer(); } catch { }
     }, []);
 
     const logout = useCallback(async () => {
@@ -85,7 +98,7 @@ export function AuthProvider({ children }) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
+        <AuthContext.Provider value={{ user, loading, login, register, googleLoginFromCallback, acceptServerRedirectAuth, logout, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );

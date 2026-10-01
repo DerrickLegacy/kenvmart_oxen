@@ -9,56 +9,67 @@ import { useNavigate } from 'react-router-dom';
 
 const ITEMS = [
   {
-    id: 1, label: 'Earphones',
+    id: 1,
+    label: 'Earphones',
     image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop',
     query: 'earphones',
   },
   {
-    id: 2, label: 'Chargers',
-    image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=400&h=300&fit=crop',
+    id: 2,
+    label: 'Chargers',
+    image: 'https://images.unsplash.com/photo-1725304382197-663ae3864750?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D?w=400&h=300&fit=crop',
     query: 'charger',
   },
   {
-    id: 3, label: 'Power Banks',
-    image: 'https://images.unsplash.com/photo-1609599006353-e629aa8fe3c0?w=400&h=300&fit=crop',
+    id: 3,
+    label: 'Power Banks',
+    image: 'https://images.unsplash.com/photo-1736516434209-51ece1006788?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D?w=400&h=300&fit=crop',
     query: 'power+bank',
   },
   {
-    id: 4, label: 'Speakers',
+    id: 4,
+    label: 'Speakers',
     image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=300&fit=crop',
     query: 'speaker',
   },
   {
-    id: 5, label: 'Earbuds',
+    id: 5,
+    label: 'Earbuds',
     image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=300&fit=crop',
     query: 'earbuds',
   },
   {
-    id: 6, label: 'Headsets',
+    id: 6,
+    label: 'Headsets',
     image: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=300&fit=crop',
     query: 'headset',
   },
   {
-    id: 7, label: 'Cables',
-    image: 'https://images.unsplash.com/photo-1589003077984-894e133dabab?w=400&h=300&fit=crop',
+    id: 7,
+    label: 'Cables',
+    image: 'https://plus.unsplash.com/premium_photo-1669261149433-febd56c05327?q=80&w=715&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D?w=400&h=300&fit=crop',
     query: 'cable',
   },
   {
-    id: 8, label: 'Smart Watch',
+    id: 8,
+    label: 'Smart Watch',
     image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=300&fit=crop',
     query: 'watch',
   },
   {
-    id: 9, label: 'Flash Disks',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f8b6?w=400&h=300&fit=crop',
+    id: 9,
+    label: 'Flash Disks',
+    image: 'https://images.unsplash.com/photo-1709660850064-0ec82e1a6b5d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D?w=400&h=300&fit=crop',
     query: 'flash+disk',
   },
   {
-    id: 10, label: 'Car Audio',
+    id: 10,
+    label: 'Car Audio',
     image: 'https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=300&fit=crop',
     query: 'car+mp3',
   },
 ];
+
 
 export default function CategoryGridBanner() {
   const navigate = useNavigate();

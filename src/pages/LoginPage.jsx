@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../services/api';
@@ -6,28 +6,34 @@ import { ApiError } from '../services/api';
 function GoogleIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-      <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.17 2.84l6.1-6.1C34.46 3.19 29.53 1 24 1 14.82 1 7.07 6.48 3.64 14.24l7.1 5.52C12.44 13.69 17.76 9.5 24 9.5z"/>
-      <path fill="#4285F4" d="M46.5 24.5c0-1.57-.14-3.09-.4-4.55H24v8.61h12.67c-.55 2.95-2.19 5.45-4.66 7.13l7.17 5.57C43.36 37.27 46.5 31.35 46.5 24.5z"/>
-      <path fill="#FBBC05" d="M10.74 28.24A14.57 14.57 0 0 1 9.5 24c0-1.47.25-2.89.7-4.23l-7.1-5.52A23.93 23.93 0 0 0 .5 24c0 3.87.93 7.53 2.57 10.77l7.67-6.53z"/>
-      <path fill="#34A853" d="M24 47c5.53 0 10.18-1.83 13.57-4.96l-7.17-5.57c-1.84 1.24-4.19 1.97-6.4 1.97-6.24 0-11.56-4.19-13.26-9.8l-7.67 6.53C7.07 41.52 14.82 47 24 47z"/>
-      <path fill="none" d="M0 0h48v48H0z"/>
+      <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.17 2.84l6.1-6.1C34.46 3.19 29.53 1 24 1 14.82 1 7.07 6.48 3.64 14.24l7.1 5.52C12.44 13.69 17.76 9.5 24 9.5z" />
+      <path fill="#4285F4" d="M46.5 24.5c0-1.57-.14-3.09-.4-4.55H24v8.61h12.67c-.55 2.95-2.19 5.45-4.66 7.13l7.17 5.57C43.36 37.27 46.5 31.35 46.5 24.5z" />
+      <path fill="#FBBC05" d="M10.74 28.24A14.57 14.57 0 0 1 9.5 24c0-1.47.25-2.89.7-4.23l-7.1-5.52A23.93 23.93 0 0 0 .5 24c0 3.87.93 7.53 2.57 10.77l7.67-6.53z" />
+      <path fill="#34A853" d="M24 47c5.53 0 10.18-1.83 13.57-4.96l-7.17-5.57c-1.84 1.24-4.19 1.97-6.4 1.97-6.24 0-11.56-4.19-13.26-9.8l-7.67 6.53C7.07 41.52 14.82 47 24 47z" />
+      <path fill="none" d="M0 0h48v48H0z" />
     </svg>
   );
 }
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const navigate  = useNavigate();
-  const location  = useLocation();
-  const from      = location.state?.from?.pathname ?? '/';
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname ?? '/';
 
-  const [identifier,    setIdentifier]    = useState('');
-  const [password,      setPassword]      = useState('');
-  const [step,          setStep]          = useState('identifier');
-  const [errors,        setErrors]        = useState({});
-  const [submitting,    setSubmitting]    = useState(false);
-  const [serverError,   setServerError]   = useState('');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [step, setStep] = useState('identifier');
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    const qs = new URLSearchParams(location.search);
+    const authErr = qs.get('auth_error');
+    if (authErr) setServerError(decodeURIComponent(authErr));
+  }, [location.search]);
 
   const validateIdentifier = () => {
     const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -69,12 +75,17 @@ export default function LoginPage() {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!clientId) { alert('Google login is not configured.'); return; }
     setGoogleLoading(true);
+
+    const serverCallback = (import.meta.env.VITE_GOOGLE_AUTH_REDIRECT_URI) ||
+      (window.location.origin + '/google-auth-callback');
+
     window.location.href =
       'https://accounts.google.com/o/oauth2/v2/auth' +
       `?client_id=${clientId}` +
-      `&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/google/callback')}` +
+      `&redirect_uri=${encodeURIComponent(serverCallback)}` +
       '&response_type=code' +
       '&scope=openid%20email%20profile' +
+      '&access_type=online' +
       '&prompt=select_account';
   };
 

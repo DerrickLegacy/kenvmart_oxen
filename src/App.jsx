@@ -1,20 +1,21 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import AppLayout          from './components/layout/AppLayout';
-import HomePage           from './pages/HomePage';
-import ProductsPage       from './pages/ProductsPage';
+import AppLayout from './components/layout/AppLayout';
+import HomePage from './pages/HomePage';
+import ProductsPage from './pages/ProductsPage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
-import CartPage           from './pages/CartPage';
-import OrdersPage         from './pages/OrdersPage';
-import LoginPage          from './pages/LoginPage';
-import RegisterPage       from './pages/RegisterPage';
-import AboutPage          from './pages/AboutPage';
-import CookiesPolicyPage  from './pages/CookiesPolicyPage';
-import ContactPage        from './pages/ContactPage';
-import NotFoundPage       from './pages/NotFoundPage';
-import WishlistPage       from './pages/WishlistPage';
-import SettingsPage       from './pages/SettingsPage';
-import HelpPage           from './pages/HelpPage';
+import CartPage from './pages/CartPage';
+import OrdersPage from './pages/OrdersPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import AboutPage from './pages/AboutPage';
+import CookiesPolicyPage from './pages/CookiesPolicyPage';
+import ContactPage from './pages/ContactPage';
+import NotFoundPage from './pages/NotFoundPage';
+import WishlistPage from './pages/WishlistPage';
+import SettingsPage from './pages/SettingsPage';
+import HelpPage from './pages/HelpPage';
+import GoogleAuthCallback from './pages/GoogleAuthCallback';
 
 // Scroll to top on every route change
 function RouteScrollToTop() {
@@ -30,23 +31,24 @@ export default function App() {
     <BrowserRouter>
       <RouteScrollToTop />
       <Routes>
-        <Route path="/login"    element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
         <Route path="/" element={<AppLayout />}>
-          <Route index                   element={<HomePage />} />
-          <Route path="products"         element={<ProductsPage />} />
-          <Route path="product/:id"      element={<ProductDetailsPage />} />
-          <Route path="cart"             element={<CartPage />} />
-          <Route path="orders"           element={<OrdersPage />} />
-          <Route path="wishlist"         element={<WishlistPage />} />
-          <Route path="settings"         element={<SettingsPage />} />
-          <Route path="help"             element={<HelpPage />} />
-          <Route path="about"            element={<AboutPage />} />
-          <Route path="faq"              element={<CookiesPolicyPage />} />
-          <Route path="cookies-policy"   element={<CookiesPolicyPage />} />
-          <Route path="contact"          element={<ContactPage />} />
-          <Route path="checkout"         element={<CartPage />} />
-          <Route path="*"                element={<NotFoundPage />} />
+          <Route index element={<HomePage />} />
+          <Route path="products" element={<ProductsPage />} />
+          <Route path="product/:id" element={<ProductDetailsPage />} />
+          <Route path="cart" element={<CartPage />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="wishlist" element={<WishlistPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="help" element={<HelpPage />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="faq" element={<CookiesPolicyPage />} />
+          <Route path="cookies-policy" element={<CookiesPolicyPage />} />
+          <Route path="contact" element={<ContactPage />} />
+          <Route path="checkout" element={<CartPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

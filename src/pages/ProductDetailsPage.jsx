@@ -181,7 +181,7 @@ export default function ProductDetailsPage() {
   const hasDiscount = (product.discount_price ?? product.discountPrice) != null;
 
   return (
-    <div data-testid="product-details-page mt-3">
+    <div data-testid="product-details-page">
       <section className="item-details mb-3">
         <div className="container">
           <Breadcrumb
