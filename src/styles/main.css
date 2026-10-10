@@ -13136,14 +13136,14 @@ button.btn:disabled {
   left: 0;
   right: 0;
   width: 100vw;
-  transform: translateY(6px);
+  transform: translateY(0);
   background: #fff;
-  border-top: 2px solid #e18f27;
+  border-top: none;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   border-radius: 0;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
+  transition: opacity 180ms ease, visibility 180ms ease;
   z-index: 1002;
   max-width: none;
 }
@@ -13152,7 +13152,6 @@ button.btn:disabled {
 .category-item:hover .category-dropdown {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
 }
 
 /* Multi-column inner grid (2 columns like Jumia) */
