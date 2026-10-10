@@ -13,6 +13,7 @@ const D = {
     border: '1.5px solid #e18f27', borderRadius: 10,
     boxShadow: '0 12px 32px rgba(10,22,50,0.14)',
     overflow: 'hidden',
+    pointerEvents: 'auto', // Ensure dropdown is clickable
   },
   list: {
     maxHeight: 300, overflowY: 'auto',
@@ -22,6 +23,7 @@ const D = {
     display: 'flex', alignItems: 'center', gap: 12,
     padding: '10px 14px', cursor: 'pointer',
     borderBottom: '1px solid #f2f3f5', transition: 'background 0.12s ease',
+    pointerEvents: 'auto', // Ensure items are clickable
   },
   thumb: {
     width: 44, height: 44, borderRadius: 6,
@@ -65,12 +67,19 @@ export default function HeaderMiddle({ sticky = false }) {
   /* close dropdown on outside click / Escape */
   useEffect(() => {
     const click = (e) => {
-      if (!searchWrapRef.current?.contains(e.target)) setDropdownOpen(false);
+      // Don't close if clicking inside the dropdown
+      if (!searchWrapRef.current?.contains(e.target)) {
+        setDropdownOpen(false);
+      }
     };
     const key = (e) => { if (e.key === 'Escape') setDropdownOpen(false); };
-    document.addEventListener('mousedown', click);
+    // Use 'click' instead of 'mousedown' to allow links to process first
+    document.addEventListener('click', click);
     document.addEventListener('keydown', key);
-    return () => { document.removeEventListener('mousedown', click); document.removeEventListener('keydown', key); };
+    return () => { 
+      document.removeEventListener('click', click); 
+      document.removeEventListener('keydown', key); 
+    };
   }, []);
 
   /* fetch suggestions — debounced */
@@ -98,12 +107,17 @@ export default function HeaderMiddle({ sticky = false }) {
     navigate(searchTerm.trim() ? `/products?q=${encodeURIComponent(searchTerm.trim())}` : '/products');
     setDropdownOpen(false);
   };
-  const pickSuggestion = (p) => { setDropdownOpen(false); setSearchTerm(''); navigate(`/product/${p.id}`); };
+  const pickSuggestion = (e, p) => { 
+    e.preventDefault(); 
+    setDropdownOpen(false); 
+    setSearchTerm(''); 
+    navigate(`/product/${p.id}`); 
+  };
   const seeAllUrl = useMemo(() => `/products?q=${encodeURIComponent(searchTerm.trim())}`, [searchTerm]);
 
   /* ── dropdown JSX — inline, NOT a sub-component, so focus is never stolen ── */
   const dropdown = dropdownOpen && searchTerm.trim() ? (
-    <div style={D.wrap} role="listbox">
+    <div style={D.wrap} role="listbox" onClick={(e) => console.log('Dropdown clicked', e.target)}>
       <style>{`.hm-drop-list::-webkit-scrollbar{display:none}`}</style>
       <div className="hm-drop-list" style={D.list}>
         {suggestionsLoading && <div style={D.loading}>Searching…</div>}
@@ -111,8 +125,17 @@ export default function HeaderMiddle({ sticky = false }) {
           <div style={D.empty}>No products match <strong>"{searchTerm.trim()}"</strong></div>
         )}
         {!suggestionsLoading && suggestions.map((p) => (
-          <div key={p.id} style={D.item} role="option"
-            onClick={() => pickSuggestion(p)}
+          <Link 
+            key={p.id} 
+            to={`/product/${p.id}`}
+            style={{...D.item, textDecoration: 'none'}} 
+            role="option"
+            onClick={(e) => { 
+              console.log('Link clicked for product:', p.id, p.name);
+              e.stopPropagation();
+              setDropdownOpen(false); 
+              setSearchTerm(''); 
+            }}
             onMouseEnter={(e) => (e.currentTarget.style.background = '#f6f7f9')}
             onMouseLeave={(e) => (e.currentTarget.style.background = '')}
           >
@@ -122,11 +145,11 @@ export default function HeaderMiddle({ sticky = false }) {
               <div style={D.name} className="truncate">{p.name}</div>
               <div style={D.price}>{p.price_text || `Shs. ${(p.price ?? 0).toLocaleString()}`}</div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
-      {!suggestionsLoading && (
-        <Link to={seeAllUrl} onClick={() => setDropdownOpen(false)} style={D.footer}>
+      {!suggestionsLoading && suggestions.length > 0 && (
+        <Link to={seeAllUrl} onClick={() => setDropdownOpen(false)} style={{...D.footer, textDecoration: 'none'}}>
           See all results for "{searchTerm.trim()}"
         </Link>
       )}
@@ -146,8 +169,8 @@ export default function HeaderMiddle({ sticky = false }) {
 
           {/* search wrapper — overflow visible so dropdown isn't clipped */}
           <div className="main-menu-search" ref={searchWrapRef}
-            style={{ flex: 1, position: 'relative', overflow: 'visible' }}>
-            <form className="navbar-search search-style-5" onSubmit={handleSubmit}>
+            style={{ flex: 1, position: 'relative', overflow: 'visible', zIndex: 1100 }}>
+            <form className="navbar-search search-style-5" onSubmit={handleSubmit} style={{ position: 'relative' }}>
               <div className="search-input">
                 <input
                   type="text"
@@ -157,6 +180,7 @@ export default function HeaderMiddle({ sticky = false }) {
                   onFocus={() => searchTerm.trim() && setDropdownOpen(true)}
                   data-testid="search-input"
                   style={inputStyle}
+                  autoComplete="off"
                 />
               </div>
               <div className="search-btn">
@@ -196,8 +220,8 @@ export default function HeaderMiddle({ sticky = false }) {
           </Link>
 
           <div className="main-menu-search" ref={searchWrapRef}
-            style={{ flex: 1, position: 'relative', overflow: 'visible' }}>
-            <form className="navbar-search search-style-5" onSubmit={handleSubmit}>
+            style={{ flex: 1, position: 'relative', overflow: 'visible', zIndex: 1100 }}>
+            <form className="navbar-search search-style-5" onSubmit={handleSubmit} style={{ position: 'relative' }}>
               <div className="search-input">
                 <input
                   type="text"
@@ -207,6 +231,7 @@ export default function HeaderMiddle({ sticky = false }) {
                   onFocus={() => searchTerm.trim() && setDropdownOpen(true)}
                   data-testid="search-input-md"
                   style={inputStyle}
+                  autoComplete="off"
                 />
               </div>
               <div className="search-btn">

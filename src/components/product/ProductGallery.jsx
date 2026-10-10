@@ -7,6 +7,7 @@
  * 2. ZOOM  — circular 3× magnifying lens follows cursor + a fixed viewport
  *            preview panel shows the zoomed region.
  * 3. LIGHTBOX — ⛶ button top-right opens the full image fullscreen.
+ * 4. VERTICAL THUMBNAILS — Scrollable thumbnail strip on the right side
  *
  * Zoom/pan turns OFF automatically while cursor is over the ⛶ button,
  * and turns back ON the moment the cursor moves back onto the image.
@@ -168,8 +169,62 @@ export default function ProductGallery({ images = [], productName = '' }) {
   }, []);
 
   return (
-    <div className="product-images">
-      <main id="gallery" style={{ position: 'relative' }}>
+    <div className="product-images" style={{ display: 'flex', gap: '16px', alignItems: 'stretch' }}>
+      {/* ── Small Vertical Thumbnails (LEFT Side) ───────────────────────────────────────── */}
+      {images.length > 1 && (
+        <div 
+          className="gallery-thumbnails-vertical" 
+          style={{ 
+            flex: '0 0 100px',
+            maxHeight: '600px',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            paddingRight: '4px',
+          }}
+        >
+          {images.map((img, i) => (
+            <div
+              key={i}
+              className={`gallery-thumb-wrap-vertical${i === safeIndex ? ' active' : ''}`}
+              onClick={() => { setCurrent(i); setZoomActive(false); }}
+              role="button"
+              tabIndex={0}
+              aria-label={`View image ${i + 1}`}
+              onKeyDown={e => e.key === 'Enter' && setCurrent(i)}
+              style={{
+                height: '85px',
+                minHeight: '85px',
+                border: i === safeIndex ? '2px solid #183B9B' : '2px solid #e0e0e0',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                opacity: i === safeIndex ? 1 : 0.7,
+                filter: 'none',
+              }}
+            >
+              <img
+                data-testid={`thumbnail-${i}`}
+                src={img}
+                className="img"
+                alt={`${productName} view ${i + 1}`}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block',
+                }}
+                onError={e => { e.currentTarget.src = '/assets/images/placeholder.png'; }}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      <main id="gallery" style={{ position: 'relative', flex: '1', display: 'flex', flexDirection: 'column' }}>
 
         {/* ── Main image wrap ──────────────────────────────────────── */}
         <div
@@ -179,6 +234,12 @@ export default function ProductGallery({ images = [], productName = '' }) {
             position: 'relative',
             overflow: 'hidden',
             cursor:   zoomActive ? 'crosshair' : 'default',
+            height: '600px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#f8f8f8',
+            borderRadius: '8px',
           }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -193,6 +254,8 @@ export default function ProductGallery({ images = [], productName = '' }) {
             style={{
               display:         'block',
               width:           '100%',
+              height:          '100%',
+              objectFit:       'contain',
               userSelect:      'none',
               transformOrigin: '0 0',
               transition:      'transform 0.08s ease',
@@ -273,70 +336,45 @@ export default function ProductGallery({ images = [], productName = '' }) {
           </button>
         </div>
 
-        {/* ── Fixed zoomed preview panel ───────────────────────────── */}
-        {zoomActive && (
-          <div aria-hidden="true" style={{
-            position:           'fixed',
-            top:                previewPos.top,
-            left:               previewPos.left,
-            width:              PREVIEW_W,
-            height:             PREVIEW_H,
-            backgroundImage:    `url(${currentSrc})`,
-            backgroundSize:     `${ZOOM_FACTOR * 100}%`,
-            backgroundPosition: bgPos,
-            backgroundRepeat:   'no-repeat',
-            border:             '1px solid #d0d7de',
-            borderRadius:       10,
-            boxShadow:          '0 8px 32px rgba(0,0,0,0.18)',
-            zIndex:             9999,
-            pointerEvents:      'none',
-            overflow:           'hidden',
-          }}>
-            {/* Centre crosshair */}
-            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', pointerEvents: 'none' }}>
-              <div style={{ position: 'absolute', top: 5, left: 0, width: 12, height: 2, background: 'rgba(59,177,243,0.7)', borderRadius: 1 }} />
-              <div style={{ position: 'absolute', top: 0, left: 5, width: 2, height: 12, background: 'rgba(59,177,243,0.7)', borderRadius: 1 }} />
-            </div>
-            <div style={{
-              position: 'absolute', bottom: 8, right: 10,
-              fontSize: 11, fontWeight: 600, color: 'rgba(0,0,0,0.4)',
-              background: 'rgba(255,255,255,0.75)', borderRadius: 4, padding: '2px 6px',
-            }}>×{ZOOM_FACTOR}</div>
-          </div>
-        )}
-
-        {/* ── Thumbnails ───────────────────────────────────────────── */}
-        {images.length > 1 && (
-          <div className="images" style={{ marginTop: 8 }}>
-            {images.map((img, i) => (
-              <div
-                key={i}
-                className={`gallery-thumb-wrap${i === safeIndex ? ' active' : ''}`}
-                onClick={() => { setCurrent(i); setZoomActive(false); }}
-                role="button"
-                tabIndex={0}
-                aria-label={`View image ${i + 1}`}
-                onKeyDown={e => e.key === 'Enter' && setCurrent(i)}
-              >
-                <img
-                  data-testid={`thumbnail-${i}`}
-                  src={img}
-                  className="img"
-                  alt={`${productName} view ${i + 1}`}
-                  onError={e => { e.currentTarget.src = '/assets/images/placeholder.png'; }}
-                />
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Hint */}
+        <p style={{ fontSize: 12, color: '#aaa', marginTop: 8, textAlign: 'center' }}>
+          <i className="lni lni-zoom-in" style={{ marginRight: 4 }} />
+          Hover to pan &amp; zoom · Click <i className="lni lni-frame-expand" style={{ fontSize: 11 }} /> for full view
+        </p>
 
       </main>
 
-      {/* Hint */}
-      <p style={{ fontSize: 12, color: '#aaa', marginTop: 6, textAlign: 'center' }}>
-        <i className="lni lni-zoom-in" style={{ marginRight: 4 }} />
-        Hover to pan &amp; zoom · Click <i className="lni lni-frame-expand" style={{ fontSize: 11 }} /> for full view
-      </p>
+      {/* ── Fixed zoomed preview panel ───────────────────────────── */}
+      {zoomActive && (
+        <div aria-hidden="true" style={{
+          position:           'fixed',
+          top:                previewPos.top,
+          left:               previewPos.left,
+          width:              PREVIEW_W,
+          height:             PREVIEW_H,
+          backgroundImage:    `url(${currentSrc})`,
+          backgroundSize:     `${ZOOM_FACTOR * 100}%`,
+          backgroundPosition: bgPos,
+          backgroundRepeat:   'no-repeat',
+          border:             '1px solid #d0d7de',
+          borderRadius:       10,
+          boxShadow:          '0 8px 32px rgba(0,0,0,0.18)',
+          zIndex:             9999,
+          pointerEvents:      'none',
+          overflow:           'hidden',
+        }}>
+          {/* Centre crosshair */}
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', top: 5, left: 0, width: 12, height: 2, background: 'rgba(59,177,243,0.7)', borderRadius: 1 }} />
+            <div style={{ position: 'absolute', top: 0, left: 5, width: 2, height: 12, background: 'rgba(59,177,243,0.7)', borderRadius: 1 }} />
+          </div>
+          <div style={{
+            position: 'absolute', bottom: 8, right: 10,
+            fontSize: 11, fontWeight: 600, color: 'rgba(0,0,0,0.4)',
+            background: 'rgba(255,255,255,0.75)', borderRadius: 4, padding: '2px 6px',
+          }}>×{ZOOM_FACTOR}</div>
+        </div>
+      )}
 
       {/* Lightbox */}
       {lightboxOpen && (
@@ -353,6 +391,54 @@ export default function ProductGallery({ images = [], productName = '' }) {
         }
         @media (prefers-reduced-motion: reduce) {
           .gallery-main-wrap img { transition: none !important; }
+        }
+        
+        /* Custom scrollbar for vertical thumbnails */
+        .gallery-thumbnails-vertical::-webkit-scrollbar {
+          width: 6px;
+        }
+        .gallery-thumbnails-vertical::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 10px;
+        }
+        .gallery-thumbnails-vertical::-webkit-scrollbar-thumb {
+          background: #888;
+          border-radius: 10px;
+        }
+        .gallery-thumbnails-vertical::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+        
+        .gallery-thumb-wrap-vertical:hover {
+          opacity: 1 !important;
+          transform: scale(1.02);
+        }
+        
+        /* Responsive - stack vertically on mobile/tablet */
+        @media (max-width: 991px) {
+          .product-images {
+            flex-direction: column-reverse !important;
+          }
+          
+          .gallery-thumbnails-vertical {
+            flex-direction: row !important;
+            max-height: none !important;
+            max-width: 100% !important;
+            flex: none !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            margin-bottom: 12px;
+          }
+          
+          .gallery-thumb-wrap-vertical {
+            min-width: 80px !important;
+            height: 80px !important;
+            min-height: 80px !important;
+          }
+          
+          main#gallery {
+            max-width: 100% !important;
+          }
         }
       `}</style>
     </div>
