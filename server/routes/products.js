@@ -19,7 +19,7 @@ const PRODUCT_SELECT = `
   gp.qty, gp.image, gp.images, gp.pcat, gp.created_at, gp.updated_at,
   gp.brand, gp.shop_tag, gp.sale_percent, gp.rating, gp.rating_count,
   gp.colors, gp.features, gp.specifications, gp.shipping_options, gp.variants,
-  gp.shop_published, gpc.title AS cat_title, scm.slug AS cat_slug
+  gp.search_tags, gp.shop_published, gpc.title AS cat_title, scm.slug AS cat_slug
 `;
 
 const PRODUCT_FROM = `
@@ -319,7 +319,7 @@ function tokenize(phrase = '') {
 
 /**
  * Build a SQL fragment that matches a single keyword token across the
- * columns a user would expect to search (name, description, brand, category).
+ * columns a user would expect to search (name, description, brand, category, and search_tags).
  * Returns { sql: string, params: string[] }.
  */
 function tokenMatchClause(tok) {
@@ -329,8 +329,9 @@ function tokenMatchClause(tok) {
       '(LOWER(gp.product_name) LIKE ?' +
       ' OR LOWER(gp.product_des) LIKE ?' +
       ' OR LOWER(COALESCE(gp.brand, "")) LIKE ?' +
-      ' OR LOWER(gpc.title) LIKE ?)',
-    params: [like, like, like, like],
+      ' OR LOWER(gpc.title) LIKE ?' +
+      ' OR LOWER(COALESCE(gp.search_tags, "")) LIKE ?)',
+    params: [like, like, like, like, like],
   };
 }
 
@@ -344,7 +345,7 @@ function buildFilters({ q, category, brand, tag, min_price, max_price }) {
 
     const localParams = [];
 
-    // Full-phrase match (exact / loose substring across name, brand, code, barcode, category, description)
+    // Full-phrase match (exact / loose substring across name, brand, code, barcode, category, description, search_tags)
     const full = `%${phrase.toLowerCase()}%`;
     const fullPhraseSql = [
       'LOWER(gp.product_name) LIKE ?',
@@ -353,8 +354,9 @@ function buildFilters({ q, category, brand, tag, min_price, max_price }) {
       'LOWER(COALESCE(gp.barcode, "")) LIKE ?',
       'LOWER(gpc.title) LIKE ?',
       'LOWER(gp.product_des) LIKE ?',
+      'LOWER(COALESCE(gp.search_tags, "")) LIKE ?',
     ].join(' OR ');
-    localParams.push(full, full, full, full, full, full);
+    localParams.push(full, full, full, full, full, full, full);
 
     if (tokens.length === 0) {
       // No usable tokens -> rely entirely on the full phrase match

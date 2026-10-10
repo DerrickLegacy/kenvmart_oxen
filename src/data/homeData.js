@@ -1,20 +1,33 @@
 export const heroSlides = [
-
+  {
+    id: "slide-1",
+    backgroundImage: "/assets/images/carousel/69e2aba7f0145e25829fc1b642dd20d66.webp",
+    heading: "",
+    subheading: "",
+    prodId: "prod-001",
+    price: "UGX 55,000",
+    textColor: "#E18F27",
+    position: "top-left"
+  },
   {
     id: "slide-2",
-    backgroundImage: "/assets/images/carousel/TRAVEL-POWERBANK-F-4-22.webp",
-    heading: "Tavel Further Faster, Live The Dream",
-    subheading: "20,000mAh. Never runs out",
+    backgroundImage: "/assets/images/carousel/583933d057d2f0f5594be3e4fc87fd67.webp",
+    heading: "",
+    subheading: "",
     prodId: "prod-002",
     price: "UGX 55,000",
+    textColor: "#E18F27",
+    position: "center"
   },
   {
     id: "slide-3",
     backgroundImage: "/assets/images/carousel/TRAVEL-POWERBANK-F-4-22.webp",
-    heading: "20,000mAh Power — Never Run Out",
+    heading: "20,000mAh Power. Never Run Out",
     subheading: "Slim power banks that charge your phone up to 5 times on a single charge.",
-    prodId: "prod-004",
+    prodId: "prod-003",
     price: "Shs. 72,000",
+    textColor: "#E18F27",
+    position: "bottom-left"
   },
 ];
 

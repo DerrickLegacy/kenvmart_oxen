@@ -40,6 +40,22 @@ export default function HeroSlider({ slides = [] }) {
 
   if (!slides.length) return null;
 
+  // Helper function to get position classes
+  const getPositionClass = (position) => {
+    const positionMap = {
+      'top-left': 'content-top-left',
+      'top-center': 'content-top-center',
+      'top-right': 'content-top-right',
+      'center-left': 'content-center-left',
+      'center': 'content-center',
+      'center-right': 'content-center-right',
+      'bottom-left': 'content-bottom-left',
+      'bottom-center': 'content-bottom-center',
+      'bottom-right': 'content-bottom-right',
+    };
+    return positionMap[position] || 'content-center-left'; // default to center-left
+  };
+
   return (
     <div className="hero-slider-react" aria-label="Hero slider" role="region">
       {/* Slides */}
@@ -51,10 +67,13 @@ export default function HeroSlider({ slides = [] }) {
             style={{ backgroundImage: `url(${slide.backgroundImage})` }}
             aria-hidden={i !== current}
           >
-            <div className="content">
-              <h2>{slide.heading}</h2>
-              <p>{slide.subheading}</p>
-              <h3><span>Now Only</span> {slide.price}</h3>
+            <div 
+              className={`content ${getPositionClass(slide.position)}`}
+              style={{ color: slide.textColor || '#ffffff' }}
+            >
+              {slide.heading && <h2>{slide.heading}</h2>}
+              {slide.subheading && <p>{slide.subheading}</p>}
+              {slide.price && <h3><span>Now Only</span> {slide.price}</h3>}
               <div className="button">
                 <Link to="/products" className="btn">Shop Now</Link>
               </div>
