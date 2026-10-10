@@ -1,25 +1,26 @@
 import { useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "../../../context/WishlistContext";
 import { useCart } from "../../../context/CartContext";
-import CartDropdown from "./CartDropdown";
 import { siteConfig } from "../../../data/siteConfig";
+import categories from "../../../data/categories";
 
 export default function HeaderBottom({ sticky = false }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { state: wishlistItems } = useWishlist();
   const { state: cartItems } = useCart();
+  const navigate = useNavigate();
   const totalCartItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/products?category=${encodeURIComponent(categoryName)}`);
+    setMobileOpen(false);
+  };
 
   return (
     <div className={`header-bottom${sticky ? ' header-bottom--stuck' : ''}`}>
       <div className="container">
-
-        {/* ════════════════════════════════════════
-            MOBILE HEADER BAR (hidden on lg+)
-            [≡ hamburger] [Logo centered] [♡ cart]
-        ════════════════════════════════════════ */}
         <div
           className="d-flex d-lg-none align-items-center"
           style={{ position: 'relative', height: 52, padding: '0 4px' }}
@@ -102,10 +103,7 @@ export default function HeaderBottom({ sticky = false }) {
           </div>
         </div>
 
-        {/* ════════════════════════════════════════
-            MOBILE NAV MENU — animated slide-down
-        ════════════════════════════════════════ */}
-        <AnimatePresence>
+         <AnimatePresence>
           {mobileOpen && (
             <motion.div
               className="d-lg-none"
@@ -116,55 +114,60 @@ export default function HeaderBottom({ sticky = false }) {
               style={{ borderTop: '1px solid #eee', paddingTop: 8, paddingBottom: 8 }}
             >
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                {[
-                  { to: '/', label: 'Home', end: true },
-                  { to: '/products', label: 'Products' },
-                ].map(({ to, label, end }) => (
-                  <li key={to}>
-                    <NavLink
-                      to={to}
-                      end={end}
-                      onClick={() => setMobileOpen(false)}
-                      style={({ isActive }) => ({
+                {categories.map((cat) => (
+                  <li key={cat.title}>
+                    <button
+                      onClick={() => handleCategoryClick(cat.title)}
+                      style={{
                         display: 'block',
+                        width: '100%',
                         padding: '10px 16px',
-                        color: isActive ? '#183B9B' : '#081828',
-                        fontWeight: isActive ? 600 : 400,
+                        color: '#081828',
+                        fontWeight: 600,
                         textDecoration: 'none',
                         borderBottom: '1px solid #f2f2f2',
-                      })}
+                        background: 'transparent',
+                        border: 'none',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                      }}
                     >
-                      {label}
-                    </NavLink>
+                      {cat.title}
+                    </button>
+                    
+                    {cat.items.length > 0 && (
+                      <ul style={{ listStyle: 'none', margin: 0, padding: 0, paddingLeft: 16 }}>
+                        {cat.items.map((item) => (
+                          <li key={item.name}>
+                            <button
+                              onClick={() => handleCategoryClick(item.name)}
+                              style={{
+                                display: 'block',
+                                width: '100%',
+                                padding: '8px 16px',
+                                color: '#6b7280',
+                                fontWeight: 400,
+                                fontSize: '14px',
+                                textDecoration: 'none',
+                                borderBottom: '1px solid #f9fafb',
+                                background: 'transparent',
+                                border: 'none',
+                                textAlign: 'left',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {item.name}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 ))}
               </ul>
             </motion.div>
           )}
-        </AnimatePresence>
-
-        {/* ════════════════════════════════════════
-            DESKTOP NAV (hidden on mobile)
-        ════════════════════════════════════════ */}
-        <div className="row align-items-center d-none d-lg-flex">
-          <div className="col-lg-12">
-            <div className="nav-inner">
-              <nav className="navbar navbar-expand-lg">
-                <div className="collapse navbar-collapse sub-menu-bar show">
-                  <ul className="navbar-nav ms-auto">
-                    <li className="nav-item">
-                      <NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>Home</NavLink>
-                    </li>
-                    <li className="nav-item">
-                      <NavLink to="/products" className={({ isActive }) => isActive ? 'active' : ''}>Products</NavLink>
-                    </li>
-                  </ul>
-                </div>
-              </nav>
-            </div>
-          </div>
-        </div>
-
+        </AnimatePresence> 
       </div>
     </div>
   );

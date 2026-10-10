@@ -9,6 +9,8 @@ import RecentlyViewed from '../components/home/RecentlyViewed';
 import PromoHeader from '../components/home/PromoHeader';
 import CategoryGridBanner from '../components/home/CategoryGridBanner';
 import PromoCarousel from '../components/home/PromoCarousel';
+import HorizontalCategoryNav from '../components/home/HorizontalCategoryNav';
+import PromotionalBanner from '../components/home/PromotionalBanner';
 import { productsApi } from '../services/api';
 import { useApi } from '../hooks/useApi';
 import FeaturedVideos from '../components/home/FeaturedVideos';
@@ -31,12 +33,14 @@ export default function HomePage() {
 
   return (
     <div data-testid="home-page">
+      <HorizontalCategoryNav />   
       <PromoCarousel />
-      <CategoryGridBanner />        {/* Main Items chip strip */}
+      <CategoryGridBanner />         {/* Main Items chip strip */}
       <TrendingProducts products={trendingData?.products ?? []} loading={trendingLoading} />
       <PromoHeader />
       <Hero />
       <NewArrivals products={newData?.products ?? []} loading={newLoading} />
+      <PromotionalBanner />          {/* New promotional section */}
       <TodaysDeals products={dealsData?.products ?? []} loading={dealsLoading} />
       <HotProducts products={hotData?.products ?? []} loading={hotLoading} />
       <BrandShowcase />              {/* Shop by Brand — hero + 2×2 brand chips */}

@@ -883,19 +883,19 @@ ol {
 
 /* Consistent spacing between page content and header */
 .app-main-content {
-  padding-top: 20px;
+  padding-top: 0;
   min-height: calc(100vh - 300px);
 }
 
 @media (min-width: 992px) {
   .app-main-content {
-    padding-top: 28px;
+    padding-top: 0;
   }
 }
 
 @media (max-width: 767px) {
   .app-main-content {
-    padding-top: 14px;
+    padding-top: 0;
   }
 }
 
@@ -1639,8 +1639,7 @@ ol {
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  padding: 25px 0;
-  border-bottom: 1px solid #eee;
+  padding: 0 0;
 }
 
 @media (max-width: 767px) {
@@ -2947,9 +2946,7 @@ ol {
     height: 138px;
   }
 
-  .header-sticky-wrap--fixed~* {
-    /* fallback */
-  }
+
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
@@ -8577,7 +8574,7 @@ ol {
 
   /* Header middle */
   .header .header-middle {
-    padding: 14px 0;
+    padding: 2px 0;
   }
 
   .header .navbar-brand img {
@@ -9050,10 +9047,8 @@ ol {
 /* ─── Header bottom nav ─────────────────────────────────── */
 @media (max-width: 767px) {
   .header .header-bottom {
-    padding: 8px 0;
+    padding: 0px 0;
   }
-
-  .header-bottom {}
 
   /* Full-width mobile menu */
   .header .sub-menu-bar.show {
@@ -11047,7 +11042,7 @@ textarea::placeholder {
   position: sticky;
   top: 0;
   z-index: 999;
-  margin-bottom: 8px;
+  margin-bottom: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
@@ -12944,6 +12939,358 @@ button.btn:disabled {
 
 .horizontal-dropdown-item:last-child {
   border-radius: 0 0 8px 8px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   WIDER CONTAINER FOR MORE SPACE (Jumia-style)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.jumia-container-wide {
+  max-width: 1440px !important;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* Apply wider container to main sections */
+.container {
+  max-width: 1380px !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HEADER BOTTOM CATEGORY NAVIGATION (Desktop)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.nav-link-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 150ms ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav-link-btn:hover {
+  color: #E18F27;
+}
+
+.navbar-nav {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.navbar-nav .nav-item {
+  list-style: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CATEGORY STRIP — Jumia-style with mega menu
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.category-strip {
+  background: #fff;
+  /* border-bottom: 1px solid #e5e7eb; */
+  position: relative;
+  z-index: 1001;
+}
+
+.container-wide {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ── The horizontal row of category buttons ─────────────────────────────── */
+.category-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  gap: 4px;
+}
+
+.category-row::-webkit-scrollbar {
+  display: none;
+}
+
+.category-item {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* ── Button: icon on left, text on right (same line) ───────────────────── */
+.category-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 150ms ease;
+  white-space: nowrap;
+}
+
+.category-link i {
+  font-size: 18px;
+  color: #6b7280;
+  transition: color 150ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.category-link span {
+  display: inline-block;
+  line-height: 1;
+}
+
+.category-link:hover,
+.category-link:hover i {
+  color: #e18f27;
+}
+
+/* ── Mega dropdown ──────────────────────────────────────────────────────── */
+.category-dropdown {
+  position: fixed;
+  top: auto;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  transform: translateY(6px);
+  background: #fff;
+  border-top: 2px solid #e18f27;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-radius: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
+  z-index: 1002;
+  max-width: none;
+}
+
+/* Keep it open while hovering the button OR the dropdown itself */
+.category-item:hover .category-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Multi-column inner grid (2 columns like Jumia) */
+.dropdown-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 2px 12px;
+  padding: 16px 20px;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  background: transparent;
+  color: #4b5563;
+  font-size: 13.5px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 120ms ease, color 120ms ease;
+  white-space: nowrap;
+}
+
+.dropdown-item:hover {
+  background: #fdf3e3;
+  color: #e18f27;
+}
+
+/* ── Mobile ─────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .category-row {
+    justify-content: flex-start;
+    gap: 0;
+    padding: 4px 0;
+  }
+
+  .category-link {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .category-link i {
+    font-size: 16px;
+  }
+
+  .dropdown-inner {
+    grid-template-columns: 1fr;
+  }
+}
+/* ══════════════════════════════════════════════════════════════════════════
+   PROMOTIONAL BANNER SECTION
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.promotional-banner-section {
+  /* padding: 60px 0; */
+  background: #f8f9fa;
+}
+
+.promo-banner-card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  height: 100%;
+  min-height: 200px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: pointer;
+}
+
+
+.promo-banner-large {
+  background: #e8f4f8;
+  min-height: 400px;
+  padding: 48px;
+}
+
+.promo-banner-small {
+  min-height: 190px;
+  padding: 24px;
+}
+
+.promo-banner-pink {
+  background: #fce4ec;
+}
+
+.promo-banner-blue {
+  background: #e3f2fd;
+}
+
+.promo-banner-purple {
+  background: #f3e5f5;
+}
+
+.promo-banner-indigo {
+  background: #e8eaf6;
+}
+
+.promo-banner-content h3 {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.promo-banner-content h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #081828;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+.promo-banner-small h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #081828;
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+
+.promo-banner-btn,
+.promo-link {
+  display: inline-block;
+  padding: 12px 28px;
+  background: #183B9B;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  border: none;
+  cursor: pointer;
+}
+
+.promo-banner-btn:hover,
+.promo-link:hover {
+  background: #E18F27;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(225, 143, 39, 0.3);
+}
+
+.promo-banner-image {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40%;
+  height: 80%;
+}
+
+.promo-banner-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@media (max-width: 991px) {
+  .promo-banner-large {
+    min-height: 300px;
+    padding: 32px;
+  }
+  
+  .promo-banner-content h2 {
+    font-size: 24px;
+  }
+  
+  .promo-banner-image {
+    width: 50%;
+  }
+}
+
+@media (max-width: 767px) {
+  .promotional-banner-section {
+    padding: 40px 0;
+  }
+  
+  .promo-banner-large {
+    min-height: 250px;
+    padding: 24px;
+  }
+  
+  .promo-banner-small {
+    min-height: 160px;
+  }
+  
+  .promo-banner-content h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+  
+  .promo-banner-small h4 {
+    font-size: 16px;
+  }
 }
 
 /* Mobile responsive adjustments */
