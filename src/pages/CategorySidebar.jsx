@@ -1,20 +1,70 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import categories from "../data/categories";
 import PriceFilter from "../components/shop/priceFilter";
 
-/* ─── The sidebar menu markup (shared between desktop & drawer) ─────────── */
-function SidebarMenu({ onClose }) {
-  const [open, setOpen] = useState({
-    Electronics: true,
-  });
+/* ─── Horizontal Filter Bar (Home Page Only) ────────────────────────────── */
+function HorizontalFilterBar() {
   const navigate = useNavigate();
-
-  const toggle = (key) => setOpen((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const handleCategoryClick = (categoryTitle) => {
     navigate(`/products?category=${encodeURIComponent(categoryTitle)}`);
-    if (onClose) onClose();
+  };
+
+  const handleItemClick = (itemName) => {
+    navigate(`/products?category=${encodeURIComponent(itemName)}`);
+  };
+
+  return (
+    <div className="horizontal-filter-container mb-4">
+      <div className="horizontal-filter-scroll">
+        {categories.map((cat) => (
+          <div key={cat.title} className="horizontal-filter-item">
+            <button
+              className="horizontal-filter-btn"
+              onClick={() => {
+                if (cat.items.length === 0) {
+                  handleCategoryClick(cat.title);
+                }
+              }}
+            >
+              {cat.title}
+            </button>
+            
+            {/* Dropdown on hover */}
+            {cat.items.length > 0 && (
+              <div className="horizontal-filter-dropdown">
+                {cat.items.map((item) => (
+                  <button
+                    key={item.name}
+                    className="horizontal-dropdown-item"
+                    onClick={() => handleItemClick(item.name)}
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Vertical Sidebar (Product Pages) ──────────────────────────────────── */
+function VerticalSidebar({ onClose }) {
+  const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [clickedOpen, setClickedOpen] = useState({});
+  const navigate = useNavigate();
+
+  const handleCategoryClick = (categoryTitle, hasItems) => {
+    if (!hasItems) {
+      navigate(`/products?category=${encodeURIComponent(categoryTitle)}`);
+      if (onClose) onClose();
+    } else {
+      setClickedOpen(prev => ({ ...prev, [categoryTitle]: !prev[categoryTitle] }));
+    }
   };
 
   const handleItemClick = (itemName) => {
@@ -22,58 +72,57 @@ function SidebarMenu({ onClose }) {
     if (onClose) onClose();
   };
 
+  const isOpen = (categoryTitle) => {
+    return hoveredCategory === categoryTitle || clickedOpen[categoryTitle];
+  };
+
   return (
     <div className="mega-category-menu sidebar-variant mb-30">
-      {/* header row – only visible inside the drawer on mobile */}
       {onClose && (
         <div className="sidebar-drawer-header">
-          <span className="fw-bold">All Categories</span>
+          <span className="fw-bold">Filters</span>
           <button
             className="sidebar-drawer-close"
             onClick={onClose}
-            aria-label="Close categories"
+            aria-label="Close filters"
           >
             <i className="lni lni-close"></i>
           </button>
         </div>
       )}
 
-      {/* desktop "All Categories" button */}
       {!onClose && (
-        <span className="cat-button">
-          {/* <i className="lni lni-menu"></i> */}
-          All Categories
-        </span>
+        <span className="cat-button">Filters</span>
       )}
 
       <ul className="sub-category static">
         {categories.map((cat) => (
-          <li key={cat.title} className="has-sub">
+          <li 
+            key={cat.title} 
+            className="has-sub"
+            onMouseEnter={() => !onClose && setHoveredCategory(cat.title)}
+            onMouseLeave={() => !onClose && setHoveredCategory(null)}
+          >
             <button
-              className="sub-category-btn"
-              onClick={() => toggle(cat.title)}
-              aria-expanded={!!open[cat.title]}
+              className="sub-category-btn clean-filter-btn"
+              onClick={() => handleCategoryClick(cat.title, cat.items.length > 0)}
+              aria-expanded={isOpen(cat.title)}
             >
-              {cat.title}
+              <span className="filter-category-name">{cat.title}</span>
+              {cat.items.length > 0 && (
+                <i className={`lni ${isOpen(cat.title) ? 'lni-chevron-up' : 'lni-chevron-down'} filter-chevron-icon`}></i>
+              )}
             </button>
-            {open[cat.title] && (
-              <ul className="inner-sub-category static">
-                {/* Category title link */}
-                <li>
-                  <button
-                    className="sub-category-link-btn"
-                    onClick={() => handleCategoryClick(cat.title)}
-                  >
-                    All {cat.title}
-                  </button>
-                </li>
+            
+            {isOpen(cat.title) && cat.items.length > 0 && (
+              <ul className="inner-sub-category clean-filter-sub static">
                 {cat.items.map((item) => (
-                  <li key={item}>
+                  <li key={item.name} className="clean-filter-subitem">
                     <button
-                      className="sub-category-link-btn"
-                      onClick={() => handleItemClick(item)}
+                      className="sub-category-link-btn clean-filter-link"
+                      onClick={() => handleItemClick(item.name)}
                     >
-                      {item}
+                      {item.name}
                     </button>
                   </li>
                 ))}
@@ -91,42 +140,51 @@ function SidebarMenu({ onClose }) {
 /* ─── Public component ──────────────────────────────────────────────────── */
 export default function CategorySidebar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
 
   return (
     <>
-      {/* ── Mobile: toggle button ── */}
-      <button
-        className="sidebar-drawer-toggle d-lg-none"
-        onClick={() => setDrawerOpen(true)}
-        aria-label="Open categories"
-        aria-expanded={drawerOpen}
-      >
-        <i className="lni lni-menu"></i> Categories
-      </button>
+      {/* Home page - horizontal filter */}
+      {isHomePage ? (
+        <HorizontalFilterBar />
+      ) : (
+        <>
+          {/* Mobile: toggle button */}
+          <button
+            className="sidebar-drawer-toggle d-lg-none"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Open filters"
+            aria-expanded={drawerOpen}
+          >
+            <i className="lni lni-menu"></i> Filters
+          </button>
 
-      {/* ── Mobile: drawer overlay ── */}
-      {drawerOpen && (
-        <div
-          className="sidebar-drawer-overlay"
-          onClick={() => setDrawerOpen(false)}
-          aria-hidden="true"
-        />
+          {/* Mobile: drawer overlay */}
+          {drawerOpen && (
+            <div
+              className="sidebar-drawer-overlay"
+              onClick={() => setDrawerOpen(false)}
+              aria-hidden="true"
+            />
+          )}
+
+          {/* Mobile: sliding drawer */}
+          <div
+            className={`sidebar-drawer ${drawerOpen ? "sidebar-drawer--open" : ""}`}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Product filters"
+          >
+            <VerticalSidebar onClose={() => setDrawerOpen(false)} />
+          </div>
+
+          {/* Desktop: inline sidebar */}
+          <div className="d-none d-lg-block">
+            <VerticalSidebar onClose={null} />
+          </div>
+        </>
       )}
-
-      {/* ── Mobile: sliding drawer ── */}
-      <div
-        className={`sidebar-drawer ${drawerOpen ? "sidebar-drawer--open" : ""}`}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Product categories"
-      >
-        <SidebarMenu onClose={() => setDrawerOpen(false)} />
-      </div>
-
-      {/* ── Desktop: inline sidebar (hidden on < lg) ── */}
-      <div className="d-none d-lg-block">
-        <SidebarMenu onClose={null} />
-      </div>
     </>
   );
 }

@@ -118,8 +118,7 @@ export default function HeaderBottom({ sticky = false }) {
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                 {[
                   { to: '/', label: 'Home', end: true },
-                  { to: '/products', label: 'Shop' },
-                  { to: '/orders', label: 'My Orders' },
+                  { to: '/products', label: 'Products' },
                 ].map(({ to, label, end }) => (
                   <li key={to}>
                     <NavLink
@@ -148,7 +147,7 @@ export default function HeaderBottom({ sticky = false }) {
             DESKTOP NAV (hidden on mobile)
         ════════════════════════════════════════ */}
         <div className="row align-items-center d-none d-lg-flex">
-          <div className="col-lg-8 col-md-6">
+          <div className="col-lg-12">
             <div className="nav-inner">
               <nav className="navbar navbar-expand-lg">
                 <div className="collapse navbar-collapse sub-menu-bar show">
@@ -157,24 +156,11 @@ export default function HeaderBottom({ sticky = false }) {
                       <NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>Home</NavLink>
                     </li>
                     <li className="nav-item">
-                      <NavLink to="/products" className={({ isActive }) => isActive ? 'active' : ''}>Shop</NavLink>
-                    </li>
-                    <li className="nav-item">
-                      <NavLink to="/orders" className={({ isActive }) => isActive ? 'active' : ''}>My Orders</NavLink>
+                      <NavLink to="/products" className={({ isActive }) => isActive ? 'active' : ''}>Products</NavLink>
                     </li>
                   </ul>
                 </div>
               </nav>
-            </div>
-          </div>
-          <div className="col-lg-4 col-md-6">
-            <div className="nav-social">
-              <h5 className="title">Follow Us:</h5>
-              <ul>
-                <li><a href="#"><i className="lni lni-facebook-filled"></i></a></li>
-                <li><a href="#"><i className="lni lni-twitter-original"></i></a></li>
-                <li><a href="#"><i className="lni lni-instagram"></i></a></li>
-              </ul>
             </div>
           </div>
         </div>
