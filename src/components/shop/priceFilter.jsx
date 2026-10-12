@@ -42,7 +42,7 @@ export default function PriceFilter() {
           display: flex;
           justify-content: space-between;
           align-items: baseline;
-          margin-bottom: 14px;
+          margin-bottom: 0px;
         }
         .pf-title {
           font-size: 12px;

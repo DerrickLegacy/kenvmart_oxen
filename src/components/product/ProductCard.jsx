@@ -152,7 +152,7 @@ export default function ProductCard({ product }) {
           width: 100%;
           padding: 7px;
           background: #183B9B;
-          color: #e18f27;
+          color: #ffff;
           border: none;
           border-radius: 6px;
           font-size: 12px;

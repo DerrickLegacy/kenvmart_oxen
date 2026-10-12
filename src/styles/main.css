@@ -5495,7 +5495,7 @@ ol {
   align-items: center;
   background-color: #183B9B;
   color: #fff;
-  padding: 14px 16px;
+  padding: 1px 16px;
 }
 
 .sidebar-drawer-header span {
@@ -11990,7 +11990,7 @@ a:not(.btn):hover {
   display: inline-flex;
   align-items: center;
   padding: 10px 26px;
-  background: #183B9B;
+  background: #f59e0b;
   color: #fff !important;
   font-size: 14px;
   font-weight: 700;
@@ -12009,12 +12009,12 @@ a:not(.btn):hover {
 }
 
 .promo-cta-btn--dark {
-  background: #0f172a;
+  background: #f59e0b;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .promo-cta-btn--dark:hover {
-  background: #1e293b;
+  background: #f59e0b;
 }
 
 /* ── Navigation arrows — ALWAYS visible, even on mobile ─────────────────── */
@@ -12090,7 +12090,7 @@ a:not(.btn):hover {
   display: flex;
   align-items: center;
   height: 380px;
-  background: #f0f2f8;
+  background: #183B9B;
   padding: 32px;
   gap: 32px;
   overflow: hidden;
@@ -12104,7 +12104,7 @@ a:not(.btn):hover {
 .promo-power-eyebrow {
   font-size: 11px;
   font-weight: 700;
-  color: #183B9B;
+  color: #e18f27;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 0 0 8px;
@@ -12113,14 +12113,14 @@ a:not(.btn):hover {
 .promo-power-heading {
   font-size: 32px;
   font-weight: 800;
-  color: #0f172a;
+  color: #ffffff;
   line-height: 1.2;
   margin: 0 0 12px;
 }
 
 .promo-power-sub {
   font-size: 14px;
-  color: #555;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
   margin: 0 0 20px;
   max-width: 280px;
@@ -12143,27 +12143,28 @@ a:not(.btn):hover {
   justify-content: center;
   gap: 8px;
   background: #fff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e18f27;
   border-radius: 12px;
-  padding: 16px 12px 12px;
+  padding: 20px 16px 16px;
   text-decoration: none !important;
-  width: 140px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  width: 180px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
 }
 
 .promo-power-chip:hover {
-  border-color: #183B9B;
-  box-shadow: 0 4px 12px rgba(24, 59, 155, 0.15);
+  border-color: #e18f27;
+  box-shadow: 0 6px 16px rgba(225, 143, 39, 0.25);
   transform: translateY(-3px);
 }
 
 .promo-power-chip img {
-  width: 72px;
-  height: 72px;
+  width: 140px;
+  height: 140px;
   object-fit: contain;
   border-radius: 8px;
   flex-shrink: 0;
+  /* border: 1px solid #e18f27; */
 }
 
 .promo-power-chip span {
@@ -12210,6 +12211,11 @@ a:not(.btn):hover {
 
   .promo-power-heading {
     font-size: 22px;
+    color: #ffffff;
+  }
+
+  .promo-power-eyebrow {
+    color: #e18f27;
   }
 
   .promo-power-sub {
@@ -12230,15 +12236,17 @@ a:not(.btn):hover {
   .promo-power-chip {
     width: auto;
     flex: 1 1 0;
-    min-width: 96px;
+    min-width: 120px;
     flex-shrink: 0;
-    padding: 10px 8px 8px;
+    padding: 12px 10px 10px;
     flex-direction: column;
+    border: 2px solid #e18f27;
   }
 
   .promo-power-chip img {
-    width: 48px;
-    height: 48px;
+    width: 80px;
+    height: 80px;
+    border: 1px solid #e18f27;
   }
 
   .promo-power-chip span {
@@ -12769,7 +12777,7 @@ button.btn:disabled {
 /* On screens < 992px (sidebar drawer toggle visible), add top margin */
 @media (max-width: 991px) {
   .shop-sidebar-col {
-    margin-top: 16px;
+    margin-top: 0px;
     margin-bottom: 8px;
   }
 
@@ -12781,7 +12789,7 @@ button.btn:disabled {
 /* Desktop: ensure sidebar starts below breadcrumb with enough margin */
 @media (min-width: 992px) {
   .shop-sidebar-col .mega-category-menu.sidebar-variant.mb-30 {
-    margin-top: 28px !important;
+    margin-top: 0px !important;
   }
 }
 

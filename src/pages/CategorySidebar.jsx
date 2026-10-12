@@ -10,6 +10,9 @@ function VerticalSidebar({ onClose }) {
   const navigate = useNavigate();
 
   const handleCategoryClick = (categoryTitle, hasItems) => {
+    // Skip "Brands" category - it's handled differently now
+    if (categoryTitle === "Brands") return;
+    
     if (!hasItems) {
       navigate(`/products?category=${encodeURIComponent(categoryTitle)}`);
       if (onClose) onClose();
@@ -20,6 +23,11 @@ function VerticalSidebar({ onClose }) {
 
   const handleItemClick = (itemName) => {
     navigate(`/products?category=${encodeURIComponent(itemName)}`);
+    if (onClose) onClose();
+  };
+
+  const handleBrandClick = (brandName) => {
+    navigate(`/products?brand=${encodeURIComponent(brandName)}`);
     if (onClose) onClose();
   };
 
@@ -47,43 +55,254 @@ function VerticalSidebar({ onClose }) {
       )}
 
       <ul className="sub-category static">
-        {categories.map((cat) => (
-          <li 
-            key={cat.title} 
-            className="has-sub"
-            onMouseEnter={() => !onClose && setHoveredCategory(cat.title)}
-            onMouseLeave={() => !onClose && setHoveredCategory(null)}
-          >
-            <button
-              className="sub-category-btn clean-filter-btn"
-              onClick={() => handleCategoryClick(cat.title, cat.items.length > 0)}
-              aria-expanded={isOpen(cat.title)}
+        {categories.map((cat) => {
+          // Handle Brands category differently
+          if (cat.title === "Brands") {
+            return (
+              <li key={cat.title} className="filter-section brands-section-main">
+                <div className="filter-section-header">
+                  <span className="filter-section-title">Brands</span>
+                </div>
+                <ul className="brands-filter-list">
+                  {cat.items.map((item) => (
+                    <li key={item.name}>
+                      <label className="brand-filter-item">
+                        <input type="checkbox" onChange={() => handleBrandClick(item.name)} />
+                        <span>{item.name}</span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            );
+          }
+
+          // Regular categories
+          return (
+            <li 
+              key={cat.title} 
+              className="has-sub"
+              onMouseEnter={() => !onClose && setHoveredCategory(cat.title)}
+              onMouseLeave={() => !onClose && setHoveredCategory(null)}
             >
-              <span className="filter-category-name">{cat.title}</span>
-              {cat.items.length > 0 && (
-                <i className={`lni ${isOpen(cat.title) ? 'lni-chevron-up' : 'lni-chevron-down'} filter-chevron-icon`}></i>
+              <button
+                className="sub-category-btn clean-filter-btn"
+                onClick={() => handleCategoryClick(cat.title, cat.items.length > 0)}
+                aria-expanded={isOpen(cat.title)}
+              >
+                <span className="filter-category-name">{cat.title}</span>
+                {cat.items.length > 0 && (
+                  <i className={`lni ${isOpen(cat.title) ? 'lni-chevron-up' : 'lni-chevron-down'} filter-chevron-icon`}></i>
+                )}
+              </button>
+              
+              {isOpen(cat.title) && cat.items.length > 0 && (
+                <ul className="inner-sub-category clean-filter-sub static">
+                  {cat.items.map((item) => (
+                    <li key={item.name} className="clean-filter-subitem">
+                      <button
+                        className="sub-category-link-btn clean-filter-link"
+                        onClick={() => handleItemClick(item.name)}
+                      >
+                        {item.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               )}
-            </button>
-            
-            {isOpen(cat.title) && cat.items.length > 0 && (
-              <ul className="inner-sub-category clean-filter-sub static">
-                {cat.items.map((item) => (
-                  <li key={item.name} className="clean-filter-subitem">
-                    <button
-                      className="sub-category-link-btn clean-filter-link"
-                      onClick={() => handleItemClick(item.name)}
-                    >
-                      {item.name}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ))}
+            </li>
+          );
+        })}
 
         <PriceFilter />
+        
+        {/* Product Rating Filter */}
+        <li className="filter-section">
+          <div className="filter-section-header">
+            <span className="filter-section-title">Product Rating</span>
+          </div>
+          <ul className="rating-filter-list">
+            <li>
+              <label className="rating-filter-item">
+                <input type="checkbox" />
+                <span className="rating-stars">
+                  {'★'.repeat(4)}{'☆'.repeat(1)}
+                </span>
+                <span className="rating-text">4 Stars & Up</span>
+              </label>
+            </li>
+            <li>
+              <label className="rating-filter-item">
+                <input type="checkbox" />
+                <span className="rating-stars">
+                  {'★'.repeat(3)}{'☆'.repeat(2)}
+                </span>
+                <span className="rating-text">3 Stars & Up</span>
+              </label>
+            </li>
+            <li>
+              <label className="rating-filter-item">
+                <input type="checkbox" />
+                <span className="rating-stars">
+                  {'★'.repeat(2)}{'☆'.repeat(3)}
+                </span>
+                <span className="rating-text">2 Stars & Up</span>
+              </label>
+            </li>
+            <li>
+              <label className="rating-filter-item">
+                <input type="checkbox" />
+                <span className="rating-stars">
+                  {'★'.repeat(1)}{'☆'.repeat(4)}
+                </span>
+                <span className="rating-text">1 Star & Up</span>
+              </label>
+            </li>
+          </ul>
+        </li>
       </ul>
+
+      <style>{`
+        /* Remove top margin/padding from filter card */
+        .mega-category-menu.sidebar-variant {
+          margin-top: 0;
+          padding-top: 0;
+        }
+
+        .mega-category-menu .cat-button {
+          margin-top: 0;
+          padding-top: 2px;
+          padding-bottom: 2px;
+        }
+
+        /* Remove scrollbar from filter sidebar */
+        .mega-category-menu.sidebar-variant,
+        .sub-category.static {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+
+        .mega-category-menu.sidebar-variant::-webkit-scrollbar,
+        .sub-category.static::-webkit-scrollbar {
+          display: none;
+        }
+
+        /* Filter Section Styles */
+        .filter-section {
+          margin-top: 16px;
+          padding: 12px 14px;
+          border-top: 1px solid #e8ecf0;
+        }
+        
+        .filter-section-header {
+          margin-bottom: 10px;
+        }
+        
+        .filter-section-title {
+          font-size: 0.8rem;
+          font-weight: 700;
+          color: #0b1a33;
+          letter-spacing: 0.01em;
+          text-transform: uppercase;
+        }
+        
+        /* Rating Filter */
+        .rating-filter-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        
+        .rating-filter-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 5px 0;
+          cursor: pointer;
+          font-size: 0.75rem;
+        }
+        
+        .rating-filter-item input[type="checkbox"] {
+          width: 15px;
+          height: 15px;
+          cursor: pointer;
+          accent-color: #183B9B;
+        }
+        
+        .rating-stars {
+          color: #f59e0b;
+          font-size: 0.8rem;
+          letter-spacing: 1px;
+        }
+        
+        .rating-text {
+          color: #3d414a;
+          font-size: 0.75rem;
+        }
+        
+        .rating-filter-item:hover .rating-text {
+          color: #183B9B;
+        }
+        
+        /* Brands Filter */
+        .brands-section-main {
+          margin-top: 16px;
+          padding: 12px 14px;
+          border-top: 1px solid #e8ecf0;
+          list-style: none;
+        }
+        
+        .brands-filter-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        
+        .brand-filter-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 5px 0;
+          cursor: pointer;
+          font-size: 0.75rem;
+          color: #3d414a;
+        }
+        
+        .brand-filter-item input[type="checkbox"] {
+          width: 15px;
+          height: 15px;
+          cursor: pointer;
+          accent-color: #183B9B;
+        }
+        
+        .brand-filter-item:hover span {
+          color: #183B9B;
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 991px) {
+          .filter-section,
+          .brands-section-main {
+            padding: 10px 12px;
+          }
+
+          .filter-section-title {
+            font-size: 0.85rem;
+          }
+
+          .rating-filter-item,
+          .brand-filter-item {
+            padding: 6px 0;
+            font-size: 0.8rem;
+          }
+
+          .rating-filter-item input[type="checkbox"],
+          .brand-filter-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+          }
+        }
+      `}</style>
     </div>
   );
 }

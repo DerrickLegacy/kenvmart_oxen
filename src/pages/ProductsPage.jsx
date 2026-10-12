@@ -468,7 +468,7 @@ export default function ProductsPage() {
 					width: 100%;
 					background: #fff;
 					border-radius: 12px;
-					padding: 12px 16px;
+					padding: 8px 12px;
 					margin-bottom: 20px;
 					border: 1px solid #e8ecf0;
 					box-shadow: 0 1px 4px rgba(0,0,0,0.02);
@@ -486,10 +486,10 @@ export default function ProductsPage() {
 				.filter-buttons {
 					display: flex;
 					align-items: center;
-					gap: 8px;
+					gap: 6px;
 					flex-wrap: nowrap;
 					overflow-x: auto;
-					padding: 2px 0;
+					padding: 0;
 					-webkit-overflow-scrolling: touch;
 					scrollbar-width: none;
 				}
@@ -499,12 +499,12 @@ export default function ProductsPage() {
 
 				/* ===== FILTER PILLS ===== */
 				.filter-pill {
-					padding: 6px 18px;
-					border-radius: 20px;
+					padding: 2px 6px;
+					border-radius: 10px;
 					border: 1.5px solid #e18f27;
 					background: #fff;
 					color: #3d414a;
-					font-size: 0.82rem;
+					font-size: 0.55rem;
 					font-weight: 500;
 					cursor: pointer;
 					transition: all 0.18s ease;
@@ -540,19 +540,19 @@ export default function ProductsPage() {
 				}
 
 				.sort-select {
-					padding: 6px 32px 6px 14px;
-					border-radius: 20px;
+					padding: 3px 26px 3px 8px;
+					border-radius: 12px;
 					border: 1.5px solid #dce0e6;
-					background: #f7f8fa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233d414a' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 12px center;
-					background-size: 10px;
+					background: #f7f8fa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233d414a' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 7px center;
+					background-size: 8px;
 					appearance: none;
-					font-size: 0.8rem;
+					font-size: 0.65rem;
 					font-weight: 500;
 					color: #3d414a;
 					cursor: pointer;
 					transition: all 0.2s ease;
 					font-family: inherit;
-					min-width: 130px;
+					min-width: 100px;
 				}
 				.sort-select:hover {
 					background-color: #eef0f4;
@@ -609,60 +609,62 @@ export default function ProductsPage() {
 				/* ===== RESPONSIVE ===== */
 				@media (max-width: 768px) {
 					.filter-strip-wrapper {
-						padding: 10px 12px;
+						padding: 6px 10px;
 					}
 					.filter-strip {
 						flex-wrap: nowrap;
 					}
 					.filter-buttons {
-						gap: 6px;
+						gap: 4px;
 					}
 					.filter-pill {
-						font-size: 0.7rem;
-						padding: 5px 12px;
+						font-size: 0.5rem;
+						padding: 2px 5px;
+						border-radius: 8px;
 					}
 					.sort-select {
-						font-size: 0.7rem;
-						padding: 5px 28px 5px 10px;
-						min-width: 110px;
+						font-size: 0.55rem;
+						padding: 2px 22px 2px 7px;
+						min-width: 90px;
 					}
 					.filter-active-bar {
-						font-size: 0.75rem;
+						font-size: 0.7rem;
 						flex-direction: column;
 						align-items: flex-start;
 						gap: 6px;
 					}
 					.filter-clear-btn {
-						font-size: 0.7rem;
-						padding: 2px 10px;
+						font-size: 0.6rem;
+						padding: 2px 8px;
 					}
 				}
 
 				@media (max-width: 480px) {
 					.filter-strip-wrapper {
-						padding: 8px 10px;
+						padding: 5px 8px;
 					}
 					.filter-pill {
-						font-size: 0.65rem;
-						padding: 4px 10px;
+						font-size: 0.48rem;
+						padding: 1px 4px;
+						border-radius: 7px;
 					}
 					.sort-select {
-						font-size: 0.65rem;
-						padding: 4px 24px 4px 8px;
-						min-width: 90px;
+						font-size: 0.5rem;
+						padding: 2px 20px 2px 6px;
+						min-width: 80px;
 					}
 				}
 
 				/* Shop sidebar — sticky below the fixed header */
 				.shop-sidebar-col {
 					position: sticky;
-					top: 148px;
+					top: 0px;
 					align-self: flex-start;
 					z-index: 80;
 				}
 				@media (min-width: 768px) and (max-width: 991px) {
 					.shop-sidebar-col {
-						top: 120px;
+						top: 0px;
 					}
 				}
 				@media (max-width: 991px) {
