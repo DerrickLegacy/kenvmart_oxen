@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const MIN_VAL = 0;
-const MAX_VAL = 500000;
+const MAX_VAL = 200000;
 
 export default function PriceFilter() {
   const [searchParams, setSearchParams] = useSearchParams();

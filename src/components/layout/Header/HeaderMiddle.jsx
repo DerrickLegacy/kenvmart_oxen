@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useWishlist } from '../../../context/WishlistContext';
+import { useAuth } from '../../../context/AuthContext';
 import CartDropdown from './CartDropdown';
+import Dropdown from "../../reusables/Dropdown";
 import { siteConfig } from '../../../data/siteConfig';
 import { productsApi, imageUrl } from '../../../services/api';
 
@@ -58,11 +60,55 @@ export default function HeaderMiddle({ sticky = false }) {
   const [suggestions, setSuggestions] = useState([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState(null); // 'user', 'help', or null
   const navigate = useNavigate();
 
+  const { user, logout } = useAuth();
   const { state: wishlistItems } = useWishlist();
   const searchWrapRef = useRef(null);
   const debounceRef = useRef(null);
+
+  const toggleMenu = (menu) => {
+    setActiveMenu(prev => prev === menu ? null : menu);
+  };
+
+  // Close other menus when search dropdown opens
+  useEffect(() => {
+    if (dropdownOpen) setActiveMenu(null);
+  }, [dropdownOpen]);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
+  const accountItems = user
+    ? [
+      { label: "My Account", icon: "lni lni-user", to: "/account" },
+      { label: "Orders", icon: "lni lni-cart", to: "/orders" },
+      { label: "Wishlist", icon: "lni lni-heart", to: "/wishlist" },
+      { label: "Settings", icon: "lni lni-cog", to: "/settings" },
+      {
+        label: "Logout",
+        icon: "lni lni-exit",
+        onClick: handleLogout,
+      },
+    ]
+    : [
+      { label: "My Account", icon: "lni lni-user", to: "/account" },
+      { label: "Orders", icon: "lni lni-cart", to: "/orders" },
+      { label: "Wishlist", icon: "lni lni-heart", to: "/wishlist" },
+    ];
+
+  const helpItems = [
+    { label: "Help Center", icon: "lni lni-question-circle", to: "/help" },
+    { label: "Contact Us", icon: "lni lni-envelope", to: "/contact" },
+    { label: "FAQ", icon: "lni lni-help", to: "/faq" },
+  ];
+
+  const displayName = user
+    ? (user.full_name?.split(" ")[0] ?? user.name ?? "Account")
+    : null;
 
   /* close dropdown on outside click / Escape */
   useEffect(() => {
@@ -76,9 +122,9 @@ export default function HeaderMiddle({ sticky = false }) {
     // Use 'click' instead of 'mousedown' to allow links to process first
     document.addEventListener('click', click);
     document.addEventListener('keydown', key);
-    return () => { 
-      document.removeEventListener('click', click); 
-      document.removeEventListener('keydown', key); 
+    return () => {
+      document.removeEventListener('click', click);
+      document.removeEventListener('keydown', key);
     };
   }, []);
 
@@ -107,12 +153,6 @@ export default function HeaderMiddle({ sticky = false }) {
     navigate(searchTerm.trim() ? `/products?q=${encodeURIComponent(searchTerm.trim())}` : '/products');
     setDropdownOpen(false);
   };
-  const pickSuggestion = (e, p) => { 
-    e.preventDefault(); 
-    setDropdownOpen(false); 
-    setSearchTerm(''); 
-    navigate(`/product/${p.id}`); 
-  };
   const seeAllUrl = useMemo(() => `/products?q=${encodeURIComponent(searchTerm.trim())}`, [searchTerm]);
 
   /* ── dropdown JSX — inline, NOT a sub-component, so focus is never stolen ── */
@@ -125,16 +165,16 @@ export default function HeaderMiddle({ sticky = false }) {
           <div style={D.empty}>No products match <strong>"{searchTerm.trim()}"</strong></div>
         )}
         {!suggestionsLoading && suggestions.map((p) => (
-          <Link 
-            key={p.id} 
+          <Link
+            key={p.id}
             to={`/product/${p.id}`}
-            style={{...D.item, textDecoration: 'none'}} 
+            style={{ ...D.item, textDecoration: 'none' }}
             role="option"
-            onClick={(e) => { 
+            onClick={(e) => {
               console.log('Link clicked for product:', p.id, p.name);
               e.stopPropagation();
-              setDropdownOpen(false); 
-              setSearchTerm(''); 
+              setDropdownOpen(false);
+              setSearchTerm('');
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = '#f6f7f9')}
             onMouseLeave={(e) => (e.currentTarget.style.background = '')}
@@ -149,7 +189,7 @@ export default function HeaderMiddle({ sticky = false }) {
         ))}
       </div>
       {!suggestionsLoading && suggestions.length > 0 && (
-        <Link to={seeAllUrl} onClick={() => setDropdownOpen(false)} style={{...D.footer, textDecoration: 'none'}}>
+        <Link to={seeAllUrl} onClick={() => setDropdownOpen(false)} style={{ ...D.footer, textDecoration: 'none' }}>
           See all results for "{searchTerm.trim()}"
         </Link>
       )}
@@ -157,19 +197,21 @@ export default function HeaderMiddle({ sticky = false }) {
   ) : null;
 
   return (
-    <div className={`header-middle${sticky ? ' header-middle--stuck' : ''}`}>
+    <div className={`header-middle${sticky ? ' header-middle--stuck' : ''}`} style={{ borderBottom: 'none' }}>
       <div className="container">
 
         {/* ── DESKTOP lg+ ── */}
-        <div className="d-none d-lg-flex align-items-center" style={{ gap: 20, padding: '8px 0' }}>
+        <div className="d-none d-lg-flex align-items-center justify-content-between" style={{ padding: '8px 0' }}>
 
-          <Link className="navbar-brand" to="/" style={{ flexShrink: 0, lineHeight: 1 }}>
-            <img src="/assets/images/logo/logo.svg" alt={siteConfig.name} style={{ height: 36, display: 'block' }} />
-          </Link>
+          <div style={{ flex: '1 1 0', display: 'flex', alignItems: 'center' }}>
+            <Link className="navbar-brand" to="/" style={{ flexShrink: 0, lineHeight: 1 }}>
+              <img src="/assets/images/logo/logo.svg" alt={siteConfig.name} style={{ height: 36, display: 'block' }} />
+            </Link>
+          </div>
 
           {/* search wrapper — overflow visible so dropdown isn't clipped */}
           <div className="main-menu-search" ref={searchWrapRef}
-            style={{ flex: 1, position: 'relative', overflow: 'visible', zIndex: 1100 }}>
+            style={{ flex: '0 0 45%', position: 'relative', overflow: 'visible', zIndex: 1100 }}>
             <form className="navbar-search search-style-5" onSubmit={handleSubmit} style={{ position: 'relative' }}>
               <div className="search-input">
                 <input
@@ -192,20 +234,55 @@ export default function HeaderMiddle({ sticky = false }) {
             {dropdown}
           </div>
 
-          <div className="middle-right-area" style={{ flexShrink: 0 }}>
-            <div className="nav-hotline">
-              <i className="lni lni-phone" />
-              <h3><span>
-                <a href={`tel:${siteConfig.phoneRaw}`} style={{ color: 'inherit', textDecoration: 'none' }}>
-                  {siteConfig.phone}
-                </a>
-              </span></h3>
+          <div className="middle-right-area d-flex align-items-center justify-content-end" style={{ flex: '1 1 0', gap: '20px' }}>
+            {/* User Dropdown */}
+            <div className="user-nav-item">
+              {user ? (
+                <div className="d-flex align-items-center gap-2">
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#e18f27', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold', fontSize: '14px' }}>
+                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  <Dropdown
+                    buttonLabel={displayName ?? "Account"}
+                    buttonIcon=""
+                    accountItems={accountItems}
+                    className="account-dropdown-middle"
+                    buttonStyle={{ color: '#0b1a33', fontWeight: 600, fontSize: '14px' }}
+                    isOpen={activeMenu === 'user'}
+                    onToggle={() => toggleMenu('user')}
+                  />
+                </div>
+              ) : (
+                <div className="d-flex align-items-center gap-2">
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                    <i className="lni lni-user" />
+                  </div>
+                  <Link to="/login" style={{ color: '#0b1a33', fontWeight: 600, textDecoration: 'none', fontSize: '14px' }} onClick={() => setActiveMenu(null)}>Sign In</Link>
+                </div>
+              )}
             </div>
-            <div className="navbar-cart">
+
+            {/* Help Dropdown */}
+            <div className="help-nav-item">
+              <div className="d-flex align-items-center gap-1">
+                <i className="lni lni-question-circle" style={{ fontSize: '20px', color: '#0b1a33' }} />
+                <Dropdown
+                  buttonLabel="Help"
+                  buttonIcon=""
+                  accountItems={helpItems}
+                  className="help-dropdown-middle"
+                  buttonStyle={{ color: '#0b1a33', fontWeight: 600, fontSize: '14px' }}
+                  isOpen={activeMenu === 'help'}
+                  onToggle={() => toggleMenu('help')}
+                />
+              </div>
+            </div>
+
+            <div className="navbar-cart d-flex align-items-center gap-3" style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '20px' }}>
               <div className="wishlist">
-                <Link to="/wishlist">
-                  <i className="lni lni-heart" />
-                  <span className="total-items">{wishlistItems.length}</span>
+                <Link to="/wishlist" style={{ position: 'relative' }}>
+                  <i className="lni lni-heart" style={{ fontSize: '24px', color: '#0b1a33' }} />
+                  <span className="total-items" style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#ef2c4a', color: '#fff', fontSize: '10px', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{wishlistItems.length}</span>
                 </Link>
               </div>
               <CartDropdown />

@@ -40,7 +40,7 @@ function PromoCarousel() {
               altText="Durable Charging Cables"
             />
             <Carousel.Caption className="promo-caption promo-caption--left">
-              <h2>Built to Keep You<br />Connected</h2>
+              <h2 className="promo-caption-heading">Built to Keep You<br />Connected</h2>
               <p>Charge faster. Stay connected longer.</p>
               <Link to="/products?category=charger" className="promo-cta-btn">
                 Explore Charging

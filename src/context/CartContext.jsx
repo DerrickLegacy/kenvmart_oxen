@@ -1,14 +1,28 @@
-import { createContext, useContext, useReducer, useEffect, useRef } from 'react';
+import { createContext, useContext, useReducer, useEffect, useRef, useState } from 'react';
 import { AuthContext } from './AuthContext';
 import { cartApi } from '../services/api';
 
-const dedupKey = (productId, variant) => `${productId}::${variant ?? ''}`;
+const dedupKey = (productId, variant) => {
+  if (!productId) return '';
+  // Normalize ID: "prod-310" or 310 or "310" -> "310"
+  const cleanId = String(productId).replace(/^prod-/, '');
+  return `${cleanId}::${variant ?? ''}`;
+};
 
 function cartReducer(state, action) {
+  if (!action || !action.payload) return state;
+
   switch (action.type) {
     case 'ADD_TO_CART': {
       const { product, variant = null, quantity = 1 } = action.payload;
-      const key = dedupKey(product.id, variant);
+
+      if (!product) return state;
+
+      const rawId = product.id || product.pid || product.jpos_id;
+      if (!rawId) return state;
+
+      const productId = String(rawId).replace(/^prod-/, '');
+      const key = dedupKey(productId, variant);
 
       const existingIndex = state.findIndex(
         (item) => dedupKey(item.productId, item.variant) === key
@@ -25,10 +39,10 @@ function cartReducer(state, action) {
       const price = product.discount_price ?? product.discountPrice ?? product.price;
 
       const newItem = {
-        productId: product.id,
-        name: product.name,
-        price,
-        originalPrice: product.price,
+        productId,
+        name: product.name || product.product_name,
+        price: parseFloat(price) || 0,
+        originalPrice: parseFloat(product.price || product.retail_price) || 0,
         quantity: Math.min(Math.max(quantity, 1), 99),
         image: product.images?.[0] ?? product.image ?? null,
         variant,
@@ -39,6 +53,8 @@ function cartReducer(state, action) {
 
     case 'REMOVE_FROM_CART': {
       const { productId, variant = null } = action.payload;
+      if (!productId) return state;
+
       const key = dedupKey(productId, variant);
       return state.filter(
         (item) => dedupKey(item.productId, item.variant) !== key
@@ -47,6 +63,9 @@ function cartReducer(state, action) {
 
     case 'UPDATE_QUANTITY': {
       const { productId, variant = null, quantity } = action.payload;
+
+      if (!productId) return state;
+
       const key = dedupKey(productId, variant);
       const clamped = Math.min(Math.max(quantity, 1), 99);
       return state.map((item) =>
@@ -84,6 +103,7 @@ export const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, undefined, initCartState);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   let authCtx = null;
   try { authCtx = useContext(AuthContext); } catch { }
@@ -114,15 +134,18 @@ export function CartProvider({ children }) {
         const data = await cartApi.get();
         if (cancelled || !data?.items) return;
 
-        const mapped = data.items.map((item) => ({
-          productId: item.product_id ?? `prod-${item.jpos_id}`,
-          name: item.name,
-          price: item.price,
-          originalPrice: item.original_price ?? item.price,
-          quantity: item.quantity,
-          image: item.image,
-          variant: item.variant ?? null,
-        }));
+        const mapped = data.items.map((item) => {
+          const productId = String(item.product_id || item.jpos_id || '').replace(/^prod-/, '');
+          return {
+            productId,
+            name: item.name,
+            price: item.price,
+            originalPrice: item.original_price ?? item.price,
+            quantity: item.quantity,
+            image: item.image,
+            variant: item.variant ?? null,
+          };
+        });
 
         dispatch({ type: 'SET_CART', payload: mapped });
       } catch {
@@ -133,13 +156,16 @@ export function CartProvider({ children }) {
   }, [user]);
 
   const addToCart = async (product, variant = null, quantity = 1) => {
+    if (!product) return;
+    const productId = product.id || product.pid || product.jpos_id;
     dispatch({ type: 'ADD_TO_CART', payload: { product, variant, quantity } });
-    if (user) {
-      try { await cartApi.add(product.id, quantity, variant); } catch { }
+    if (user && productId) {
+      try { await cartApi.add(productId, quantity, variant); } catch { }
     }
   };
 
   const removeFromCart = async (productId, variant = null) => {
+    if (!productId) return;
     dispatch({ type: 'REMOVE_FROM_CART', payload: { productId, variant } });
     if (user) {
       try { await cartApi.remove(productId, variant); } catch { }
@@ -147,6 +173,7 @@ export function CartProvider({ children }) {
   };
 
   const updateQuantity = async (productId, variant = null, quantity) => {
+    if (!productId) return;
     dispatch({ type: 'UPDATE_QUANTITY', payload: { productId, variant, quantity } });
     if (user) {
       try { await cartApi.update(productId, quantity, variant); } catch { }
@@ -161,7 +188,16 @@ export function CartProvider({ children }) {
   };
 
   return (
-    <CartContext.Provider value={{ state, dispatch, addToCart, removeFromCart, updateQuantity, clearCart }}>
+    <CartContext.Provider value={{
+      state,
+      dispatch,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      quickViewProduct,
+      setQuickViewProduct
+    }}>
       {children}
     </CartContext.Provider>
   );

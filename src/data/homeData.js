@@ -1,7 +1,7 @@
 export const heroSlides = [
 
   {
-    id: "slide-2",
+    id: "slide-1",
     backgroundImage: "/assets/images/carousel/69e2aba7f0145e25829fc1b642dd20d66.webp",
     heading: "",
     subheading: "",

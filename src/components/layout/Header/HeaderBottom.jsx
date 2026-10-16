@@ -19,7 +19,7 @@ export default function HeaderBottom({ sticky = false }) {
   };
 
   return (
-    <div className={`header-bottom${sticky ? ' header-bottom--stuck' : ''}`}>
+    <div className={`header-bottom${sticky ? ' header-bottom--stuck' : ''}`} style={{ borderBottom: 'none', borderTop: 'none' }}>
       <div className="container">
         <div
           className="d-flex d-lg-none align-items-center"

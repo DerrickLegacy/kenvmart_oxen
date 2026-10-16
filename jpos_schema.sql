@@ -43,7 +43,7 @@ CREATE TABLE `geopos_activity_log` (
   KEY `idx_module` (`module`),
   KEY `idx_action` (`action`),
   KEY `idx_created` (`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=2474 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4195 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -58,7 +58,7 @@ CREATE TABLE `geopos_attendance` (
   `actual_hours` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `emp` (`emp`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -95,24 +95,130 @@ CREATE TABLE `geopos_batches` (
   KEY `pcat` (`pcat`),
   KEY `warehouse_id` (`warehouse_id`),
   KEY `idx_purchase_order_id` (`purchase_order_id`),
+  KEY `idx_active_batches` (`product_id`,`is_depleted`,`purchase_date`),
   CONSTRAINT `geopos_batches_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `geopos_products` (`pid`),
   CONSTRAINT `geopos_batches_ibfk_2` FOREIGN KEY (`pcat`) REFERENCES `geopos_product_cat` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=718 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=729 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`127.0.0.1`*/ /*!50003 TRIGGER `update_is_depleted` BEFORE UPDATE ON `geopos_batches` FOR EACH ROW BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `tg_batch_insert_sync_product_qty`
+AFTER INSERT ON `geopos_batches`
+FOR EACH ROW
+BEGIN
+    -- Update the product quantity to match sum of all batch remaining quantities
+    IF NEW.product_id > 0 THEN
+        UPDATE `geopos_products` p
+        SET    p.`qty` = (
+            SELECT COALESCE(SUM(b.`qty_remaining`), 0)
+            FROM   `geopos_batches` b
+            WHERE  b.`product_id` = NEW.product_id
+        )
+        WHERE  p.`pid` = NEW.product_id;
+    END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `update_is_depleted` 
+BEFORE UPDATE ON `geopos_batches` 
+FOR EACH ROW 
+BEGIN
     IF NEW.qty_remaining = 0 THEN
         SET NEW.is_depleted = '1';
     ELSE
         SET NEW.is_depleted = '0';
+    END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `tg_batch_update_sync_product_qty`
+AFTER UPDATE ON `geopos_batches`
+FOR EACH ROW
+BEGIN
+    -- Only sync if qty_remaining actually changed or product_id changed
+    IF (NEW.qty_remaining != OLD.qty_remaining) OR (NEW.product_id != OLD.product_id) THEN
+        -- Update the product quantity to match sum of all batch remaining quantities
+        -- for the NEW product_id
+        IF NEW.product_id > 0 THEN
+            UPDATE `geopos_products` p
+            SET    p.`qty` = (
+                SELECT COALESCE(SUM(b.`qty_remaining`), 0)
+                FROM   `geopos_batches` b
+                WHERE  b.`product_id` = NEW.product_id
+            )
+            WHERE  p.`pid` = NEW.product_id;
+        END IF;
+        
+        -- If product_id changed, also update the OLD product
+        IF (NEW.product_id != OLD.product_id) AND (OLD.product_id > 0) THEN
+            UPDATE `geopos_products` p
+            SET    p.`qty` = (
+                SELECT COALESCE(SUM(b.`qty_remaining`), 0)
+                FROM   `geopos_batches` b
+                WHERE  b.`product_id` = OLD.product_id
+            )
+            WHERE  p.`pid` = OLD.product_id;
+        END IF;
+    END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `tg_batch_delete_sync_product_qty`
+AFTER DELETE ON `geopos_batches`
+FOR EACH ROW
+BEGIN
+    -- Update the product quantity to match sum of all batch remaining quantities
+    IF OLD.product_id > 0 THEN
+        UPDATE `geopos_products` p
+        SET    p.`qty` = (
+            SELECT COALESCE(SUM(b.`qty_remaining`), 0)
+            FROM   `geopos_batches` b
+            WHERE  b.`product_id` = OLD.product_id
+        )
+        WHERE  p.`pid` = OLD.product_id;
     END IF;
 END */;;
 DELIMITER ;
@@ -161,7 +267,7 @@ CREATE TABLE `geopos_commission_history` (
   KEY `idx_transaction` (`transaction_id`),
   KEY `idx_period` (`period_year`,`period_month`),
   KEY `idx_paid_status` (`is_paid`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Historical commission tracking with rate snapshots';
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Historical commission tracking with rate snapshots';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -284,21 +390,18 @@ CREATE TABLE `geopos_customers` (
   PRIMARY KEY (`id`),
   KEY `gid` (`gid`),
   KEY `idx_customer_name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=257 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=260 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`127.0.0.1`*/ /*!50003 TRIGGER ensure_referal_exists
-BEFORE INSERT ON geopos_customers
-FOR EACH ROW
-BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `ensure_referal_exists` BEFORE INSERT ON `geopos_customers` FOR EACH ROW BEGIN
     
     IF NOT EXISTS (
         SELECT 1 FROM geopos_customers 
@@ -502,7 +605,7 @@ CREATE TABLE `geopos_invoice_items` (
   KEY `i_class` (`i_class`),
   KEY `idx_invoice_items_pid` (`pid`),
   KEY `idx_invoice_items_tid_pid` (`tid`,`pid`)
-) ENGINE=InnoDB AUTO_INCREMENT=28509 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=29668 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -545,7 +648,7 @@ CREATE TABLE `geopos_invoices` (
   KEY `idx_invoices_main` (`i_class`,`loc`,`invoicedate`),
   KEY `idx_invoices_status` (`i_class`,`loc`,`status`,`invoicedate`),
   KEY `idx_invoicedate` (`invoicedate`)
-) ENGINE=InnoDB AUTO_INCREMENT=4716 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4968 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -575,7 +678,7 @@ CREATE TABLE `geopos_log` (
   `created` datetime NOT NULL DEFAULT current_timestamp(),
   `user` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5544 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6196 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -585,7 +688,7 @@ CREATE TABLE `geopos_login_attempts` (
   `timestamp` datetime DEFAULT NULL,
   `login_attempts` tinyint(2) DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2814 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3015 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -599,7 +702,7 @@ CREATE TABLE `geopos_metadata` (
   PRIMARY KEY (`id`),
   KEY `type` (`type`),
   KEY `rid` (`rid`)
-) ENGINE=InnoDB AUTO_INCREMENT=4694 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4944 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -626,7 +729,7 @@ CREATE TABLE `geopos_movers` (
   `note` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `d_type` (`d_type`,`rid1`,`rid2`,`rid3`)
-) ENGINE=InnoDB AUTO_INCREMENT=1202 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1325 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -683,7 +786,6 @@ CREATE TABLE `geopos_product_cat` (
   `extra` varchar(255) DEFAULT NULL,
   `c_type` int(2) DEFAULT 0,
   `rel_id` int(11) DEFAULT 0,
-  `disp_on_ecomm` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `idx_product_cat_type` (`c_type`)
 ) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -729,6 +831,7 @@ CREATE TABLE `geopos_products` (
   `alert` int(11) DEFAULT NULL,
   `unit` varchar(4) DEFAULT NULL,
   `image` varchar(120) DEFAULT 'default.png',
+  `search_tags` text DEFAULT NULL,
   `barcode` varchar(40) DEFAULT NULL,
   `merge` int(2) NOT NULL,
   `sub` int(11) NOT NULL,
@@ -752,14 +855,11 @@ CREATE TABLE `geopos_products` (
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`127.0.0.1`*/ /*!50003 TRIGGER `sync_product_image_on_insert`
-BEFORE INSERT ON `geopos_products`
-FOR EACH ROW
-BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `sync_product_image_on_insert` BEFORE INSERT ON `geopos_products` FOR EACH ROW BEGIN
     IF (NEW.images IS NULL OR NEW.images = '') AND NEW.image IS NOT NULL AND NEW.image != '' THEN
         SET NEW.images = CONCAT('["', NEW.image, '"]');
     END IF;
@@ -777,20 +877,17 @@ DELIMITER ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`127.0.0.1`*/ /*!50003 TRIGGER `sync_product_image_on_update`
-BEFORE UPDATE ON `geopos_products`
-FOR EACH ROW
-BEGIN
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `sync_product_image_on_update` BEFORE UPDATE ON `geopos_products` FOR EACH ROW BEGIN
     IF NEW.image != OLD.image AND NEW.image IS NOT NULL AND NEW.image != '' THEN
         IF OLD.images IS NULL OR OLD.images = '[]' THEN
-            -- No existing array — create one with just this image
+            
             SET NEW.images = CONCAT('["', NEW.image, '"]');
         ELSE
-            -- Replace only the first element; keep any extra images unchanged
+            
             SET NEW.images = CONCAT(
                 '["', NEW.image, '"',
                 IF(
@@ -925,7 +1022,7 @@ CREATE TABLE `geopos_purchase` (
   UNIQUE KEY `invoice` (`tid`),
   KEY `eid` (`eid`),
   KEY `csd` (`csd`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -948,7 +1045,7 @@ CREATE TABLE `geopos_purchase_items` (
   `item_exchange_rate` decimal(16,4) NOT NULL DEFAULT 1.0000 COMMENT 'UGX exchange rate used for this specific line item',
   PRIMARY KEY (`id`),
   KEY `invoice` (`tid`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1087,7 +1184,7 @@ CREATE TABLE `geopos_return_products` (
   KEY `idx_rp_date` (`return_date`),
   KEY `idx_rp_loc` (`loc`),
   KEY `idx_rp_initiated` (`initiated_by`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Client product returns originating from sales invoices';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Client product returns originating from sales invoices';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1103,6 +1200,111 @@ CREATE TABLE `geopos_smtp` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `geopos_stock_ledger` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reference_type` enum('invoice','purchase','purchase_correction','return','adjustment','transfer','manual','draft') NOT NULL DEFAULT 'invoice',
+  `reference_id` int(11) NOT NULL COMMENT 'FK to the source document (e.g. geopos_invoices.id, geopos_return_products.id)',
+  `reference_item_id` int(11) DEFAULT NULL COMMENT 'FK to the line item row (e.g. geopos_invoice_items.id)',
+  `reference_tid` int(11) DEFAULT NULL COMMENT 'Human-readable document number (e.g. invoice tid)',
+  `product_id` int(11) NOT NULL COMMENT 'FK to geopos_products.pid',
+  `batch_id` int(11) NOT NULL DEFAULT 0 COMMENT 'FK to geopos_batches.batch_id',
+  `product_name` varchar(255) DEFAULT NULL COMMENT 'Snapshot at time of movement',
+  `product_code` varchar(30) DEFAULT NULL COMMENT 'Snapshot at time of movement',
+  `category_id` int(11) DEFAULT NULL COMMENT 'FK to geopos_product_cat.id',
+  `warehouse_id` int(11) DEFAULT NULL COMMENT 'FK to geopos_warehouse.id / geopos_locations.ware',
+  `unit` varchar(5) DEFAULT NULL,
+  `movement` enum('out','in') NOT NULL DEFAULT 'out' COMMENT 'out = left stock (sale/return-to-supplier), in = entered stock (purchase/return-from-customer)',
+  `qty_moved` decimal(10,2) NOT NULL DEFAULT 0.00 COMMENT 'Positive quantity that moved (always positive; direction is in `movement`)',
+  `created_by` int(11) NOT NULL COMMENT 'FK to geopos_users.id — the logged-in user',
+  `created_by_name` varchar(100) DEFAULT NULL COMMENT 'Snapshot of username/employee name',
+  `loc` int(4) NOT NULL DEFAULT 0 COMMENT 'Location id (matches invoices.loc)',
+  `note` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_product` (`product_id`),
+  KEY `idx_reference` (`reference_type`,`reference_id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_created_by` (`created_by`),
+  KEY `idx_loc` (`loc`),
+  KEY `idx_movement` (`movement`),
+  KEY `idx_product_created` (`product_id`,`created_at`),
+  KEY `idx_ledger_product_batch` (`product_id`,`batch_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=248 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Immutable ledger of every stock/batch movement (sales, returns, purchases, adjustments)';
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `tg_sync_ledger_to_live_inventory`
+AFTER INSERT ON `geopos_stock_ledger`
+FOR EACH ROW
+BEGIN
+    /*
+     * When does the trigger update geopos_batches.qty_remaining?
+     *
+     * APPLY (trigger adjusts qty_remaining):
+     *   - movement='out', reference_type IN ('invoice','return','purchase','draft','transfer','manual')
+     *     => These are FIFO sales deductions. PHP writes ledger only; trigger does the subtract.
+     *
+     *   - movement='in', reference_type IN ('invoice','return','draft','transfer')
+     *     => Stock restoration (invoice cancel, customer return). Trigger adds back.
+     *
+     * SKIP (PHP already set qty_remaining directly):
+     *   - movement='in', reference_type IN ('manual','purchase','adjustment')
+     *     => New batch creation. PHP inserted batch with qty_remaining=N already.
+     *
+     *   - ANY movement, reference_type IN ('purchase_correction','adjustment')
+     *     => Direct batch edits. PHP did SET qty_remaining directly on geopos_batches.
+     *        Trigger must not double-apply.
+     */
+
+    -- Skip purchase_correction and adjustment entirely (PHP manages qty_remaining directly)
+    IF NEW.reference_type NOT IN ('purchase_correction', 'adjustment') THEN
+
+        IF NEW.movement = 'out' AND NEW.batch_id > 0 THEN
+            -- Sales deductions: subtract from batch
+            UPDATE `geopos_batches`
+            SET    `qty_remaining` = `qty_remaining` - NEW.qty_moved
+            WHERE  `batch_id` = NEW.batch_id;
+
+        ELSEIF NEW.movement = 'in'
+            AND NEW.batch_id > 0
+            AND NEW.reference_type IN ('invoice', 'return', 'draft', 'transfer')
+        THEN
+            -- Restorations: add back to batch
+            UPDATE `geopos_batches`
+            SET    `qty_remaining` = `qty_remaining` + NEW.qty_moved
+            WHERE  `batch_id` = NEW.batch_id;
+
+        -- For manual/purchase/in: PHP already set qty_remaining correctly. Do nothing.
+        END IF;
+
+    END IF;
+
+    -- ALWAYS recalculate product.qty = SUM(all batch qty_remaining for this product)
+    IF NEW.product_id > 0 THEN
+        UPDATE `geopos_products` p
+        SET    p.`qty` = (
+            SELECT COALESCE(SUM(b.`qty_remaining`), 0)
+            FROM   `geopos_batches` b
+            WHERE  b.`product_id` = NEW.product_id
+        )
+        WHERE  p.`pid` = NEW.product_id;
+    END IF;
+
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `geopos_stock_r` (
@@ -1178,7 +1380,7 @@ CREATE TABLE `geopos_supplier` (
   `loc` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `gid` (`gid`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1196,7 +1398,7 @@ CREATE TABLE `geopos_supplier_relationship` (
   KEY `idx_sub_client_id` (`sub_client_id`),
   CONSTRAINT `geopos_supplier_relationship_ibfk_1` FOREIGN KEY (`supplier_id`) REFERENCES `geopos_customers` (`id`),
   CONSTRAINT `geopos_supplier_relationship_ibfk_2` FOREIGN KEY (`sub_client_id`) REFERENCES `geopos_customers` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3737 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3989 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1315,7 +1517,7 @@ CREATE TABLE `geopos_transactions` (
   KEY `acid` (`acid`),
   KEY `eid` (`eid`),
   KEY `tid` (`tid`)
-) ENGINE=InnoDB AUTO_INCREMENT=6772 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7199 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1367,6 +1569,29 @@ CREATE TABLE `geopos_warehouse` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `product_price_history` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_id` int(11) NOT NULL,
+  `price` decimal(10,2) DEFAULT 0.00,
+  `wholesale_price_old` decimal(10,2) DEFAULT 0.00,
+  `factory_price` decimal(10,2) DEFAULT 0.00,
+  `wholesale_price` decimal(10,2) DEFAULT 0.00,
+  `retail_price` decimal(10,2) DEFAULT 0.00,
+  `ecomm_price` decimal(10,2) DEFAULT 0.00,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `date_price_changed` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_by` varchar(100) DEFAULT NULL,
+  `updated_by` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_product_id` (`product_id`),
+  KEY `idx_date_changed` (`date_price_changed`),
+  CONSTRAINT `product_price_history_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `geopos_products` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=521 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `shop_cart_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
@@ -1379,7 +1604,7 @@ CREATE TABLE `shop_cart_items` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_user_product_variant` (`user_id`,`product_id`,`variant`(50)),
   KEY `idx_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Server-side cart items for storefront users';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Server-side cart items for storefront users';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1430,21 +1655,23 @@ CREATE TABLE `shop_order_items` (
   `image` varchar(255) DEFAULT NULL COMMENT 'Snapshot image path',
   PRIMARY KEY (`id`),
   KEY `idx_order` (`order_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Line items for storefront orders (snapshotted at order time)';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Line items for storefront orders (snapshotted at order time)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `shop_orders` (
   `id` varchar(30) NOT NULL COMMENT 'e.g. ORD-1722074400000',
+  `jpos_invoice_id` int(11) DEFAULT NULL,
   `user_id` int(11) NOT NULL,
-  `status` enum('Pending','Processing','Shipped','Delivered','Cancelled') NOT NULL DEFAULT 'Pending',
+  `status` enum('Pending','Processing','Partial','Paid','Shipped','Completed','Cancelled','Refunded') NOT NULL DEFAULT 'Pending',
   `total` decimal(16,2) NOT NULL DEFAULT 0.00,
   `note` text DEFAULT NULL,
   `placed_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `idx_user` (`user_id`),
-  KEY `idx_status` (`status`)
+  KEY `idx_status` (`status`),
+  KEY `idx_jpos_invoice_id` (`jpos_invoice_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Storefront orders submitted by customers';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1476,7 +1703,7 @@ CREATE TABLE `shop_users` (
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Storefront customer accounts (not JPOS staff)';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Storefront customer accounts (not JPOS staff)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1488,7 +1715,7 @@ CREATE TABLE `shop_wishlist` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_user_product` (`user_id`,`product_id`),
   KEY `idx_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Storefront user wishlist';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Storefront user wishlist';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1522,5 +1749,5 @@ CREATE TABLE `users` (
   `code` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`users_id`),
   KEY `code` (`code`)
-) ENGINE=InnoDB AUTO_INCREMENT=256 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=257 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

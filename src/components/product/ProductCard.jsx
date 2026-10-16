@@ -1,14 +1,15 @@
 // ProductCard.jsx — balanced card, 2-col mobile friendly
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useWishlist } from '../../context/WishlistContext';
+import { useCart } from '../../context/CartContext';
 import StarRating from './StarRating';
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
   const { state: wishlistItems, dispatch } = useWishlist();
+  const { setQuickViewProduct } = useCart();
   const [isHovered, setIsHovered] = useState(false);
-  const [isCartHovered, setIsCartHovered] = useState(false);
 
   const isWishlisted = wishlistItems.some(i => i.productId === product.id);
   const discountPrice = product.discount_price ?? product.discountPrice;
@@ -35,16 +36,15 @@ export default function ProductCard({ product }) {
           background: #ffffff;
           border-radius: 10px;
           overflow: hidden;
-          border: 1px solid #e8ecf4;
           cursor: pointer;
           position: relative;
           transition: box-shadow 0.22s ease, transform 0.22s ease, border-color 0.22s ease;
           height: 330px;
           z-index: 1;
+          border: none !important; /* Remove grey border */
         }
         .product-card:hover {
-          border-color: #e18f27 !important;
-          box-shadow: inset 0 0 0 1px #e18f27, 0 4px 14px rgba(0,0,0,0.08) !important;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important;
         }
 
         /* Image wrapper — fixed height, not aspect-ratio, so info section
@@ -228,7 +228,7 @@ export default function ProductCard({ product }) {
           transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
         }}
         onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => { setIsHovered(false); setIsCartHovered(false); }}
+        onMouseLeave={() => { setIsHovered(false); }}
         onClick={() => navigate(`/product/${product.id}`)}
       >
         {/* ── Image ── */}
@@ -286,7 +286,7 @@ export default function ProductCard({ product }) {
             <button
               type="button"
               className="product-card__cart-btn"
-              onClick={e => { e.stopPropagation(); navigate(`/product/${product.id}`); }}
+              onClick={e => { e.stopPropagation(); setQuickViewProduct(product); }}
             >
               <i className="lni lni-cart" /> Add to Cart
             </button>

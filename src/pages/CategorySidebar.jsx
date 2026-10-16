@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import categories from "../data/categories";
 import PriceFilter from "../components/shop/priceFilter";
 
@@ -8,11 +8,19 @@ function VerticalSidebar({ onClose }) {
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [clickedOpen, setClickedOpen] = useState({});
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const selectedBrands = (searchParams.get("brand") || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const currentRating = searchParams.get("rating_min") || "";
 
   const handleCategoryClick = (categoryTitle, hasItems) => {
     // Skip "Brands" category - it's handled differently now
     if (categoryTitle === "Brands") return;
-    
+
     if (!hasItems) {
       navigate(`/products?category=${encodeURIComponent(categoryTitle)}`);
       if (onClose) onClose();
@@ -26,8 +34,29 @@ function VerticalSidebar({ onClose }) {
     if (onClose) onClose();
   };
 
-  const handleBrandClick = (brandName) => {
-    navigate(`/products?brand=${encodeURIComponent(brandName)}`);
+  const handleBrandToggle = (brandName) => {
+    const next = selectedBrands.includes(brandName)
+      ? selectedBrands.filter((b) => b !== brandName)
+      : [...selectedBrands, brandName];
+
+    const p = new URLSearchParams(searchParams);
+    if (next.length) p.set("brand", next.join(","));
+    else p.delete("brand");
+    p.delete("page");
+
+    navigate(`/products?${p.toString()}`);
+    if (onClose) onClose();
+  };
+
+  const handleRatingToggle = (rating) => {
+    const p = new URLSearchParams(searchParams);
+    if (currentRating === String(rating)) {
+      p.delete("rating_min");
+    } else {
+      p.set("rating_min", rating);
+    }
+    p.delete("page");
+    navigate(`/products?${p.toString()}`);
     if (onClose) onClose();
   };
 
@@ -39,7 +68,7 @@ function VerticalSidebar({ onClose }) {
     <div className="mega-category-menu sidebar-variant mb-30">
       {onClose && (
         <div className="sidebar-drawer-header">
-          <span className="fw-bold">Filters</span>
+          <span className="fw-bold filter-title">Filter</span>
           <button
             className="sidebar-drawer-close"
             onClick={onClose}
@@ -51,7 +80,10 @@ function VerticalSidebar({ onClose }) {
       )}
 
       {!onClose && (
-        <span className="cat-button">Filters</span>
+        <>
+          <span className="px-3 fw-bold">Filter</span>
+          <hr />
+        </>
       )}
 
       <ul className="sub-category static">
@@ -67,7 +99,11 @@ function VerticalSidebar({ onClose }) {
                   {cat.items.map((item) => (
                     <li key={item.name}>
                       <label className="brand-filter-item">
-                        <input type="checkbox" onChange={() => handleBrandClick(item.name)} />
+                        <input
+                          type="checkbox"
+                          checked={selectedBrands.includes(item.name)}
+                          onChange={() => handleBrandToggle(item.name)}
+                        />
                         <span>{item.name}</span>
                       </label>
                     </li>
@@ -79,8 +115,8 @@ function VerticalSidebar({ onClose }) {
 
           // Regular categories
           return (
-            <li 
-              key={cat.title} 
+            <li
+              key={cat.title}
               className="has-sub"
               onMouseEnter={() => !onClose && setHoveredCategory(cat.title)}
               onMouseLeave={() => !onClose && setHoveredCategory(null)}
@@ -95,7 +131,7 @@ function VerticalSidebar({ onClose }) {
                   <i className={`lni ${isOpen(cat.title) ? 'lni-chevron-up' : 'lni-chevron-down'} filter-chevron-icon`}></i>
                 )}
               </button>
-              
+
               {isOpen(cat.title) && cat.items.length > 0 && (
                 <ul className="inner-sub-category clean-filter-sub static">
                   {cat.items.map((item) => (
@@ -115,49 +151,29 @@ function VerticalSidebar({ onClose }) {
         })}
 
         <PriceFilter />
-        
+
         {/* Product Rating Filter */}
         <li className="filter-section">
           <div className="filter-section-header">
             <span className="filter-section-title">Product Rating</span>
           </div>
           <ul className="rating-filter-list">
-            <li>
-              <label className="rating-filter-item">
-                <input type="checkbox" />
-                <span className="rating-stars">
-                  {'★'.repeat(4)}{'☆'.repeat(1)}
-                </span>
-                <span className="rating-text">4 Stars & Up</span>
-              </label>
-            </li>
-            <li>
-              <label className="rating-filter-item">
-                <input type="checkbox" />
-                <span className="rating-stars">
-                  {'★'.repeat(3)}{'☆'.repeat(2)}
-                </span>
-                <span className="rating-text">3 Stars & Up</span>
-              </label>
-            </li>
-            <li>
-              <label className="rating-filter-item">
-                <input type="checkbox" />
-                <span className="rating-stars">
-                  {'★'.repeat(2)}{'☆'.repeat(3)}
-                </span>
-                <span className="rating-text">2 Stars & Up</span>
-              </label>
-            </li>
-            <li>
-              <label className="rating-filter-item">
-                <input type="checkbox" />
-                <span className="rating-stars">
-                  {'★'.repeat(1)}{'☆'.repeat(4)}
-                </span>
-                <span className="rating-text">1 Star & Up</span>
-              </label>
-            </li>
+            {[4, 3, 2, 1].map((num) => (
+              <li key={num}>
+                <label className="rating-filter-item">
+                  <input
+                    type="checkbox"
+                    checked={currentRating === String(num)}
+                    onChange={() => handleRatingToggle(num)}
+                  />
+                  <span className="rating-stars">
+                    {"★".repeat(num)}
+                    {"☆".repeat(5 - num)}
+                  </span>
+                  <span className="rating-text">{num} Stars & Up</span>
+                </label>
+              </li>
+            ))}
           </ul>
         </li>
       </ul>
@@ -190,8 +206,7 @@ function VerticalSidebar({ onClose }) {
         /* Filter Section Styles */
         .filter-section {
           margin-top: 16px;
-          padding: 12px 14px;
-          border-top: 1px solid #e8ecf0;
+          padding: 10px 14px;
         }
         
         .filter-section-header {
@@ -247,8 +262,7 @@ function VerticalSidebar({ onClose }) {
         /* Brands Filter */
         .brands-section-main {
           margin-top: 16px;
-          padding: 12px 14px;
-          border-top: 1px solid #e8ecf0;
+          padding: 10px 14px;
           list-style: none;
         }
         

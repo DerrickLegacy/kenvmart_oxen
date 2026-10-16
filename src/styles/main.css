@@ -2653,7 +2653,7 @@ ol {
   -webkit-transition: all 0.3s ease-out 0s;
   transition: all 0.3s ease-out 0s;
   padding: 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: none;
 }
 
 .navbar-area.sticky {
@@ -5291,7 +5291,7 @@ ol {
 }
 
 .footer .footer-bottom .socila li a:hover {
-  background-color: #183B9B;
+  background-color: #e18f27;
   color: #fff;
   border-color: transparent;
 }
@@ -5493,25 +5493,29 @@ ol {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #183B9B;
-  color: #fff;
-  padding: 1px 16px;
+  background-color: #f8fafc;
+  color: #0b1a33;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e8ecf0;
 }
 
 .sidebar-drawer-header span {
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0b1a33;
 }
 
 .sidebar-drawer-close {
   background: none;
   border: none;
-  color: #fff;
-  font-size: 18px;
+  color: #0b1a33;
+  font-size: 20px;
   cursor: pointer;
   line-height: 1;
   padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /*======================================
@@ -7437,9 +7441,9 @@ ol {
 }
 
 .contact-social-links a:hover {
-  background: #183B9B;
+  background: #e18f27;
   color: #fff;
-  border-color: #183B9B;
+  border-color: #e18f27;
 }
 
 .contact-help-link {
@@ -7454,7 +7458,7 @@ ol {
 }
 
 .contact-help-link i {
-  color: #183B9B;
+  color: #e18f27;
   font-size: 16px;
   flex-shrink: 0;
 }
@@ -11042,6 +11046,10 @@ textarea::placeholder {
   color: var(--c-muted);
 }
 
+.promo-caption-heading {
+  color: #183A9B !important;
+}
+
 /* ── Card polish ─────────────────────────────────────────────────────────── */
 .product-card,
 .single-product {
@@ -12002,7 +12010,7 @@ a:not(.btn):hover {
 }
 
 .promo-cta-btn:hover {
-  background: #122e7a;
+  /* background: #122e7a; */
   box-shadow: 0 4px 14px rgba(24, 59, 155, 0.45);
   transform: translateY(-1px);
   color: #fff !important;
@@ -12797,7 +12805,7 @@ button.btn:disabled {
 .mega-category-menu .cat-button {
   display: block;
   width: 100%;
-  background: #183B9B;
+  /* background: #183B9B; */
   color: #fff !important;
   padding: 14px 20px;
   border-radius: 8px 8px 0 0;
@@ -12826,7 +12834,7 @@ button.btn:disabled {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 14px 16px;
+  padding: 12px 16px;
   border: none;
   background: transparent;
   font-size: 15px;
@@ -12878,6 +12886,7 @@ button.btn:disabled {
     max-height: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     max-height: 500px;
@@ -13214,6 +13223,7 @@ button.btn:disabled {
     grid-template-columns: 1fr;
   }
 }
+
 /* ══════════════════════════════════════════════════════════════════════════
    PROMOTIONAL BANNER SECTION
    ══════════════════════════════════════════════════════════════════════════ */
@@ -13336,7 +13346,7 @@ button.btn:disabled {
     min-height: 300px;
     padding: 32px;
   }
-  
+
   .promo-banner-content h2 {
     font-size: 24px;
   }
@@ -13346,21 +13356,21 @@ button.btn:disabled {
   .promotional-banner-section {
     padding: 40px 0;
   }
-  
+
   .promo-banner-large {
     min-height: 250px;
     padding: 24px;
   }
-  
+
   .promo-banner-small {
     min-height: 160px;
   }
-  
+
   .promo-banner-content h2 {
     font-size: 20px;
     margin-bottom: 16px;
   }
-  
+
   .promo-banner-small h4 {
     font-size: 16px;
   }
@@ -13372,12 +13382,12 @@ button.btn:disabled {
     padding: 15px 20px;
     font-size: 16px;
   }
-  
+
   .clean-filter-link {
     padding: 13px 20px;
     font-size: 15px;
   }
-  
+
   .clean-filter-sub {
     margin-left: 16px;
   }

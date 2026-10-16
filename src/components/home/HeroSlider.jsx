@@ -2,10 +2,10 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
 const AUTOPLAY_DELAY = 5000;
-const TRANSITION_MS  = 600;
+const TRANSITION_MS = 600;
 
 export default function HeroSlider({ slides = [] }) {
-  const [current, setCurrent]   = useState(0);
+  const [current, setCurrent] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
   const timerRef = useRef(null);
 
@@ -62,12 +62,12 @@ export default function HeroSlider({ slides = [] }) {
       <div className="hero-slider-track">
         {slides.map((slide, i) => (
           <div
-            key={slide.id}
+            key={slide.id || i}
             className={`single-slider${i === current ? ' active' : ''}`}
             style={{ backgroundImage: `url(${slide.backgroundImage})` }}
             aria-hidden={i !== current}
           >
-            <div 
+            <div
               className={`content ${getPositionClass(slide.position)}`}
               style={{ color: slide.textColor || '#ffffff' }}
             >
@@ -87,7 +87,7 @@ export default function HeroSlider({ slides = [] }) {
         <div className="hero-slider-dots" role="tablist">
           {slides.map((slide, i) => (
             <button
-              key={slide.id}
+              key={slide.id || i}
               role="tab"
               aria-selected={i === current}
               aria-label={`Go to slide ${i + 1}`}

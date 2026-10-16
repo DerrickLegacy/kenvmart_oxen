@@ -254,6 +254,8 @@ export default function ProductsPage() {
 	const tag = searchParams.get("tag") ?? "";
 	const minPrice = searchParams.get("min_price") ?? "";
 	const maxPrice = searchParams.get("max_price") ?? "";
+	const ratingMin = searchParams.get("rating_min") ?? "";
+	const brand = searchParams.get("brand") ?? "";
 
 	const [products, setProducts] = useState([]);
 	const [pagination, setPagination] = useState(null);
@@ -263,7 +265,7 @@ export default function ProductsPage() {
 
 	useEffect(() => {
 		setPage(1);
-	}, [q, category, sort, tag, minPrice, maxPrice]);
+	}, [q, category, sort, tag, minPrice, maxPrice, ratingMin, brand]);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -274,10 +276,12 @@ export default function ProductsPage() {
 			.list({
 				q,
 				category,
+				brand,
 				sort,
 				tag,
 				min_price: minPrice,
 				max_price: maxPrice,
+				rating_min: ratingMin,
 				page,
 				per_page: 20,
 			})
@@ -296,7 +300,7 @@ export default function ProductsPage() {
 		return () => {
 			cancelled = true;
 		};
-	}, [q, category, sort, tag, minPrice, maxPrice, page]);
+	}, [q, category, brand, sort, tag, minPrice, maxPrice, ratingMin, page]);
 
 	const setParam = (key, val) => {
 		const p = new URLSearchParams(searchParams);
@@ -307,14 +311,14 @@ export default function ProductsPage() {
 
 	const clearAll = () => setSearchParams({}, { replace: true });
 
-	const isFiltered = q || category || tag || minPrice || maxPrice;
+	const isFiltered = q || category || tag || minPrice || maxPrice || ratingMin || brand;
 
 	return (
 		<div className="section">
 			<div className=" container">
 				<Breadcrumb crumbs={[{ label: "Home", to: "/" }, { label: "Shop" }]} />
 
-				<div className="row">
+				<div className="row mt-3">
 					<div className="col-lg-3 col-12 shop-sidebar-col">
 						<CategorySidebar />
 					</div>
@@ -327,7 +331,7 @@ export default function ProductsPage() {
 									{TAG_FILTERS.map((tf) => (
 										<motion.button
 											key={tf.value}
-											className={`btn ${tag === tf.value ? "filter-pill-active" : ""}`}
+											className={`btn filter-pill-btn ${tag === tf.value ? "filter-pill-active" : ""}`}
 											onClick={() => setParam("tag", tag === tf.value ? "" : tf.value)}
 											whileTap={{ scale: 0.95 }}
 										>
@@ -380,6 +384,18 @@ export default function ProductsPage() {
 												tagged <strong>{tag}</strong>
 											</>
 										)}
+										{brand && (
+											<>
+												{" "}
+												brand <strong>{brand}</strong>
+											</>
+										)}
+										{ratingMin && (
+											<>
+												{" "}
+												rating <strong>{ratingMin}★+</strong>
+											</>
+										)}
 									</span>
 									<button className="filter-clear-btn" onClick={clearAll}>
 										Clear filters
@@ -407,14 +423,18 @@ export default function ProductsPage() {
 								data-testid="no-results"
 							>
 								<h4 style={{ color: "#555" }}>
-									{tag
-										? `No ${tag} items available right now`
-										: "No products found"}
+									{category
+										? `No items found matching "${category}"`
+										: tag
+											? `No ${tag} items available right now`
+											: "No products found"}
 								</h4>
 								<p className="text-muted" style={{ fontSize: "0.9rem" }}>
-									{tag
-										? "Check back soon — products with this tag will appear here."
-										: "Try adjusting your filters or browsing all products."}
+									{category
+										? "Try adjusting your filters or browsing other categories."
+										: tag
+											? "Check back soon — products with this tag will appear here."
+											: "Try adjusting your filters or browsing all products."}
 								</p>
 								<button className="btn mt-3" onClick={clearAll}>
 									Browse All Products
@@ -466,11 +486,10 @@ export default function ProductsPage() {
 				/* ===== FILTER STRIP WRAPPER ===== */
 				.filter-strip-wrapper {
 					width: 100%;
-					background: #fff;
-					border-radius: 12px;
-					padding: 8px 12px;
+					border-radius: 5px;
+					padding: 8px 10px;
 					margin-bottom: 20px;
-					border: 1px solid #e8ecf0;
+					border-bottom: 1px solid #e8ecf0;
 					box-shadow: 0 1px 4px rgba(0,0,0,0.02);
 				}
 
@@ -481,6 +500,12 @@ export default function ProductsPage() {
 					justify-content: space-between;
 					gap: 12px;
 					flex-wrap: nowrap;
+				}
+
+				.filter-pill-btn{
+					padding: 4px 8px !important;
+					border-radius: 10px;
+					font-weight: 200 !important;
 				}
 
 				.filter-buttons {
@@ -658,7 +683,7 @@ export default function ProductsPage() {
 				/* Shop sidebar — sticky below the fixed header */
 				.shop-sidebar-col {
 					position: sticky;
-					top: 0px;
+					top: 5px;
 					align-self: flex-start;
 					z-index: 80;
 				}

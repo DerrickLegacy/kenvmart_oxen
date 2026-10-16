@@ -37,7 +37,7 @@ export default function HorizontalCategoryNav() {
               </button>
 
               {cat.items.length > 0 && (
-                <div className="category-dropdown">
+                <div className="category-dropdown" style={{ zIndex: 10 }}>
                   <div className="dropdown-inner">
                     {cat.items.map((item) => (
                       <button

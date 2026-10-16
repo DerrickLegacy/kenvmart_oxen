@@ -51,7 +51,7 @@ const originalPrice = (product) => {
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const { user } = useAuth();
-  const { dispatch: cartDispatch } = useCart();
+  const { state: cartItems, dispatch: cartDispatch, updateQuantity, addToCart } = useCart();
   const { state: wishlistState, dispatch: wishlistDispatch } = useWishlist();
 
   const { data: product, loading, error, refetch } = useApi(
@@ -65,6 +65,25 @@ export default function ProductDetailsPage() {
   );
 
   const relatedProducts = relatedData?.products ?? [];
+
+  const [selectedColor, setSelectedColor] = useState(0);
+  const [selectedVariant, setSelectedVariant] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [addedToCart, setAddedToCart] = useState(false);
+  const [apiBusy, setApiBusy] = useState(false);
+  const [localError, setLocalError] = useState("");
+
+  // Sync quantity from cart when product or cart changes
+  useEffect(() => {
+    if (!product) return;
+    const cleanId = String(product.id).replace(/^prod-/, '');
+    const itemInCart = cartItems.find(i => String(i.productId).replace(/^prod-/, '') === cleanId && i.variant === (selectedVariant || null));
+    if (itemInCart) {
+      setQuantity(itemInCart.quantity);
+    } else {
+      setQuantity(1);
+    }
+  }, [product, cartItems, selectedVariant]);
 
   // Save this product to recently-viewed in localStorage as soon as it loads
   useEffect(() => {
@@ -84,13 +103,6 @@ export default function ProductDetailsPage() {
     });
   }, [product?.id]);
 
-  const [selectedColor, setSelectedColor] = useState(0);
-  const [selectedVariant, setSelectedVariant] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [addedToCart, setAddedToCart] = useState(false);
-  const [apiBusy, setApiBusy] = useState(false);
-  const [localError, setLocalError] = useState("");
-
   useEffect(() => {
     if (product?.variants?.length) {
       setSelectedVariant(product.variants[0]);
@@ -98,7 +110,6 @@ export default function ProductDetailsPage() {
       setSelectedVariant("");
     }
     setSelectedColor(0);
-    setQuantity(1);
   }, [id, product?.variants]);
 
   const isWishlisted = product
@@ -135,28 +146,37 @@ export default function ProductDetailsPage() {
     );
   }
 
+  const handleQtyChange = async (newQty) => {
+    if (newQty < 1 || newQty > 99) return;
+    setQuantity(newQty);
+
+    const cleanId = String(product.id).replace(/^prod-/, '');
+    const itemInCart = cartItems.find(i => String(i.productId).replace(/^prod-/, '') === cleanId && i.variant === (selectedVariant || null));
+
+    if (itemInCart) {
+      await updateQuantity(cleanId, selectedVariant || null, newQty);
+    }
+  };
+
   const handleAddToCart = async () => {
     const variant = selectedVariant || null;
-    cartDispatch({
-      type: "ADD_TO_CART",
-      payload: { product, variant, quantity },
-    });
+    const cleanId = String(product.id).replace(/^prod-/, '');
+
+    const itemInCart = cartItems.find(i => String(i.productId).replace(/^prod-/, '') === cleanId && i.variant === variant);
+
+    if (itemInCart) {
+      // If already in cart, we just show "Added" and maybe update quantity if it was different
+      if (itemInCart.quantity !== quantity) {
+        await updateQuantity(cleanId, variant, quantity);
+      }
+    } else {
+      await addToCart(product, variant, quantity);
+    }
 
     if (isWishlisted) {
       wishlistDispatch({ type: "REMOVE_FROM_WISHLIST", payload: { productId: product.id } });
       if (user) {
         try { await wishlistApi.remove(product.id); } catch { }
-      }
-    }
-
-    if (user) {
-      setApiBusy(true);
-      try {
-        await cartApi.add(product.id, quantity, variant);
-      } catch (err) {
-        setLocalError(err.message || "Could not sync cart with server.");
-      } finally {
-        setApiBusy(false);
       }
     }
 
@@ -181,9 +201,9 @@ export default function ProductDetailsPage() {
   const hasDiscount = (product.discount_price ?? product.discountPrice) != null;
 
   return (
-    <div data-testid="product-details-page">
+    <div data-testid="product-details-page mt-3">
       <section className="item-details mb-3">
-        <div className="container">
+        <div className="container mt-4">
           <Breadcrumb
             crumbs={[
               { label: "Home", to: "/" },
@@ -303,7 +323,7 @@ export default function ProductDetailsPage() {
                             value="−"
                             aria-label="Decrease quantity"
                             onClick={() =>
-                              setQuantity((q) => Math.max(1, q - 1))
+                              handleQtyChange(quantity - 1)
                             }
                           />
                           <input
@@ -320,7 +340,7 @@ export default function ProductDetailsPage() {
                             value="+"
                             aria-label="Increase quantity"
                             onClick={() =>
-                              setQuantity((q) => Math.min(99, q + 1))
+                              handleQtyChange(quantity + 1)
                             }
                           />
                         </div>
@@ -389,6 +409,17 @@ export default function ProductDetailsPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="row">
+            {/* everything section herer here should apear in horizontal accordions.each accordion should have a border thin grey border and there should be a gap between these accordion rows. */}
+            <div className="col-8"></div>
+
+            {/* this should contain the card design just as it iss on walmart page(used for only benchmarking) the card as user scrolls down once a user scrolls into it it should never disapear this is because we want the user to always see the prices while on this page.,but when scrolling up this can disapear once area is scrolled out sibce the prices ialso found in the card with the images.this means when scrollingmove into this areas all other content eh related items should be in col-8 section and reserve col-4 for this card so in col-8 i expect the accordion row, the Related Products
+, Customer ratings & reviews, Reviews summary
+  as.i have provided the images in the chat <div className="Since we are not to do SHipping replace iut with delivery  man">
+  </div>*/}
+            <div className="col-4"></div>
           </div>
 
           <div className="product-details-info">

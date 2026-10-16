@@ -10,7 +10,7 @@
 
 import { Router } from 'express';
 import db from '../db.js';
-import { formatProduct, formatProductFull, resolvePid } from '../utils/images.js';
+import { formatProduct, formatProductFull, resolvePid, slugify } from '../utils/images.js';
 
 const router = Router();
 
@@ -36,9 +36,12 @@ router.get('/', async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page || '1', 10));
     const perPage = Math.min(100, Math.max(1, parseInt(req.query.per_page || '20', 10)));
-    const { q, category, brand, tag, min_price, max_price, sort = 'newest' } = req.query;
+    const { q, category, brand, tag, min_price, max_price, rating_min, sort = 'newest' } = req.query;
 
-    const { where, params } = buildFilters({ q, category, brand, tag, min_price, max_price });
+    const { where, params } = buildFilters({ q, category, brand, tag, min_price, max_price, rating_min });
+
+    console.log('[products/list] SQL:', `SELECT COUNT(*) AS total ${PRODUCT_FROM} ${where}`);
+    console.log('[products/list] Params:', params);
 
     const [countRows] = await db.query(`SELECT COUNT(*) AS total ${PRODUCT_FROM} ${where}`, params);
     const total = countRows[0].total;
@@ -312,8 +315,14 @@ function tokenize(phrase = '') {
     .toLowerCase()
     .split(/[\s&+_,./\\()]+/)
     .map((s) => s.trim())
-    .filter((s) => s.length >= 3 && !STOP_WORDS.has(s))
-    .map((s) => (s.endsWith('s') ? s.slice(0, -1) : s))
+    .filter((s) => s.length >= 2 && !STOP_WORDS.has(s))
+    .map((s) => {
+      // Basic singularization for common cases, avoiding mangling like 'glass' -> 'glas'
+      if (s.endsWith('s') && s.length > 4 && !['glass', 'press', 'dress', 'plus'].includes(s)) {
+        return s.slice(0, -1);
+      }
+      return s;
+    })
     .filter((s, i, arr) => arr.indexOf(s) === i && s.length >= 2);
 }
 
@@ -327,97 +336,117 @@ function tokenMatchClause(tok) {
   return {
     sql:
       '(LOWER(gp.product_name) LIKE ?' +
-      ' OR LOWER(gp.product_des) LIKE ?' +
       ' OR LOWER(COALESCE(gp.brand, "")) LIKE ?' +
-      ' OR LOWER(gpc.title) LIKE ?' +
+      ' OR LOWER(COALESCE(gpc.title, "")) LIKE ?' +
       ' OR LOWER(COALESCE(gp.search_tags, "")) LIKE ?)',
-    params: [like, like, like, like, like],
+    params: [like, like, like, like],
   };
 }
 
-function buildFilters({ q, category, brand, tag, min_price, max_price }) {
+function buildFilters({ q, category, brand, tag, min_price, max_price, rating_min }) {
   const conditions = [];
   const params = [];
 
+  // Free-text search — matches name, brand, product_code, barcode, category title, search_tags. 
+  // product_des is intentionally excluded. 
   if (q) {
     const phrase = q.trim();
     const tokens = tokenize(phrase);
-
     const localParams = [];
 
-    // Full-phrase match (exact / loose substring across name, brand, code, barcode, category, description, search_tags)
+    const phraseCols = [
+      'gp.product_name',
+      'gp.brand',
+      'gp.product_code',
+      'gp.barcode',
+      'gpc.title',
+      'gp.search_tags',
+    ];
+    const fullPhraseSql = phraseCols
+      .map((c) => `LOWER(COALESCE(${c}, "")) LIKE ?`)
+      .join(' OR ');
     const full = `%${phrase.toLowerCase()}%`;
-    const fullPhraseSql = [
-      'LOWER(gp.product_name) LIKE ?',
-      'LOWER(COALESCE(gp.brand, "")) LIKE ?',
-      'LOWER(COALESCE(gp.product_code, "")) LIKE ?',
-      'LOWER(COALESCE(gp.barcode, "")) LIKE ?',
-      'LOWER(gpc.title) LIKE ?',
-      'LOWER(gp.product_des) LIKE ?',
-      'LOWER(COALESCE(gp.search_tags, "")) LIKE ?',
-    ].join(' OR ');
-    localParams.push(full, full, full, full, full, full, full);
+    localParams.push(...phraseCols.map(() => full));
 
-    if (tokens.length === 0) {
-      // No usable tokens -> rely entirely on the full phrase match
-      conditions.push(`(${fullPhraseSql})`);
-    } else if (tokens.length === 1) {
-      // Single token: phrase OR single-token match across all search columns
-      const single = tokenMatchClause(tokens[0]);
-      conditions.push(`((${fullPhraseSql}) OR ${single.sql})`);
-      localParams.push(...single.params);
-    } else {
-      // Multi-token: phrase OR (every token matched individually)
+    if (tokens.length > 0) {
       const andParts = [];
       for (const t of tokens) {
         const c = tokenMatchClause(t);
         andParts.push(c.sql);
         localParams.push(...c.params);
       }
+      // Match EITHER the full phrase exactly OR ALL tokens somewhere
       conditions.push(`((${fullPhraseSql}) OR (${andParts.join(' AND ')}))`);
+    } else {
+      conditions.push(`(${fullPhraseSql})`);
     }
 
     params.push(...localParams);
   }
 
+  // Category — token-based, forgiving. Handles plural/singular and searches 
+  // title, name, and search_tags. product_des is intentionally excluded. 
   if (category) {
-    // The sidebar passes slugs like 'iaccess-products' or titles like 'Earphones & Audio'.
-    // shop_category_meta may be empty so slug match often fails.
-    // Strategy: (1) try slug match, (2) convert slug → title-style LIKE on gpc.title,
-    // (3) ALSO keyword-match against the product's own name/description/brand
-    // so a product named "XYZ Earphone" shows up under "Earphones & Audio" even if pcat is wrong.
-    const slugAsWords = category.replace(/-/g, ' '); // 'iaccess-products' → 'iaccess products'
-    const tokens = tokenize(slugAsWords);
+    const phrase = category.trim();
+    const tokens = tokenize(phrase);
+    const slug = slugify(phrase);
+    const localParams = [];
+    const ors = [];
 
-    const ors = ['scm.slug = ?', 'gpc.title LIKE ?', 'LOWER(gpc.title) LIKE ?'];
-    const paramsLocal = [category, `%${slugAsWords}%`, `%${slugAsWords.toLowerCase()}%`];
+    // Exact matches or slug matches in category metadata
+    ors.push('gpc.title = ?', 'gpc.title LIKE ?', 'scm.slug = ?', 'scm.slug LIKE ?');
+    localParams.push(phrase, `%${phrase}%`, slug, `%${slug}%`);
 
-    for (const tok of tokens) {
-      const clause = tokenMatchClause(tok);
-      // Take only the first two OR conditions (product_name + product_des) from the clause.
-      // The clause sql is already wrapped in outer parens — strip only the outer wrapper,
-      // then split on ' OR ' and take the first two, keeping inner function calls intact.
-      const inner = clause.sql.replace(/^\(|\)$/g, ''); // strip outer parens only
-      const parts = inner.split(' OR ').slice(0, 2);
-      ors.push(parts.join(' OR '));
-      paramsLocal.push(...clause.params.slice(0, 2)); // name + description params only
+    // Fallback: search the phrase in product names and tags if it's long enough
+    if (phrase.length >= 3) {
+      const like = `%${phrase.toLowerCase()}%`;
+      ors.push('LOWER(gp.product_name) LIKE ?');
+      ors.push('LOWER(COALESCE(gp.search_tags, "")) LIKE ?');
+      localParams.push(like, like);
     }
 
-    if (slugAsWords.length >= 4) {
-      ors.push('LOWER(gp.product_name) LIKE ?');
-      paramsLocal.push(`%${slugAsWords.toLowerCase()}%`);
+    // Token-based fallback: products that match ALL category tokens
+    if (tokens.length > 0) {
+      const tokenAnds = [];
+      for (const tok of tokens) {
+        const like = `%${tok}%`;
+        tokenAnds.push(
+          '(LOWER(COALESCE(gpc.title, "")) LIKE ? OR LOWER(gp.product_name) LIKE ? OR LOWER(COALESCE(gp.search_tags, "")) LIKE ?)'
+        );
+        localParams.push(like, like, like);
+      }
+      ors.push(`(${tokenAnds.join(' AND ')})`);
     }
 
     conditions.push(`(${ors.join(' OR ')})`);
-    params.push(...paramsLocal);
+    params.push(...localParams);
   }
 
+  // Brand — accepts comma-separated list, e.g. ?brand=Iaccess,Oraimo,Floating Ark 
   if (brand) {
-    conditions.push('gp.brand = ?');
-    params.push(brand);
+    const brands = String(brand)
+      .split(',')
+      .map((b) => b.trim())
+      .filter(Boolean);
+
+    if (brands.length === 1) {
+      conditions.push('LOWER(gp.brand) = LOWER(?)');
+      params.push(brands[0]);
+    } else if (brands.length > 1) {
+      const placeholders = brands.map(() => 'LOWER(?)').join(',');
+      conditions.push(`LOWER(gp.brand) IN (${placeholders})`);
+      params.push(...brands);
+    }
   }
 
-  // 'trending' tag on the shop page should also catch high-rated products (mirrors /trending endpoint)
+  if (rating_min !== undefined && rating_min !== '') {
+    const r = parseFloat(rating_min);
+    if (!isNaN(r)) {
+      conditions.push('gp.rating >= ?');
+      params.push(r);
+    }
+  }
+
   if (tag === 'trending') {
     conditions.push("(gp.shop_tag = 'trending' OR gp.rating >= 4.0)");
   } else if (tag) {
@@ -426,16 +455,26 @@ function buildFilters({ q, category, brand, tag, min_price, max_price }) {
   }
 
   if (min_price !== undefined && min_price !== '') {
-    conditions.push('GREATEST(gp.ecomm_price, gp.retail_price) >= ?');
-    params.push(parseFloat(min_price));
+    const p = parseFloat(min_price);
+    if (!isNaN(p)) {
+      conditions.push('GREATEST(gp.ecomm_price, gp.retail_price) >= ?');
+      params.push(p);
+    }
   }
   if (max_price !== undefined && max_price !== '') {
-    conditions.push('GREATEST(gp.ecomm_price, gp.retail_price) <= ?');
-    params.push(parseFloat(max_price));
+    const p = parseFloat(max_price);
+    if (!isNaN(p)) {
+      conditions.push('GREATEST(gp.ecomm_price, gp.retail_price) <= ?');
+      params.push(p);
+    }
   }
 
-  return { where: conditions.length ? 'AND ' + conditions.join(' AND ') : '', params };
+  return {
+    where: conditions.length ? 'AND ' + conditions.join(' AND ') : '',
+    params,
+  };
 }
+
 
 function sortClause(sort) {
   switch (sort) {

@@ -16,12 +16,12 @@ export default function Header() {
   }, []);
 
   return (
-    <header data-testid="header" className="header navbar-area">
+    <header data-testid="header" className="header navbar-area" style={{ borderBottom: 'none' }}>
       <Topbar />
 
       {sticky && <div className="header-sticky-spacer" />}
 
-      <div className={`header-sticky-wrap${sticky ? ' header-sticky-wrap--fixed' : ''}`}>
+      <div className={`header-sticky-wrap${sticky ? ' header-sticky-wrap--fixed' : ''}`} style={{ borderBottom: 'none' }}>
         <HeaderMiddle sticky={sticky} />
         <HeaderBottom sticky={sticky} />
       </div>
