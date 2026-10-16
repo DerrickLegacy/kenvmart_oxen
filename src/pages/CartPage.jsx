@@ -126,7 +126,7 @@ export default function CartPage() {
           <div className="alert alert-danger mb-3" role="alert">{error}</div>
         )}
 
-        <div className="row">
+        <div className="row my-4 ">
           <div className="col-lg-8 col-12">
             <div className="cart-list-wrap">
               <div className="cart-header d-none d-md-flex">

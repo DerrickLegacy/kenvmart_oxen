@@ -41,10 +41,12 @@ export default function ProductCard({ product }) {
           transition: box-shadow 0.22s ease, transform 0.22s ease, border-color 0.22s ease;
           height: 330px;
           z-index: 1;
-          border: none !important; /* Remove grey border */
+          border: none !important;
+          box-shadow: none;
         }
         .product-card:hover {
-          box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.12) !important;
+          transform: translateY(-2px);
         }
 
         /* Image wrapper — fixed height, not aspect-ratio, so info section

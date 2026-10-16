@@ -299,31 +299,41 @@ router.get('/:id/related', async (req, res) => {
 const STOP_WORDS = new Set([
   'the', 'and', 'for', 'with', 'from', 'that', 'this', 'into', 'your',
   'more', 'shop', 'store', 'item', 'items', 'product', 'products',
-  'all', 'pro', 'plus', 'premium', 'lite', 'ultra',
+  'all', 'any', 'buy', 'get', 'best', 'sale', 'off', 'only',
 ]);
 
-/**
- * Split a free-form phrase into normalized keyword tokens.
- * - Lowercases, splits on common separators.
- * - Drops tokens < 3 chars and stop words.
- * - Strips trailing plural 's' so singular ↔ plural match crosswise.
- * - Deduplicates.
- */
 function tokenize(phrase = '') {
   if (!phrase) return [];
   return String(phrase)
     .toLowerCase()
     .split(/[\s&+_,./\\()]+/)
     .map((s) => s.trim())
-    .filter((s) => s.length >= 2 && !STOP_WORDS.has(s))
-    .map((s) => {
-      // Basic singularization for common cases, avoiding mangling like 'glass' -> 'glas'
-      if (s.endsWith('s') && s.length > 4 && !['glass', 'press', 'dress', 'plus'].includes(s)) {
-        return s.slice(0, -1);
+    .filter((s) => s.length >= 1 && !STOP_WORDS.has(s))
+    .flatMap((s) => {
+      const tokens = [s];
+
+      // Handle common singular/plural for search (e.g., Battery <-> Batteries)
+      if (s === 'battery') tokens.push('batterie');
+      if (s === 'batterie' || s === 'batteries') tokens.push('battery');
+
+      // Basic singularization for other common cases
+      if (
+        s.endsWith('s') &&
+        s.length > 3 &&
+        !['glass', 'press', 'dress', 'plus', 'bus', 'lens'].includes(s)
+      ) {
+        tokens.push(s.slice(0, -1));
       }
-      return s;
+
+      // Handle common dash/space variations (e.g., C-To-C <-> C To C)
+      if (s.includes('-')) {
+        tokens.push(s.replace(/-/g, ''));
+        tokens.push(...s.split('-').filter((t) => t.length >= 1));
+      }
+
+      return tokens;
     })
-    .filter((s, i, arr) => arr.indexOf(s) === i && s.length >= 2);
+    .filter((s, i, arr) => arr.indexOf(s) === i && s.length >= 1);
 }
 
 /**
