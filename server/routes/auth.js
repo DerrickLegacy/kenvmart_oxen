@@ -222,7 +222,7 @@ async function googleOAuthCallbackHandler(req, res) {
   if (googleError) return fail('Google returned error: ' + googleError);
   if (!code) return fail('Missing authorization code from Google.');
 
-  const serverRedirectUri = process.env.GOOGLE_AUTH_REDIRECT_URI ||
+  const serverRedirectUri = process.env.VITE_GOOGLE_AUTH_REDIRECT_URI ||
     (req.protocol + '://' + req.get('host') + '/google-auth-callback');
   
   logTrace('Sending to Google', { redirect_uri: serverRedirectUri });
@@ -236,11 +236,10 @@ async function googleOAuthCallbackHandler(req, res) {
     return fail('Failed to obtain Google token.');
   }
 
-  if (!tokenData?.id_token && !tokenData?.access_token)
-    logTrace('FAIL: Google did not return valid credentials');
-
-    return fail('Google did not return valid credentials.');
-
+  if (!tokenData?.id_token && !tokenData?.access_token) {
+  logTrace('FAIL: Google did not return valid credentials', { tokenData });
+  return fail('Google did not return valid credentials.');
+}
   let googleUser;
   try {
     googleUser = await googleGetUserInfo(tokenData.access_token);
