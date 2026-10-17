@@ -14,6 +14,8 @@ import https from 'https';
 import db from '../db.js';
 import * as jwt from '../utils/jwt.js';
 import { requireAuth } from '../middleware/auth.js';
+import fs from 'fs';
+import { join } from 'path';
 
 const require = createRequire(import.meta.url);
 const router = Router();
@@ -178,14 +180,33 @@ function buildAppOrigin(req) {
   return req.protocol + '://' + req.get('host');
 }
 
-async function googleOAuthCallbackHandler(req, res) {
-  const clientId = process.env.VITE_GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.VITE_GOOGLE_CLIENT_SECRET;
 
-      console.log("Google PArams : clientId",clientId," clientSecret: ",clientSecret)
+async function googleOAuthCallbackHandler(req, res) {
+  // Use GOOGLE_ vars, not VITE_ vars, on the backend!
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+  // Helper to log to both console and file
+  const logTrace = (message, data = '') => {
+    const timestamp = new Date().toISOString();
+    const logLine = `[${timestamp}] [Google Auth Trace] ${message} ${data ? JSON.stringify(data) : ''}\n`;
+    
+    // 1. Print to terminal
+    console.log(logLine.trim());
+    
+    // 2. Append to a specific trace file so you don't lose it among HTTP logs
+    try {
+      fs.appendFileSync(join(process.cwd(), 'logs', 'google-auth-trace.log'), logLine);
+    } catch (e) {
+      console.error("Failed to write to trace file", e);
+    }
+  };
+
+  logTrace('--- STARTING GOOGLE CALLBACK ---');
+  logTrace('Config Check', { clientId: clientId ? 'Exists' : 'MISSING', clientSecret: clientSecret ? 'Exists' : 'MISSING' });
 
   const fail = (reason) => {
-    console.error('[auth/google/callback]', reason);
+    logTrace('AUTH FAILED', { reason });
     const error = encodeURIComponent(reason || 'Authentication failed.');
     return res.redirect(302, buildAppOrigin(req) + '/login?auth_error=' + error);
   };
@@ -196,17 +217,22 @@ async function googleOAuthCallbackHandler(req, res) {
   const code = req.query.code || '';
   const googleError = req.query.error || '';
 
+  logTrace('Incoming Query', { hasCode: !!code, googleError });
+
   if (googleError) return fail('Google returned error: ' + googleError);
   if (!code) return fail('Missing authorization code from Google.');
 
   const serverRedirectUri = process.env.GOOGLE_AUTH_REDIRECT_URI ||
     (req.protocol + '://' + req.get('host') + '/google-auth-callback');
+  
+  logTrace('Sending to Google', { redirect_uri: serverRedirectUri });
 
   let tokenData;
   try {
     tokenData = await googleTokenExchange(code, serverRedirectUri, clientId, clientSecret);
+    logTrace('Google Token Response', { success: !!tokenData, hasAccessToken: !!tokenData?.access_token });
   } catch (err) {
-    console.error('[auth/google/callback] token exchange exception', err);
+    logTrace('Token Exchange Exception', err.message);
     return fail('Failed to obtain Google token.');
   }
 
@@ -216,8 +242,9 @@ async function googleOAuthCallbackHandler(req, res) {
   let googleUser;
   try {
     googleUser = await googleGetUserInfo(tokenData.access_token);
+    logTrace('Google User Info', { email: googleUser?.email, id: googleUser?.sub });
   } catch (err) {
-    console.error('[auth/google/callback] userinfo exception', err);
+    logTrace('Userinfo Exception', err.message);
     return fail('Failed to retrieve Google profile.');
   }
 
@@ -227,10 +254,13 @@ async function googleOAuthCallbackHandler(req, res) {
   const email = googleUser.email.toLowerCase();
   const googleId = googleUser.sub;
 
+  logTrace('Looking up user in DB', { email, googleId });
+
   let user = await findByGoogleId(googleId) || await findByEmail(email);
   let isNew = false;
 
   if (!user) {
+    logTrace('User not found. Creating new user.');
     try {
       const uid = await createUser({
         full_name: googleUser.name || email,
@@ -240,15 +270,18 @@ async function googleOAuthCallbackHandler(req, res) {
       });
       user = await findById(uid);
       isNew = true;
+      logTrace('New user created', { userId: uid });
     } catch (err) {
-      console.error('[auth/google/callback] create user error', err);
+      logTrace('Create User Error', err.message);
       return fail('Could not create your account. Please try again.');
     }
   } else {
+    logTrace('Existing user found', { userId: user.id });
     const updates = {};
     if (!user.google_id) updates.google_id = googleId;
     if (!user.avatar && googleUser.picture) updates.avatar = googleUser.picture;
     if (Object.keys(updates).length) {
+      logTrace('Updating existing user', updates);
       try { await updateUser(user.id, updates); } catch { }
       user = await findById(user.id);
     }
@@ -261,10 +294,10 @@ async function googleOAuthCallbackHandler(req, res) {
     is_new_user: isNew,
   });
 
+  logTrace('SUCCESS. Redirecting to frontend.', { isNew });
   const hash = 'auth=' + encodeURIComponent(userPayload);
   return res.redirect(302, buildAppOrigin(req) + '/auth/google/callback#' + hash);
 }
-
 router.get('/google/callback', async (req, res) => {
   try {
     await googleOAuthCallbackHandler(req, res);
