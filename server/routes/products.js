@@ -39,9 +39,12 @@ router.get('/', async (req, res) => {
     const { q, category, brand, tag, min_price, max_price, rating_min, sort = 'newest' } = req.query;
 
     const { where, params } = buildFilters({ q, category, brand, tag, min_price, max_price, rating_min });
+    var text = `SELECT COUNT(*) AS total ${PRODUCT_FROM} ${where}`
+    console.log("TEXT", text)
+    console.log("END")
 
-    console.log('[products/list] SQL:', `SELECT COUNT(*) AS total ${PRODUCT_FROM} ${where}`);
-    console.log('[products/list] Params:', params);
+    // console.log(`SELECT COUNT(*) AS total ${PRODUCT_FROM} ${where}`);
+    // console.log('[products/list] Params:', params);
 
     const [countRows] = await db.query(`SELECT COUNT(*) AS total ${PRODUCT_FROM} ${where}`, params);
     const total = countRows[0].total;
@@ -315,6 +318,8 @@ function tokenize(phrase = '') {
       // Handle common singular/plural for search (e.g., Battery <-> Batteries)
       if (s === 'battery') tokens.push('batterie');
       if (s === 'batterie' || s === 'batteries') tokens.push('battery');
+      if (s === 'Batteries') tokens.push('batterie');
+
 
       // Basic singularization for other common cases
       if (

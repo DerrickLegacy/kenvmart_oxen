@@ -26,7 +26,7 @@ export default function RecentlyViewed() {
         <div className="row">
           <div className="col-12">
             <div className="section-title-categories">
-              <h2>Recently Viewed.</h2>
+              <h3>Recently Viewed</h3>
             </div>
           </div>
         </div>

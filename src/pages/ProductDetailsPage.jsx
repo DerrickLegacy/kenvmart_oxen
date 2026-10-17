@@ -10,6 +10,7 @@ import ProductGallery from "../components/product/ProductGallery";
 import Breadcrumb from "../components/layout/Breadcrumb";
 import StarRating from "../components/product/StarRating";
 import ProductCard from "../components/product/ProductCard";
+import RecentlyViewed from "../components/home/RecentlyViewed";
 
 const RECENTLY_VIEWED_KEY = 'kenvies_recently_viewed';
 const MAX_RECENTLY_VIEWED = 8;
@@ -34,6 +35,26 @@ const COLOR_STYLES = [
   "checkbox-style-3",
   "checkbox-style-4",
 ];
+
+var month = 10; // November
+var day = 23;
+
+var returnDate = new Date(new Date().getFullYear(), month, day);
+returnDate.setMonth(returnDate.getMonth() + 2);
+
+// Create a custom formatter for: ShortWeekday LongMonth Day Year
+const formatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'short',
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric'
+});
+
+// Format the date and remove the comma that standard US formatting adds
+var formattedDate = formatter.format(returnDate).replace(',', '');
+
+console.log("ReturnDate", formattedDate);
+// Output: ReturnDate Sat January 23 2027
 
 const formatUgxPrice = (price) => {
   if (price === null || price === undefined || price === '') return '0';
@@ -784,6 +805,9 @@ export default function ProductDetailsPage() {
                   )}
                 </div>
               </div>
+
+              <RecentlyViewed />
+
             </div>
 
             <div className="col-lg-4 col-12 d-none d-lg-block">
@@ -795,7 +819,7 @@ export default function ProductDetailsPage() {
                   <i className="lni lni-delivery"></i>
                   <span>Free delivery</span>
                   <i className="lni lni-reload"></i>
-                  <span>Free returns until Jan 31</span>
+                  <span>Free returns until {formattedDate}</span>
                 </div>
 
                 <button
