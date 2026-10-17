@@ -237,6 +237,8 @@ async function googleOAuthCallbackHandler(req, res) {
   }
 
   if (!tokenData?.id_token && !tokenData?.access_token)
+    logTrace('FAIL: Google did not return valid credentials');
+
     return fail('Google did not return valid credentials.');
 
   let googleUser;
