@@ -192,6 +192,7 @@ app.get('/google-auth-callback', async (req, res, next) => {
   try {
     await googleOAuthCallbackHandler(req, res);
   } catch (err) {
+    console.log("Google Auth Error: ",err)
     next(err);
   }
 });

@@ -179,8 +179,10 @@ function buildAppOrigin(req) {
 }
 
 async function googleOAuthCallbackHandler(req, res) {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const clientId = process.env.VITE_GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.VITE_GOOGLE_CLIENT_SECRET;
+
+      console.log("Google PArams : clientId",clientId," clientSecret: ",clientSecret)
 
   const fail = (reason) => {
     console.error('[auth/google/callback]', reason);
