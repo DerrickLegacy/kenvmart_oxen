@@ -6236,7 +6236,7 @@ ol {
   list-style: none;
   padding: 6px 0;
   margin: 0;
-  z-index: 9999;
+  z-index: 100009;
 }
 
 .topbar-dropdown-menu li a {
@@ -13164,10 +13164,10 @@ button.btn:disabled {
   left: 0;
   right: 0;
   width: 100vw;
-  transform: translateY(0);
+  /* transform: translateY(0); */
   background: #fff;
   border-top: none;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+box-shadow: 0 12px 20px -12px rgba(0, 0, 0, 0.12);
   border-radius: 0;
   opacity: 0;
   visibility: hidden;
