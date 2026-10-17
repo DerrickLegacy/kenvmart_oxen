@@ -87,8 +87,8 @@ export default function Footer() {
                     <li><Link to="/products?category=Charging">Charging</Link></li>
                     <li><Link to="/products?category=Protection">Protection</Link></li>
                     <li><Link to="/products?category=Smart+Devices">Smart Devices</Link></li>
-                    <li><Link to="/products?brand=Oraimo">Oraimo</Link></li>
-                    <li><Link to="/products?brand=Iaccess">Iaccess</Link></li>
+                    <li><Link to="/products?category=Oraimo">Oraimo</Link></li>
+                    <li><Link to="/products?category=Iaccess">Iaccess</Link></li>
                   </ul>
                 </div>
               </div>

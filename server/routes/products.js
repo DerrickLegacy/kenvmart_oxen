@@ -39,12 +39,9 @@ router.get('/', async (req, res) => {
     const { q, category, brand, tag, min_price, max_price, rating_min, sort = 'newest' } = req.query;
 
     const { where, params } = buildFilters({ q, category, brand, tag, min_price, max_price, rating_min });
-    var text = `SELECT COUNT(*) AS total ${PRODUCT_FROM} ${where}`
-    console.log("TEXT", text)
-    console.log("END")
 
-    // console.log(`SELECT COUNT(*) AS total ${PRODUCT_FROM} ${where}`);
-    // console.log('[products/list] Params:', params);
+
+    console.log('[products/list] Params:', params);
 
     const [countRows] = await db.query(`SELECT COUNT(*) AS total ${PRODUCT_FROM} ${where}`, params);
     const total = countRows[0].total;
@@ -399,50 +396,42 @@ function buildFilters({ q, category, brand, tag, min_price, max_price, rating_mi
     params.push(...localParams);
   }
 
-  // Category — accepts comma-separated list, e.g. ?category=Floating Ark,Oraimo
+  // Category — single selection, forgiving. Handles plural/singular and searches 
+  // title, name, and search_tags. product_des is intentionally excluded. 
   if (category) {
-    const categories = String(category)
-      .split(',')
-      .map((c) => c.trim())
-      .filter(Boolean);
+    const phrase = category.trim();
+    const tokens = tokenize(phrase);
+    const slug = slugify(phrase);
+    const localParams = [];
+    const ors = [];
 
-    if (categories.length > 0) {
-      const categoryOrs = [];
-      const localParams = [];
-      for (const phrase of categories) {
-        const tokens = tokenize(phrase);
-        const slug = slugify(phrase);
-        const ors = [];
+    // Exact matches or slug matches in category metadata
+    ors.push('gpc.title = ?', 'gpc.title LIKE ?', 'scm.slug = ?', 'scm.slug LIKE ?');
+    localParams.push(phrase, `%${phrase}%`, slug, `%${slug}%`);
 
-        // Exact matches or slug matches in category metadata
-        ors.push('gpc.title = ?', 'gpc.title LIKE ?', 'scm.slug = ?', 'scm.slug LIKE ?');
-        localParams.push(phrase, `%${phrase}%`, slug, `%${slug}%`);
-
-        // Fallback: search the phrase in product names and tags if it's long enough
-        if (phrase.length >= 3) {
-          const like = `%${phrase.toLowerCase()}%`;
-          ors.push('LOWER(gp.product_name) LIKE ?');
-          ors.push('LOWER(COALESCE(gp.search_tags, "")) LIKE ?');
-          localParams.push(like, like);
-        }
-
-        // Token-based fallback: products that match ALL category tokens
-        if (tokens.length > 0) {
-          const tokenAnds = [];
-          for (const tok of tokens) {
-            const like = `%${tok}%`;
-            tokenAnds.push(
-              '(LOWER(COALESCE(gpc.title, "")) LIKE ? OR LOWER(gp.product_name) LIKE ? OR LOWER(COALESCE(gp.search_tags, "")) LIKE ?)'
-            );
-            localParams.push(like, like, like);
-          }
-          ors.push(`(${tokenAnds.join(' AND ')})`);
-        }
-        categoryOrs.push(`(${ors.join(' OR ')})`);
-      }
-      conditions.push(`(${categoryOrs.join(' OR ')})`);
-      params.push(...localParams);
+    // Fallback: search the phrase in product names and tags if it's long enough
+    if (phrase.length >= 3) {
+      const like = `%${phrase.toLowerCase()}%`;
+      ors.push('LOWER(gp.product_name) LIKE ?');
+      ors.push('LOWER(COALESCE(gp.search_tags, "")) LIKE ?');
+      localParams.push(like, like);
     }
+
+    // Token-based fallback: products that match ALL category tokens
+    if (tokens.length > 0) {
+      const tokenAnds = [];
+      for (const tok of tokens) {
+        const like = `%${tok}%`;
+        tokenAnds.push(
+          '(LOWER(COALESCE(gpc.title, "")) LIKE ? OR LOWER(gp.product_name) LIKE ? OR LOWER(COALESCE(gp.search_tags, "")) LIKE ?)'
+        );
+        localParams.push(like, like, like);
+      }
+      ors.push(`(${tokenAnds.join(' AND ')})`);
+    }
+
+    conditions.push(`(${ors.join(' OR ')})`);
+    params.push(...localParams);
   }
 
   // Brand — accepts comma-separated list, e.g. ?brand=Iaccess,Oraimo,Floating Ark 
