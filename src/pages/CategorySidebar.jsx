@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import categories from "../data/categories";
 import PriceFilter from "../components/shop/priceFilter";
@@ -19,7 +19,6 @@ function VerticalSidebar({ onClose }) {
   const currentRating = searchParams.get("rating_min") || "";
 
   const handleCategoryClick = (categoryTitle, hasItems) => {
-    // Skip "Brands" category - it's handled differently now
     if (categoryTitle === "Brands") return;
 
     if (!hasItems) {
@@ -103,7 +102,6 @@ function VerticalSidebar({ onClose }) {
 
       <ul className="sub-category static">
         {categories.map((cat) => {
-          // Handle Brands category differently
           if (cat.title === "Brands") {
             return (
               <li key={cat.title} className="filter-section brands-section-main">
@@ -128,7 +126,6 @@ function VerticalSidebar({ onClose }) {
             );
           }
 
-          // Regular categories
           return (
             <li
               key={cat.title}
@@ -167,7 +164,6 @@ function VerticalSidebar({ onClose }) {
 
         <PriceFilter />
 
-        {/* Product Rating Filter */}
         <li className="filter-section">
           <div className="filter-section-header">
             <span className="filter-section-title">Product Rating</span>
@@ -194,40 +190,31 @@ function VerticalSidebar({ onClose }) {
       </ul>
 
       <style>{`
-        /* Remove top margin/padding from filter card */
         .mega-category-menu.sidebar-variant {
           margin-top: 0;
           padding-top: 0;
         }
-
         .mega-category-menu .cat-button {
           margin-top: 0;
           padding-top: 2px;
           padding-bottom: 2px;
         }
-
-        /* Remove scrollbar from filter sidebar */
         .mega-category-menu.sidebar-variant,
         .sub-category.static {
           scrollbar-width: none;
           -ms-overflow-style: none;
         }
-
         .mega-category-menu.sidebar-variant::-webkit-scrollbar,
         .sub-category.static::-webkit-scrollbar {
           display: none;
         }
-
-        /* Filter Section Styles */
         .filter-section {
           margin-top: 16px;
           padding: 10px 14px;
         }
-        
         .filter-section-header {
           margin-bottom: 10px;
         }
-        
         .filter-section-title {
           font-size: 0.8rem;
           font-weight: 700;
@@ -235,14 +222,11 @@ function VerticalSidebar({ onClose }) {
           letter-spacing: 0.01em;
           text-transform: uppercase;
         }
-        
-        /* Rating Filter */
         .rating-filter-list {
           list-style: none;
           padding: 0;
           margin: 0;
         }
-        
         .rating-filter-item {
           display: flex;
           align-items: center;
@@ -251,42 +235,34 @@ function VerticalSidebar({ onClose }) {
           cursor: pointer;
           font-size: 0.75rem;
         }
-        
         .rating-filter-item input[type="checkbox"] {
           width: 15px;
           height: 15px;
           cursor: pointer;
           accent-color: #183B9B;
         }
-        
         .rating-stars {
           color: #f59e0b;
           font-size: 0.8rem;
           letter-spacing: 1px;
         }
-        
         .rating-text {
           color: #3d414a;
           font-size: 0.75rem;
         }
-        
         .rating-filter-item:hover .rating-text {
           color: #183B9B;
         }
-        
-        /* Brands Filter */
         .brands-section-main {
           margin-top: 16px;
           padding: 10px 14px;
           list-style: none;
         }
-        
         .brands-filter-list {
           list-style: none;
           padding: 0;
           margin: 0;
         }
-        
         .brand-filter-item {
           display: flex;
           align-items: center;
@@ -296,35 +272,28 @@ function VerticalSidebar({ onClose }) {
           font-size: 0.75rem;
           color: #3d414a;
         }
-        
         .brand-filter-item input[type="checkbox"] {
           width: 15px;
           height: 15px;
           cursor: pointer;
           accent-color: #183B9B;
         }
-        
         .brand-filter-item:hover span {
           color: #183B9B;
         }
-
-        /* Mobile responsive adjustments */
         @media (max-width: 991px) {
           .filter-section,
           .brands-section-main {
             padding: 10px 12px;
           }
-
           .filter-section-title {
             font-size: 0.85rem;
           }
-
           .rating-filter-item,
           .brand-filter-item {
             padding: 6px 0;
             font-size: 0.8rem;
           }
-
           .rating-filter-item input[type="checkbox"],
           .brand-filter-item input[type="checkbox"] {
             width: 16px;
@@ -342,23 +311,19 @@ export default function CategorySidebar() {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
 
-  // Don't render anything on home page
+  // Listen for the custom event dispatched by the Header
+  useEffect(() => {
+    const handleToggleDrawer = () => setDrawerOpen((prev) => !prev);
+    window.addEventListener("toggle-filter-drawer", handleToggleDrawer);
+    return () => window.removeEventListener("toggle-filter-drawer", handleToggleDrawer);
+  }, []);
+
   if (isHomePage) {
     return null;
   }
 
   return (
     <>
-      {/* Mobile: toggle button */}
-      <button
-        className="sidebar-drawer-toggle d-lg-none"
-        onClick={() => setDrawerOpen(true)}
-        aria-label="Open filters"
-        aria-expanded={drawerOpen}
-      >
-        <i className="lni lni-menu"></i> Filters
-      </button>
-
       {/* Mobile: drawer overlay */}
       {drawerOpen && (
         <div

@@ -1,3 +1,4 @@
+import HorizontalCategoryNav from '../components/home/HorizontalCategoryNav';
 import Breadcrumb from '../components/layout/Breadcrumb';
 
 export default function CheckoutPage() {
@@ -5,6 +6,7 @@ export default function CheckoutPage() {
     <div data-testid="checkout-page" className="checkout section">
       <div className="container">
         <Breadcrumb crumbs={[{ label: 'Home', to: '/' }, { label: 'Checkout' }]} />
+        <HorizontalCategoryNav />
         <div className="row">
           <div className="col-lg-8 col-12">
             <h2>Checkout</h2>

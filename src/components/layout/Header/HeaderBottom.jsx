@@ -18,6 +18,11 @@ export default function HeaderBottom({ sticky = false }) {
     setMobileOpen(false);
   };
 
+  // Dispatch the event to open the CategorySidebar drawer
+  const handleOpenFilters = () => {
+    window.dispatchEvent(new Event("toggle-filter-drawer"));
+  };
+
   return (
     <div className={`header-bottom${sticky ? ' header-bottom--stuck' : ''}`} style={{ borderBottom: 'none', borderTop: 'none' }}>
       <div className="container">
@@ -25,17 +30,24 @@ export default function HeaderBottom({ sticky = false }) {
           className="d-flex d-lg-none align-items-center"
           style={{ position: 'relative', height: 52, padding: '0 4px' }}
         >
-          {/* Left — hamburger */}
+          {/* Left — FILTERS BUTTON (Replaces the old hamburger) */}
           <button
             className="navbar-toggler mobile-menu-btn"
             type="button"
-            aria-label="Toggle navigation"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            style={{ padding: '6px 8px', background: 'none', border: '1px solid #ddd', borderRadius: 6, zIndex: 2 }}
+            aria-label="Toggle filters"
+            onClick={handleOpenFilters}
+            style={{
+              padding: '6px 12px',
+              background: 'none',
+              border: '1px solid #ddd',
+              borderRadius: 6,
+              zIndex: 2,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
           >
-            <span className="toggler-icon"></span>
-            <span className="toggler-icon"></span>
-            <span className="toggler-icon"></span>
+            <i className="lni lni-menu" style={{ fontSize: 18 }}></i>
           </button>
 
           {/* Center — logo (absolutely centered so it's always truly in the middle) */}
@@ -103,7 +115,12 @@ export default function HeaderBottom({ sticky = false }) {
           </div>
         </div>
 
-         <AnimatePresence>
+        {/* 
+          NOTE: The mobile menu dropdown below is no longer triggered by any button 
+          since we replaced the hamburger. You can safely delete this entire 
+          <AnimatePresence> block if you don't need this list anymore.
+        */}
+        <AnimatePresence>
           {mobileOpen && (
             <motion.div
               className="d-lg-none"
@@ -134,7 +151,7 @@ export default function HeaderBottom({ sticky = false }) {
                     >
                       {cat.title}
                     </button>
-                    
+
                     {cat.items.length > 0 && (
                       <ul style={{ listStyle: 'none', margin: 0, padding: 0, paddingLeft: 16 }}>
                         {cat.items.map((item) => (
@@ -167,7 +184,7 @@ export default function HeaderBottom({ sticky = false }) {
               </ul>
             </motion.div>
           )}
-        </AnimatePresence> 
+        </AnimatePresence>
       </div>
     </div>
   );

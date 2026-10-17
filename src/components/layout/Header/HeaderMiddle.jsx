@@ -210,7 +210,7 @@ export default function HeaderMiddle({ sticky = false }) {
           </div>
 
           {/* search wrapper — overflow visible so dropdown isn't clipped */}
-          <div className="main-menu-search" ref={searchWrapRef}
+          <div className="main-menu-search mx-2" ref={searchWrapRef}
             style={{ flex: '0 0 45%', position: 'relative', overflow: 'visible', zIndex: 1100 }}>
             <form className="navbar-search search-style-5" onSubmit={handleSubmit} style={{ position: 'relative' }}>
               <div className="search-input">
@@ -240,7 +240,7 @@ export default function HeaderMiddle({ sticky = false }) {
               {user ? (
                 <div className="d-flex align-items-center gap-2">
                   <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#e18f27', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold', fontSize: '14px' }}>
-                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                    <i className="lni lni-user" />
                   </div>
                   <Dropdown
                     buttonLabel={displayName ?? "Account"}

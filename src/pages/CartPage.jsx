@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { ordersApi, cartApi } from '../services/api';
 import Breadcrumb from '../components/layout/Breadcrumb';
+import HorizontalCategoryNav from '../components/home/HorizontalCategoryNav';
 
 const formatPrice = (p) => `Shs. ${Number(p).toLocaleString()}`;
 
@@ -119,9 +120,10 @@ export default function CartPage() {
 
   return (
     <div data-testid="cart-page" className="shopping-cart ">
+        <HorizontalCategoryNav />
+
       <div className="container">
         <Breadcrumb crumbs={[{ label: 'Home', to: '/' }, { label: 'Cart' }]} />
-
         {error && (
           <div className="alert alert-danger mb-3" role="alert">{error}</div>
         )}

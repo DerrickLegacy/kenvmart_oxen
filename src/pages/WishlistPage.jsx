@@ -5,6 +5,7 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { wishlistApi } from "../services/api";
 import Breadcrumb from "../components/layout/Breadcrumb";
+import HorizontalCategoryNav from "../components/home/HorizontalCategoryNav";
 
 const fmt = (p) => p != null ? Math.round(Number(p)).toLocaleString('en-US') : '0';
 
@@ -12,7 +13,7 @@ export default function WishlistPage() {
   const { state: wishlistItems, dispatch: wishlistDispatch } = useWishlist();
   const { dispatch: cartDispatch } = useCart();
   const { user } = useAuth();
-  const [view, setView] = useState("grid");
+  const [view, setView] = useState("list");
 
   const handleRemove = async (productId) => {
     wishlistDispatch({ type: "REMOVE_FROM_WISHLIST", payload: { productId } });
@@ -39,8 +40,26 @@ export default function WishlistPage() {
     handleRemove(item.productId);
   };
 
+  // ── NEW: Add all items to cart at once ──
+  const handleAddAllToCart = () => {
+    wishlistItems.forEach((item) => {
+      const product = {
+        id: item.productId,
+        name: item.name,
+        price: item.price,
+        images: [item.image],
+        image: item.image,
+      };
+      cartDispatch({ type: "ADD_TO_CART", payload: { product, quantity: 1 } });
+    });
+    // Clear the wishlist after adding all
+    wishlistDispatch({ type: "CLEAR_WISHLIST" });
+  };
+
   return (
     <div data-testid="wishlist-page" className="wishlist-page">
+      <HorizontalCategoryNav />
+
       <style>{`
         .wishlist-card-name {
           font-size: 14px;
@@ -72,6 +91,24 @@ export default function WishlistPage() {
         .wl-row-buttons .btn {
           font-size: 12px;
           padding: 5px 10px;
+        }
+        /* NEW: Add All button style */
+        .wishlist-add-all-btn {
+          background: #183B9B;
+          color: #fff;
+          border: none;
+          padding: 8px 14px;
+          border-radius: 6px;
+          font-size: 13px;
+          font-weight: 600;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+        .wishlist-add-all-btn:hover {
+          background: #122e7a;
         }
       `}</style>
 
@@ -117,6 +154,14 @@ export default function WishlistPage() {
                   <i className="lni lni-list"></i>
                 </button>
               </div>
+
+              {/* NEW: Add All to Cart */}
+              <button
+                className="wishlist-add-all-btn"
+                onClick={handleAddAllToCart}
+              >
+                <i className="lni lni-cart"></i> Add All to Cart
+              </button>
 
               {/* Clear all */}
               <button className="wishlist-clear-btn" onClick={handleClearAll}>
