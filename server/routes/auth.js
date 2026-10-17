@@ -243,6 +243,7 @@ async function googleOAuthCallbackHandler(req, res) {
   let googleUser;
   try {
     googleUser = await googleGetUserInfo(tokenData.access_token);
+    logTrace("Logging in User: ",googleUser)
     logTrace('Google User Info', { email: googleUser?.email, id: googleUser?.sub });
   } catch (err) {
     logTrace('Userinfo Exception', err.message);
