@@ -27,9 +27,9 @@ if (!BASE_URL) {
 const TOKEN_KEY = 'kenvies_token';
 
 export const tokenStore = {
-  get:    ()        => localStorage.getItem(TOKEN_KEY),
-  set:    (token)   => localStorage.setItem(TOKEN_KEY, token),
-  clear:  ()        => localStorage.removeItem(TOKEN_KEY),
+  get: () => localStorage.getItem(TOKEN_KEY),
+  set: (token) => localStorage.setItem(TOKEN_KEY, token),
+  clear: () => localStorage.removeItem(TOKEN_KEY),
 };
 
 // ── Custom error class ────────────────────────────────────────────────────────
@@ -42,7 +42,7 @@ export class ApiError extends Error {
    */
   constructor(message, status, errors = {}) {
     super(message);
-    this.name   = 'ApiError';
+    this.name = 'ApiError';
     this.status = status;
     this.errors = errors;
   }
@@ -57,8 +57,8 @@ export class ApiError extends Error {
  * @throws  {ApiError}       On HTTP errors or network failures
  */
 async function request(endpoint, options = {}) {
-  const url     = `${BASE_URL}${endpoint}`;
-  const token   = tokenStore.get();
+  const url = `${BASE_URL}${endpoint}`;
+  const token = tokenStore.get();
 
   const headers = {
     'Content-Type': 'application/json',
@@ -104,19 +104,19 @@ async function request(endpoint, options = {}) {
 
 // ── Convenience wrappers ──────────────────────────────────────────────────────
 
-const get    = (endpoint)         => request(endpoint, { method: 'GET' });
-const post   = (endpoint, body)   => request(endpoint, { method: 'POST',   body: JSON.stringify(body) });
-const put    = (endpoint, body)   => request(endpoint, { method: 'PUT',    body: JSON.stringify(body) });
-const del    = (endpoint, body)   => request(endpoint, { method: 'DELETE', ...(body ? { body: JSON.stringify(body) } : {}) });
+const get = (endpoint) => request(endpoint, { method: 'GET' });
+const post = (endpoint, body) => request(endpoint, { method: 'POST', body: JSON.stringify(body) });
+const put = (endpoint, body) => request(endpoint, { method: 'PUT', body: JSON.stringify(body) });
+const del = (endpoint, body) => request(endpoint, { method: 'DELETE', ...(body ? { body: JSON.stringify(body) } : {}) });
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
 export const authApi = {
-  register: (data)       => post('/auth/register', data),
-  login:    (data)       => post('/auth/login', data),
-  google:   (data)       => post('/auth/google', data),
-  logout:   ()           => post('/auth/logout', {}),
-  me:       ()           => get('/auth/me'),
+  register: (data) => post('/auth/register', data),
+  login: (data) => post('/auth/login', data),
+  google: (data) => post('/auth/google', data),
+  logout: () => post('/auth/logout', {}),
+  me: () => get('/auth/me'),
 };
 
 // ── Products ──────────────────────────────────────────────────────────────────
@@ -133,13 +133,13 @@ export const productsApi = {
     return get(`/products${qs ? `?${qs}` : ''}`);
   },
 
-  get:      (id)           => get(`/products/${id}`),
-  trending: (limit = 8)    => get(`/products/trending?limit=${limit}`),
+  get: (id) => get(`/products/${id}`),
+  trending: (limit = 8) => get(`/products/trending?limit=${limit}`),
   newArrivals: (limit = 8) => get(`/products/new?limit=${limit}`),
-  deals:    (limit = 8)    => get(`/products/deals?limit=${limit}`),
-  hot:      (limit = 8)    => get(`/products/hot?limit=${limit}`),
-  sale:     (limit = 8)    => get(`/products/sale?limit=${limit}`),
-  related:  (id)           => get(`/products/${id}/related`),
+  deals: (limit = 8) => get(`/products/deals?limit=${limit}`),
+  hot: (limit = 8) => get(`/products/hot?limit=${limit}`),
+  sale: (limit = 8) => get(`/products/sale?limit=${limit}`),
+  related: (id) => get(`/products/${id}/related`),
   submitReview: (id, data) => post(`/products/${id}/reviews`, data),
 };
 
@@ -152,51 +152,51 @@ export const categoriesApi = {
 // ── Cart  (all require auth) ──────────────────────────────────────────────────
 
 export const cartApi = {
-  get:    ()                          => get('/cart'),
-  add:    (productId, quantity, variant) =>
-            post('/cart', { product_id: productId, quantity, variant }),
+  get: () => get('/cart'),
+  add: (productId, quantity, variant) =>
+    post('/cart', { product_id: productId, quantity, variant }),
   update: (productId, quantity, variant) =>
-            put(`/cart/${productId}`, { quantity, variant }),
-  remove: (productId, variant)        =>
-            del(`/cart/${productId}${variant ? `?variant=${encodeURIComponent(variant)}` : ''}`),
-  clear:  ()                          => del('/cart'),
-  sync:   (items)                     => post('/cart/sync', { items }),
+    put(`/cart/${productId}`, { quantity, variant }),
+  remove: (productId, variant) =>
+    del(`/cart/${productId}${variant ? `?variant=${encodeURIComponent(variant)}` : ''}`),
+  clear: () => del('/cart'),
+  sync: (items) => post('/cart/sync', { items }),
 };
 
 // ── Wishlist  (all require auth) ──────────────────────────────────────────────
 
 export const wishlistApi = {
-  get:    ()             => get('/wishlist'),
-  add:    (productId)    => post('/wishlist', { product_id: productId }),
-  remove: (productId)    => del(`/wishlist/${productId}`),
-  clear:  ()             => del('/wishlist'),
-  sync:   (productIds)   => post('/wishlist/sync', { product_ids: productIds }),
+  get: () => get('/wishlist'),
+  add: (productId) => post('/wishlist', { product_id: productId }),
+  remove: (productId) => del(`/wishlist/${productId}`),
+  clear: () => del('/wishlist'),
+  sync: (productIds) => post('/wishlist/sync', { product_ids: productIds }),
 };
 
 // ── Orders  (all require auth) ────────────────────────────────────────────────
 
 export const ordersApi = {
-  place:      (items, note = '')        => post('/orders', { items, note }),
-  list:       (params = {})             => {
+  place: (items, note = '') => post('/orders', { items, note }),
+  list: (params = {}) => {
     const qs = new URLSearchParams(
       Object.fromEntries(Object.entries(params).filter(([, v]) => v !== '' && v != null))
     ).toString();
     return get(`/orders${qs ? `?${qs}` : ''}`);
   },
-  get:        (orderId)                 => get(`/orders/${orderId}`),
-  cancel:     (orderId)                 => del(`/orders/${orderId}`),
+  get: (orderId) => get(`/orders/${orderId}`),
+  cancel: (orderId) => del(`/orders/${orderId}`),
   updateItem: (orderId, productId, qty, variant) =>
-                put(`/orders/${orderId}/items/${productId}`, { quantity: qty, variant }),
+    put(`/orders/${orderId}/items/${productId}`, { quantity: qty, variant }),
   removeItem: (orderId, productId, variant) =>
-                del(`/orders/${orderId}/items/${productId}${variant ? `?variant=${encodeURIComponent(variant)}` : ''}`),
+    del(`/orders/${orderId}/items/${productId}${variant ? `?variant=${encodeURIComponent(variant)}` : ''}`),
 };
 
 // ── Profile  (all require auth) ───────────────────────────────────────────────
 
 export const profileApi = {
-  get:            ()      => get('/profile'),
-  update:         (data)  => put('/profile', data),
-  changePassword: (data)  => put('/profile/password', data),
+  get: () => get('/profile'),
+  update: (data) => put('/profile', data),
+  changePassword: (data) => put('/profile/password', data),
 };
 
 // ── Contact & Newsletter  (public) ───────────────────────────────────────────

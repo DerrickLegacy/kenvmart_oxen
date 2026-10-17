@@ -10,7 +10,7 @@ function VerticalSidebar({ onClose }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const selectedBrands = (searchParams.get("brand") || "")
+  const selectedCategories = (searchParams.get("category") || "")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
@@ -22,7 +22,17 @@ function VerticalSidebar({ onClose }) {
     if (categoryTitle === "Brands") return;
 
     if (!hasItems) {
-      navigate(`/products?category=${encodeURIComponent(categoryTitle)}`);
+      // Toggle category instead of just setting it
+      const next = selectedCategories.includes(categoryTitle)
+        ? selectedCategories.filter((c) => c !== categoryTitle)
+        : [...selectedCategories, categoryTitle];
+
+      const p = new URLSearchParams(searchParams);
+      if (next.length) p.set("category", next.join(","));
+      else p.delete("category");
+      p.delete("page");
+
+      navigate(`/products?${p.toString()}`);
       if (onClose) onClose();
     } else {
       setClickedOpen(prev => ({ ...prev, [categoryTitle]: !prev[categoryTitle] }));
@@ -30,18 +40,27 @@ function VerticalSidebar({ onClose }) {
   };
 
   const handleItemClick = (itemName) => {
-    navigate(`/products?category=${encodeURIComponent(itemName)}`);
+    const next = selectedCategories.includes(itemName)
+      ? selectedCategories.filter((c) => c !== itemName)
+      : [...selectedCategories, itemName];
+
+    const p = new URLSearchParams(searchParams);
+    if (next.length) p.set("category", next.join(","));
+    else p.delete("category");
+    p.delete("page");
+
+    navigate(`/products?${p.toString()}`);
     if (onClose) onClose();
   };
 
   const handleBrandToggle = (brandName) => {
-    const next = selectedBrands.includes(brandName)
-      ? selectedBrands.filter((b) => b !== brandName)
-      : [...selectedBrands, brandName];
+    const next = selectedCategories.includes(brandName)
+      ? selectedCategories.filter((c) => c !== brandName)
+      : [...selectedCategories, brandName];
 
     const p = new URLSearchParams(searchParams);
-    if (next.length) p.set("brand", next.join(","));
-    else p.delete("brand");
+    if (next.length) p.set("category", next.join(","));
+    else p.delete("category");
     p.delete("page");
 
     navigate(`/products?${p.toString()}`);
@@ -101,7 +120,7 @@ function VerticalSidebar({ onClose }) {
                       <label className="brand-filter-item">
                         <input
                           type="checkbox"
-                          checked={selectedBrands.includes(item.name)}
+                          checked={selectedCategories.includes(item.name)}
                           onChange={() => handleBrandToggle(item.name)}
                         />
                         <span>{item.name}</span>

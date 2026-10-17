@@ -27,6 +27,7 @@ dotenvConfig({ path: join(__dirname, '.env') });
 
 // ── Imports ────────────────────────────────────────────────────────────────
 import express from 'express';
+import compression from 'compression';
 import fs from 'fs';
 import { createWriteStream } from 'fs';
 import { mkdirSync } from 'fs';
@@ -137,6 +138,10 @@ import newsletterRouter from './routes/newsletter.js';
 
 // ── App setup ──────────────────────────────────────────────────────────────
 const app = express();
+
+// ── Compression ────────────────────────────────────────────────────────────
+// Compress all responses (Gzip/Brotli) to improve load times
+app.use(compression());
 
 // Use Hostinger's assigned PORT — never hardcode a port in production
 const PORT = Number(process.env.PORT || 3000);

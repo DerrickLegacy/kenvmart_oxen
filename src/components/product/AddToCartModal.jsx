@@ -48,8 +48,34 @@ export default function AddToCartModal({ product, isOpen, onClose }) {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={isOpen ? { opacity: 1, scale: 1, y: 0 } : {}}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          style={{ borderRadius: '16px', border: 'none', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)' }}
+          style={{ borderRadius: '16px', border: 'none', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)', position: 'relative' }}
         >
+          {/* Close button top right */}
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              background: '#f1f5f9',
+              border: 'none',
+              borderRadius: '50%',
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 10,
+              color: '#64748b',
+              transition: 'background 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = '#e2e8f0'}
+            onMouseOut={(e) => e.currentTarget.style.background = '#f1f5f9'}
+          >
+            <i className="lni lni-close" style={{ fontSize: '12px', fontWeight: 'bold' }}></i>
+          </button>
+
           <div className="modal-body p-4">
             <div className="d-flex gap-3 mb-4">
               <img

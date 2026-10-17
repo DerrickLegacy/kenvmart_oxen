@@ -11,6 +11,7 @@ import Breadcrumb from "../components/layout/Breadcrumb";
 import StarRating from "../components/product/StarRating";
 import ProductCard from "../components/product/ProductCard";
 import RecentlyViewed from "../components/home/RecentlyViewed";
+import HorizontalCategoryNav from "../components/home/HorizontalCategoryNav";
 
 const RECENTLY_VIEWED_KEY = 'kenvies_recently_viewed';
 const MAX_RECENTLY_VIEWED = 8;
@@ -28,33 +29,6 @@ function saveRecentlyViewed(product) {
     // ignore storage errors
   }
 }
-
-const COLOR_STYLES = [
-  "checkbox-style-1",
-  "checkbox-style-2",
-  "checkbox-style-3",
-  "checkbox-style-4",
-];
-
-var month = 10; // November
-var day = 23;
-
-var returnDate = new Date(new Date().getFullYear(), month, day);
-returnDate.setMonth(returnDate.getMonth() + 2);
-
-// Create a custom formatter for: ShortWeekday LongMonth Day Year
-const formatter = new Intl.DateTimeFormat('en-US', {
-  weekday: 'short',
-  month: 'long',
-  day: 'numeric',
-  year: 'numeric'
-});
-
-// Format the date and remove the comma that standard US formatting adds
-var formattedDate = formatter.format(returnDate).replace(',', '');
-
-console.log("ReturnDate", formattedDate);
-// Output: ReturnDate Sat January 23 2027
 
 const formatUgxPrice = (price) => {
   if (price === null || price === undefined || price === '') return '0';
@@ -118,13 +92,21 @@ export default function ProductDetailsPage() {
   useEffect(() => {
     if (!product) return;
     const cleanId = String(product.id).replace(/^prod-/, '');
-    const itemInCart = cartItems.find(i => String(i.productId).replace(/^prod-/, '') === cleanId && i.variant === (selectedVariant || null));
+
+    // Construct variant string to match cart items
+    const color = product.colors?.[selectedColor];
+    const variantParts = [];
+    if (color) variantParts.push(`Color: ${color}`);
+    if (selectedVariant) variantParts.push(selectedVariant);
+    const variant = variantParts.join(', ') || null;
+
+    const itemInCart = cartItems.find(i => String(i.productId).replace(/^prod-/, '') === cleanId && i.variant === variant);
     if (itemInCart) {
       setQuantity(itemInCart.quantity);
     } else {
       setQuantity(1);
     }
-  }, [product, cartItems, selectedVariant]);
+  }, [product, cartItems, selectedVariant, selectedColor]);
 
   // Save this product to recently-viewed in localStorage as soon as it loads
   useEffect(() => {
@@ -247,7 +229,14 @@ export default function ProductDetailsPage() {
 
   const handleAddToCart = async () => {
     if (!product) return;
-    const variant = selectedVariant || null;
+
+    // Construct variant string: combine color and selected variant
+    const color = product.colors?.[selectedColor];
+    const variantParts = [];
+    if (color) variantParts.push(`Color: ${color}`);
+    if (selectedVariant) variantParts.push(selectedVariant);
+    const variant = variantParts.join(', ') || null;
+
     const cleanId = String(product.id).replace(/^prod-/, "");
 
     const itemInCart = cartItems.find(
@@ -306,15 +295,53 @@ export default function ProductDetailsPage() {
     return (
       <div data-testid="product-details-page" className="container section">
         <div className="row">
-          <div className="col-lg-6">
-            <div className="product-skeleton" style={{ height: 400 }} />
+          <div className="col-lg-6 col-md-12">
+            {/* Gallery Skeleton */}
+            <div style={{ display: "flex", gap: "16px", height: "500px" }}>
+              <div style={{ flex: "0 0 100px", display: "flex", flexDirection: "column", gap: "8px", overflow: "hidden" }}>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="skeleton-block" style={{ height: "85px", minHeight: "85px", width: "100%", borderRadius: "8px" }} />
+                ))}
+              </div>
+              <div className="skeleton-block" style={{ flex: 1, height: "100%", borderRadius: "12px" }} />
+            </div>
           </div>
-          <div className="col-lg-6">
-            <div className="product-skeleton" style={{ height: 30, marginBottom: 12 }} />
-            <div className="product-skeleton" style={{ height: 20, width: "40%", marginBottom: 20 }} />
-            <div className="product-skeleton" style={{ height: 40, width: "30%", marginBottom: 16 }} />
-            <div className="product-skeleton" style={{ height: 80, marginBottom: 20 }} />
-            <div className="product-skeleton" style={{ height: 50 }} />
+          <div className="col-lg-6 col-md-12">
+            <div className="skeleton-block" style={{ height: "36px", width: "85%", marginBottom: "16px" }} />
+            <div className="skeleton-block" style={{ height: "20px", width: "40%", marginBottom: "24px" }} />
+
+            <div style={{ display: "flex", gap: "12px", marginBottom: "24px", alignItems: "center" }}>
+              <div className="skeleton-block" style={{ height: "20px", width: "100px" }} />
+              <div style={{ height: "16px", width: "1px", background: "#e2e8f0" }} />
+              <div className="skeleton-block" style={{ height: "20px", width: "120px" }} />
+            </div>
+
+            <div className="skeleton-block" style={{ height: "48px", width: "35%", marginBottom: "24px" }} />
+            <div className="skeleton-block" style={{ height: "80px", width: "100%", marginBottom: "32px" }} />
+
+            <div className="row mb-4">
+              <div className="col-4">
+                <div className="skeleton-block" style={{ height: "60px", width: "100%" }} />
+              </div>
+              <div className="col-4">
+                <div className="skeleton-block" style={{ height: "60px", width: "100%" }} />
+              </div>
+              <div className="col-4">
+                <div className="skeleton-block" style={{ height: "60px", width: "100%" }} />
+              </div>
+            </div>
+
+            <div className="row g-3">
+              <div className="col-lg-4 col-md-4 col-12">
+                <div className="skeleton-block" style={{ height: "50px", width: "100%", borderRadius: "25px" }} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-12">
+                <div className="skeleton-block" style={{ height: "50px", width: "100%", borderRadius: "8px" }} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-12">
+                <div className="skeleton-block" style={{ height: "50px", width: "100%", borderRadius: "8px" }} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -347,8 +374,21 @@ export default function ProductDetailsPage() {
         }
         .price-label { font-size: 14px; color: #464b56; margin-bottom: 4px; }
         .main-price { font-size: 32px; font-weight: 700; color: #000; margin-bottom: 8px; }
-        .shipping-info { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #2e2f32; margin-top: 12px; }
+        .shipping-info { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 14px; color: #2e2f32; margin-top: 12px; }
+        .shipping-info .shipping-item { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
         .shipping-info i { color: #0071dc; }
+        .color-swatches { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+        .color-swatch {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          border: 1px solid #d5d5d5;
+          padding: 0;
+          cursor: pointer;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .color-swatch:hover { transform: scale(1.1); }
+        .color-swatch.selected { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #183B9B; }
         .add-to-cart-walmart {
           background: #f59e0b;
           color: #fff;
@@ -463,6 +503,7 @@ export default function ProductDetailsPage() {
         .rating-bar-fill { height: 100%; background: #0071dc; }
       `}</style>
       <section className="item-details mb-2">
+        <HorizontalCategoryNav />
         <div className="container my-4">
           <Breadcrumb
             crumbs={[
@@ -498,15 +539,15 @@ export default function ProductDetailsPage() {
                     </Link>
                   </p>
 
-                  <div style={{ margin: '8px 0 12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <StarRating rating={product.rating || 0} />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#74767c', fontSize: '14px' }}>
-                      <span>{product.rating ? product.rating.toFixed(1) : '0.0'} Review(s)</span>
-                      <span style={{ color: '#e8ecf0' }}>|</span>
-                      <span>{product.rating_count || 0} ratings</span>
-                    </div>
+                  <div style={{ margin: '8px 0 12px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <StarRating rating={product.rating || 0} showLabel={false} />
+                    <span style={{ color: '#464b56', fontSize: '14px' }}>
+                      {product.rating ? product.rating.toFixed(1) : '0.0'} Review(s)
+                    </span>
+                    <span style={{ color: '#e8ecf0' }}>|</span>
+                    <span style={{ color: '#74767c', fontSize: '14px' }}>
+                      {product.rating_count || 0} ratings
+                    </span>
                   </div>
 
                   <h3 className="price" data-testid="product-price" style={{ fontSize: '28px', fontWeight: 700 }}>
@@ -529,23 +570,19 @@ export default function ProductDetailsPage() {
                           <label className="title-label" htmlFor="size">
                             Choose color
                           </label>
-                          {product.colors.map((color, i) => (
-                            <div
-                              key={color}
-                              className={`single-checkbox ${COLOR_STYLES[i % COLOR_STYLES.length]}`}
-                              style={{ "--swatch-color": color }}
-                            >
-                              <input
-                                type="checkbox"
-                                id={`checkbox-${i + 1}`}
-                                checked={selectedColor === i}
-                                onChange={() => setSelectedColor(i)}
+                          <div className="color-swatches">
+                            {product.colors.map((color, i) => (
+                              <button
+                                type="button"
+                                key={`${color}-${i}`}
+                                className={`color-swatch${selectedColor === i ? " selected" : ""}`}
+                                style={{ backgroundColor: color }}
+                                onClick={() => setSelectedColor(i)}
+                                aria-label={`Select color ${color}`}
+                                title={color}
                               />
-                              <label htmlFor={`checkbox-${i + 1}`}>
-                                <span></span>
-                              </label>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
                       </div>
                     )}
@@ -805,9 +842,6 @@ export default function ProductDetailsPage() {
                   )}
                 </div>
               </div>
-
-              <RecentlyViewed />
-
             </div>
 
             <div className="col-lg-4 col-12 d-none d-lg-block">
@@ -816,10 +850,12 @@ export default function ProductDetailsPage() {
                 <div className="main-price">Shs. {formatUgxPrice(effectivePrice(product))}</div>
 
                 <div className="shipping-info">
-                  <i className="lni lni-delivery"></i>
-                  <span>Free delivery</span>
-                  <i className="lni lni-reload"></i>
-                  <span>Free returns until {formattedDate}</span>
+                  <span className="shipping-item">
+                    <i className="lni lni-delivery"></i> Free delivery
+                  </span>
+                  <span className="shipping-item">
+                    <i className="lni lni-reload"></i> Free returns until {formattedReturnDate}
+                  </span>
                 </div>
 
                 <button
@@ -830,9 +866,21 @@ export default function ProductDetailsPage() {
                   {apiBusy ? "Adding..." : "Add to cart"}
                 </button>
 
-                <div className="mt-4" style={{ fontSize: '14px' }}>
-                  <strong>Actual Color:</strong> <span style={{ marginLeft: 8 }}>{product.colors?.[selectedColor] || "Default"}</span>
-                  <a href="#" style={{ float: 'right', color: '#000', textDecoration: 'underline' }}>Edit selections</a>
+                <div className="mt-4" style={{ fontSize: '14px', display: 'flex', alignItems: 'center' }}>
+                  <strong>Actual Color:</strong>
+                  <span style={{ marginLeft: 8, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <span
+                      style={{
+                        width: 14,
+                        height: 14,
+                        borderRadius: '50%',
+                        border: '1px solid #d5d5d5',
+                        display: 'inline-block',
+                        backgroundColor: product.colors?.[selectedColor] || 'transparent',
+                      }}
+                    />
+                  </span>
+                  <a href="#" style={{ marginLeft: 'auto', color: '#000', textDecoration: 'underline' }}>Edit selections</a>
                 </div>
 
                 <div className="mt-4">
@@ -974,6 +1022,9 @@ export default function ProductDetailsPage() {
           </div>
         </div>
       </section>
+
+      {/* Recently Viewed — full-width at the bottom of the page */}
+      <RecentlyViewed />
     </div>
   );
 }

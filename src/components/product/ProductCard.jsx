@@ -239,6 +239,7 @@ export default function ProductCard({ product }) {
             src={imageSrc}
             alt={product.name || 'Product'}
             className="product-card__img"
+            loading="lazy"
             style={{ transform: isHovered ? 'scale(1.05)' : 'scale(1)' }}
             onError={e => {
               if (!e.currentTarget.src.includes('placeholder'))

@@ -19,15 +19,15 @@ async function buildWishlistResponse(userId) {
   `, [userId]);
 
   const items = rows.map((row) => {
-    const sale   = row.sale_percent ? parseInt(row.sale_percent, 10) : 0;
+    const sale = row.sale_percent ? parseInt(row.sale_percent, 10) : 0;
     const retail = parseFloat(row.retail_price) || 0;
     return {
       product_id: `prod-${row.product_id}`,
-      jpos_id:    parseInt(row.product_id, 10),
-      name:       row.product_name,
-      price:      sale > 0 ? Math.round(retail * (1 - sale / 100)) : retail,
-      image:      resolveImages(row)[0] || null,
-      added_at:   row.added_at,
+      jpos_id: parseInt(row.product_id, 10),
+      name: row.product_name,
+      price: sale > 0 ? Math.round(retail * (1 - sale / 100)) : retail,
+      image: resolveImages(row)[0] || null,
+      added_at: row.added_at,
     };
   });
 

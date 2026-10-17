@@ -1,5 +1,5 @@
 // StarRating.jsx - Fixed horizontal stars
-export default function StarRating({ rating = 0 }) {
+export default function StarRating({ rating = 0, showLabel = true }) {
   // Round to nearest 0.5
   const rounded = Math.round(rating * 2) / 2;
 
@@ -26,10 +26,9 @@ export default function StarRating({ rating = 0 }) {
     }
   }
 
-  return (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-    <ul 
-      className="review" 
+  const list = (
+    <ul
+      className="review"
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -37,15 +36,24 @@ export default function StarRating({ rating = 0 }) {
         listStyle: 'none',
         padding: 0,
         margin: 0,
-        color: '#FF9410' 
+        color: '#FF9410'
       }}
       aria-label={`Rating: ${rating} out of 5`}
     >
       {stars}
     </ul>
-    <span style={{ fontSize: '13px', color: '#888' }}>
-      {rating.toFixed(1)} Review(s)
-    </span>
-  </div>
-);
+  );
+
+  if (!showLabel) {
+    return list;
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+      {list}
+      <span style={{ fontSize: '13px', color: '#888' }}>
+        {rating.toFixed(1)} Review(s)
+      </span>
+    </div>
+  );
 }

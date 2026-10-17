@@ -255,7 +255,6 @@ export default function ProductsPage() {
 	const minPrice = searchParams.get("min_price") ?? "";
 	const maxPrice = searchParams.get("max_price") ?? "";
 	const ratingMin = searchParams.get("rating_min") ?? "";
-	const brand = searchParams.get("brand") ?? "";
 
 	const [products, setProducts] = useState([]);
 	const [pagination, setPagination] = useState(null);
@@ -265,7 +264,7 @@ export default function ProductsPage() {
 
 	useEffect(() => {
 		setPage(1);
-	}, [q, category, sort, tag, minPrice, maxPrice, ratingMin, brand]);
+	}, [q, category, sort, tag, minPrice, maxPrice, ratingMin]);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -276,7 +275,6 @@ export default function ProductsPage() {
 			.list({
 				q,
 				category,
-				brand,
 				sort,
 				tag,
 				min_price: minPrice,
@@ -300,7 +298,7 @@ export default function ProductsPage() {
 		return () => {
 			cancelled = true;
 		};
-	}, [q, category, brand, sort, tag, minPrice, maxPrice, ratingMin, page]);
+	}, [q, category, sort, tag, minPrice, maxPrice, ratingMin, page]);
 
 	const setParam = (key, val) => {
 		const p = new URLSearchParams(searchParams);
@@ -311,7 +309,7 @@ export default function ProductsPage() {
 
 	const clearAll = () => setSearchParams({}, { replace: true });
 
-	const isFiltered = q || category || tag || minPrice || maxPrice || ratingMin || brand;
+	const isFiltered = q || category || tag || minPrice || maxPrice || ratingMin;
 
 	return (
 		<div className="section">
@@ -375,19 +373,13 @@ export default function ProductsPage() {
 										{category && (
 											<>
 												{" "}
-												in <strong>{category}</strong>
+												in <strong>{category.split(',').join(', ')}</strong>
 											</>
 										)}
 										{tag && (
 											<>
 												{" "}
 												tagged <strong>{tag}</strong>
-											</>
-										)}
-										{brand && (
-											<>
-												{" "}
-												brand <strong>{brand}</strong>
 											</>
 										)}
 										{ratingMin && (

@@ -399,42 +399,50 @@ function buildFilters({ q, category, brand, tag, min_price, max_price, rating_mi
     params.push(...localParams);
   }
 
-  // Category — token-based, forgiving. Handles plural/singular and searches 
-  // title, name, and search_tags. product_des is intentionally excluded. 
+  // Category — accepts comma-separated list, e.g. ?category=Floating Ark,Oraimo
   if (category) {
-    const phrase = category.trim();
-    const tokens = tokenize(phrase);
-    const slug = slugify(phrase);
-    const localParams = [];
-    const ors = [];
+    const categories = String(category)
+      .split(',')
+      .map((c) => c.trim())
+      .filter(Boolean);
 
-    // Exact matches or slug matches in category metadata
-    ors.push('gpc.title = ?', 'gpc.title LIKE ?', 'scm.slug = ?', 'scm.slug LIKE ?');
-    localParams.push(phrase, `%${phrase}%`, slug, `%${slug}%`);
+    if (categories.length > 0) {
+      const categoryOrs = [];
+      const localParams = [];
+      for (const phrase of categories) {
+        const tokens = tokenize(phrase);
+        const slug = slugify(phrase);
+        const ors = [];
 
-    // Fallback: search the phrase in product names and tags if it's long enough
-    if (phrase.length >= 3) {
-      const like = `%${phrase.toLowerCase()}%`;
-      ors.push('LOWER(gp.product_name) LIKE ?');
-      ors.push('LOWER(COALESCE(gp.search_tags, "")) LIKE ?');
-      localParams.push(like, like);
-    }
+        // Exact matches or slug matches in category metadata
+        ors.push('gpc.title = ?', 'gpc.title LIKE ?', 'scm.slug = ?', 'scm.slug LIKE ?');
+        localParams.push(phrase, `%${phrase}%`, slug, `%${slug}%`);
 
-    // Token-based fallback: products that match ALL category tokens
-    if (tokens.length > 0) {
-      const tokenAnds = [];
-      for (const tok of tokens) {
-        const like = `%${tok}%`;
-        tokenAnds.push(
-          '(LOWER(COALESCE(gpc.title, "")) LIKE ? OR LOWER(gp.product_name) LIKE ? OR LOWER(COALESCE(gp.search_tags, "")) LIKE ?)'
-        );
-        localParams.push(like, like, like);
+        // Fallback: search the phrase in product names and tags if it's long enough
+        if (phrase.length >= 3) {
+          const like = `%${phrase.toLowerCase()}%`;
+          ors.push('LOWER(gp.product_name) LIKE ?');
+          ors.push('LOWER(COALESCE(gp.search_tags, "")) LIKE ?');
+          localParams.push(like, like);
+        }
+
+        // Token-based fallback: products that match ALL category tokens
+        if (tokens.length > 0) {
+          const tokenAnds = [];
+          for (const tok of tokens) {
+            const like = `%${tok}%`;
+            tokenAnds.push(
+              '(LOWER(COALESCE(gpc.title, "")) LIKE ? OR LOWER(gp.product_name) LIKE ? OR LOWER(COALESCE(gp.search_tags, "")) LIKE ?)'
+            );
+            localParams.push(like, like, like);
+          }
+          ors.push(`(${tokenAnds.join(' AND ')})`);
+        }
+        categoryOrs.push(`(${ors.join(' OR ')})`);
       }
-      ors.push(`(${tokenAnds.join(' AND ')})`);
+      conditions.push(`(${categoryOrs.join(' OR ')})`);
+      params.push(...localParams);
     }
-
-    conditions.push(`(${ors.join(' OR ')})`);
-    params.push(...localParams);
   }
 
   // Brand — accepts comma-separated list, e.g. ?brand=Iaccess,Oraimo,Floating Ark 
@@ -444,13 +452,21 @@ function buildFilters({ q, category, brand, tag, min_price, max_price, rating_mi
       .map((b) => b.trim())
       .filter(Boolean);
 
-    if (brands.length === 1) {
-      conditions.push('LOWER(gp.brand) = LOWER(?)');
-      params.push(brands[0]);
-    } else if (brands.length > 1) {
-      const placeholders = brands.map(() => 'LOWER(?)').join(',');
-      conditions.push(`LOWER(gp.brand) IN (${placeholders})`);
-      params.push(...brands);
+    if (brands.length > 0) {
+      const brandOrs = [];
+      const localParams = [];
+      for (const b of brands) {
+        const lowerB = b.toLowerCase();
+        const likeB = `%${lowerB}%`;
+
+        // Match brand column, category title, or product name/tags
+        brandOrs.push(
+          '(LOWER(gp.brand) = ? OR LOWER(gpc.title) LIKE ? OR LOWER(gp.product_name) LIKE ? OR LOWER(COALESCE(gp.search_tags, "")) LIKE ?)'
+        );
+        localParams.push(lowerB, likeB, likeB, likeB);
+      }
+      conditions.push(`(${brandOrs.join(' OR ')})`);
+      params.push(...localParams);
     }
   }
 
