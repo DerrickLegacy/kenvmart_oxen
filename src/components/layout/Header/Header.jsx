@@ -16,7 +16,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header data-testid="header" className="header navbar-area" style={{ borderBottom: 'none' }}>
+    <header data-testid="header" className="header navbar-area" style={{ borderBottom: 'none', zIndex: 9999, position: 'relative' }}>
       <Topbar />
 
       {sticky && <div className="header-sticky-spacer" />}

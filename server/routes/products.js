@@ -11,8 +11,35 @@
 import { Router } from 'express';
 import db from '../db.js';
 import { formatProduct, formatProductFull, resolvePid, slugify } from '../utils/images.js';
+import { requireAuth } from '../middleware/auth.js';
+import { rateLimitMiddleware } from '../middleware/rateLimiter.js';
 
 const router = Router();
+
+// ── GET /api/products/:id/can-review ──────────────────────────────────────
+
+router.get('/:id/can-review', requireAuth, async (req, res) => {
+  try {
+    const pid = resolvePid(req.params.id);
+    if (!pid) return res.status(404).json({ status: false, message: 'Product not found.' });
+
+    // Has this user completed a purchase containing this product?
+    const [rows] = await db.query(`
+      SELECT 1
+      FROM shop_orders o
+      JOIN shop_order_items oi ON oi.order_id = o.id
+      WHERE o.user_id = ?
+        AND oi.product_id = ?
+        AND o.status IN ('Paid', 'Shipped', 'Completed')
+      LIMIT 1
+    `, [req.user.sub, pid]);
+
+    return res.json({ status: true, can_review: rows.length > 0 });
+  } catch (err) {
+    console.error('[products/can-review]', err);
+    res.status(500).json({ status: false, message: 'Server error.' });
+  }
+});
 
 const PRODUCT_SELECT = `
   gp.pid, gp.product_name, gp.product_des, gp.retail_price, gp.ecomm_price, gp.product_price,
@@ -166,13 +193,13 @@ router.get('/:id', async (req, res) => {
       if (detailRows.length) detail = detailRows[0];
     } catch { /* table may not exist yet — fail silently */ }
 
-    // Aggregate review stats from geopos_product_reviews
+    // Aggregate review stats from shop_reviews
     let reviewStats = { average: 0, count: 0 };
     let reviews = [];
     try {
       const [statsRows] = await db.query(
         `SELECT ROUND(AVG(rating), 1) AS average, COUNT(*) AS count
-         FROM geopos_product_reviews WHERE product_id = ?`,
+         FROM shop_reviews WHERE product_id = ? AND status = 'approved'`,
         [pid]
       );
       if (statsRows.length) {
@@ -183,11 +210,11 @@ router.get('/:id', async (req, res) => {
       }
 
       const [revRows] = await db.query(
-        `SELECT r.id, r.rating, r.comment, r.created_at,
+        `SELECT r.id, r.rating, r.body as comment, r.created_at, r.verified_purchase, r.helpful_count,
                 COALESCE(u.full_name, 'Anonymous') AS reviewer_name
-         FROM geopos_product_reviews r
+         FROM shop_reviews r
          LEFT JOIN shop_users u ON u.id = r.user_id
-         WHERE r.product_id = ?
+         WHERE r.product_id = ? AND r.status = 'approved'
          ORDER BY r.created_at DESC
          LIMIT 20`,
         [pid]
@@ -198,8 +225,12 @@ router.get('/:id', async (req, res) => {
         comment: r.comment || '',
         created_at: r.created_at,
         reviewer_name: r.reviewer_name,
+        verified_purchase: !!r.verified_purchase,
+        helpful_count: r.helpful_count || 0,
       }));
-    } catch { /* reviews table may not exist yet */ }
+    } catch (err) {
+      console.error('[products/show] Reviews fetch error:', err.message);
+    }
 
     // Merge: detail table wins over geopos_products columns when present
     const merged = {
@@ -225,17 +256,9 @@ router.get('/:id', async (req, res) => {
 
 // ── POST /api/products/:id/reviews  (auth required) ───────────────────────
 
-router.post('/:id/reviews', async (req, res) => {
+router.post('/:id/reviews', requireAuth, rateLimitMiddleware('review', 50, 1), async (req, res) => {
   try {
-    // Auth check
-    const authHeader = req.headers['authorization'] || '';
-    const match = authHeader.match(/^Bearer\s+(.+)$/i);
-    if (!match) return res.status(401).json({ status: false, message: 'Authentication required.' });
-
-    const { decode } = await import('../utils/jwt.js');
-    const payload = await decode(match[1].trim());
-    if (!payload) return res.status(401).json({ status: false, message: 'Invalid or expired token.' });
-
+    const payload = req.user;
     const pid = resolvePid(req.params.id);
     const rating = parseInt(req.body.rating, 10);
     const comment = (req.body.comment || '').trim();
@@ -248,27 +271,99 @@ router.post('/:id/reviews', async (req, res) => {
     const [pRows] = await db.query('SELECT pid FROM geopos_products WHERE pid = ? LIMIT 1', [pid]);
     if (!pRows.length) return res.status(404).json({ status: false, message: 'Product not found.' });
 
+    // Verified purchase check
+    let verifiedPurchase = false;
+    try {
+      const [purchaseRows] = await db.query(`
+        SELECT 1
+        FROM shop_orders o
+        JOIN shop_order_items oi ON oi.order_id = o.id
+        WHERE o.user_id = ?
+          AND oi.product_id = ?
+          AND o.status IN ('Paid', 'Shipped', 'Completed')
+        LIMIT 1
+      `, [payload.sub, pid]);
+      verifiedPurchase = purchaseRows.length > 0;
+    } catch (err) {
+      console.warn('[products/reviews/post] Verified purchase check failed:', err.message);
+    }
+
     // One review per user per product
     const [existing] = await db.query(
-      'SELECT id FROM geopos_product_reviews WHERE product_id = ? AND user_id = ? LIMIT 1',
+      'SELECT id FROM shop_reviews WHERE product_id = ? AND user_id = ? LIMIT 1',
       [pid, payload.sub]
     );
     if (existing.length) {
       // Update existing review
       await db.query(
-        'UPDATE geopos_product_reviews SET rating = ?, comment = ? WHERE product_id = ? AND user_id = ?',
-        [rating, comment || null, pid, payload.sub]
+        'UPDATE shop_reviews SET rating = ?, body = ?, verified_purchase = ? WHERE product_id = ? AND user_id = ?',
+        [rating, comment || null, verifiedPurchase ? 1 : 0, pid, payload.sub]
       );
     } else {
       await db.query(
-        'INSERT INTO geopos_product_reviews (product_id, user_id, rating, comment) VALUES (?, ?, ?, ?)',
-        [pid, payload.sub, rating, comment || null]
+        'INSERT INTO shop_reviews (product_id, user_id, rating, body, verified_purchase, status) VALUES (?, ?, ?, ?, ?, ?)',
+        [pid, payload.sub, rating, comment || null, verifiedPurchase ? 1 : 0, 'approved']
       );
     }
 
     return res.status(201).json({ status: true, message: 'Review submitted.' });
   } catch (err) {
     console.error('[products/reviews/post]', err);
+    res.status(500).json({ status: false, message: 'Server error.' });
+  }
+});
+
+// ── POST /api/products/reviews/:reviewId/vote  (auth required) ───────────
+
+router.post('/reviews/:reviewId/vote', requireAuth, rateLimitMiddleware('vote', 100, 1), async (req, res) => {
+  try {
+    const reviewId = parseInt(req.params.reviewId, 10);
+    const vote = parseInt(req.body.vote, 10); // 1 = helpful, -1 = not helpful
+
+    if (![1, -1].includes(vote)) {
+      return res.status(400).json({ status: false, message: 'Invalid vote value.' });
+    }
+
+    // Check if review exists
+    const [reviewRows] = await db.query('SELECT product_id FROM shop_reviews WHERE id = ? LIMIT 1', [reviewId]);
+    if (!reviewRows.length) return res.status(404).json({ status: false, message: 'Review not found.' });
+
+    // Upsert vote
+    const [existing] = await db.query(
+      'SELECT id, vote FROM shop_review_votes WHERE review_id = ? AND user_id = ? LIMIT 1',
+      [reviewId, req.user.sub]
+    );
+
+    if (existing.length) {
+      if (existing[0].vote === vote) {
+        // Remove vote if clicking same button again
+        await db.query('DELETE FROM shop_review_votes WHERE id = ?', [existing[0].id]);
+      } else {
+        // Update vote
+        await db.query('UPDATE shop_review_votes SET vote = ? WHERE id = ?', [vote, existing[0].id]);
+      }
+    } else {
+      await db.query(
+        'INSERT INTO shop_review_votes (review_id, user_id, vote) VALUES (?, ?, ?)',
+        [reviewId, req.user.sub, vote]
+      );
+    }
+
+    // Recalculate helpful_count in shop_reviews
+    const [countRows] = await db.query(
+      'SELECT SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END) AS helpful_count FROM shop_review_votes WHERE review_id = ?',
+      [reviewId]
+    );
+    const helpfulCount = countRows[0].helpful_count || 0;
+
+    await db.query(
+      'UPDATE shop_reviews SET helpful_count = ? WHERE id = ?',
+      [helpfulCount, reviewId]
+    );
+
+    return res.json({ status: true, helpful_count: helpfulCount });
+  } catch (err) {
+    console.error('[products/reviews/vote]', err);
     res.status(500).json({ status: false, message: 'Server error.' });
   }
 });

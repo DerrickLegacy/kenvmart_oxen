@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useWishlist } from '../../../context/WishlistContext';
 import { useAuth } from '../../../context/AuthContext';
+import { useCart } from '../../../context/CartContext';
 import CartDropdown from './CartDropdown';
 import Dropdown from "../../reusables/Dropdown";
 import { siteConfig } from '../../../data/siteConfig';
@@ -56,6 +57,7 @@ const btnStyle = {
 const iconStyle = { color: '#183B9B' };
 
 export default function HeaderMiddle({ sticky = false }) {
+  const { isHeaderDropdownOpen, setIsHeaderDropdownOpen } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
@@ -69,13 +71,28 @@ export default function HeaderMiddle({ sticky = false }) {
   const debounceRef = useRef(null);
 
   const toggleMenu = (menu) => {
-    setActiveMenu(prev => prev === menu ? null : menu);
+    const next = activeMenu === menu ? null : menu;
+    setActiveMenu(next);
+    // Only update global state if we are opening, or if search is also closed
+    if (next) setIsHeaderDropdownOpen(true);
+    else if (!dropdownOpen) setIsHeaderDropdownOpen(false);
   };
 
   // Close other menus when search dropdown opens
   useEffect(() => {
-    if (dropdownOpen) setActiveMenu(null);
-  }, [dropdownOpen]);
+    if (dropdownOpen) {
+      setActiveMenu(null);
+      setIsHeaderDropdownOpen(true);
+    }
+  }, [dropdownOpen, setIsHeaderDropdownOpen]);
+
+  // Sync external state to internal dropdownOpen
+  useEffect(() => {
+    if (!isHeaderDropdownOpen) {
+      setDropdownOpen(false);
+      setActiveMenu(null);
+    }
+  }, [isHeaderDropdownOpen]);
 
   const handleLogout = async () => {
     await logout();
@@ -110,15 +127,15 @@ export default function HeaderMiddle({ sticky = false }) {
     ? (user.full_name?.split(" ")[0] ?? user.name ?? "Account")
     : null;
 
-  /* close dropdown on outside click / Escape */
+  /* close search dropdown on outside click / Escape */
   useEffect(() => {
     const click = (e) => {
-      // Don't close if clicking inside the dropdown
+      // If clicking outside search bar, close only the search results
       if (!searchWrapRef.current?.contains(e.target)) {
         setDropdownOpen(false);
       }
     };
-    const key = (e) => { if (e.key === 'Escape') setDropdownOpen(false); };
+    const key = (e) => { if (e.key === 'Escape') { setDropdownOpen(false); setActiveMenu(null); setIsHeaderDropdownOpen(false); } };
     // Use 'click' instead of 'mousedown' to allow links to process first
     document.addEventListener('click', click);
     document.addEventListener('keydown', key);
@@ -211,7 +228,7 @@ export default function HeaderMiddle({ sticky = false }) {
 
           {/* search wrapper — overflow visible so dropdown isn't clipped */}
           <div className="main-menu-search mx-2" ref={searchWrapRef}
-            style={{ flex: '0 0 45%', position: 'relative', overflow: 'visible', zIndex: 1100 }}>
+            style={{ flex: '0 0 45%', position: 'relative', overflow: 'visible', zIndex: 9999 }}>
             <form className="navbar-search search-style-5" onSubmit={handleSubmit} style={{ position: 'relative' }}>
               <div className="search-input">
                 <input

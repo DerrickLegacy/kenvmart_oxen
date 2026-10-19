@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
 export default function AddToCartModal({ product, isOpen, onClose }) {
-  const { state: cartItems, dispatch, updateQuantity, addToCart } = useCart();
+  const { state: cartItems, dispatch, updateQuantity, addToCart, removeFromCart } = useCart();
 
   // Find existing quantity in cart
   const cleanId = String(product?.id || '').replace(/^prod-/, '');
@@ -20,11 +20,18 @@ export default function AddToCartModal({ product, isOpen, onClose }) {
   }, [isOpen, cartItems, product?.id]);
 
   const updateCart = async (newQty) => {
-    if (newQty < 1 || newQty > 99) return;
+    if (newQty < 0 || newQty > 99) return;
     setQuantity(newQty);
 
     const cleanId = String(product.id).replace(/^prod-/, '');
     const itemInCart = cartItems.find(item => String(item.productId).replace(/^prod-/, '') === cleanId);
+
+    if (newQty === 0) {
+      if (itemInCart) {
+        await removeFromCart(cleanId, null);
+      }
+      return;
+    }
 
     if (itemInCart) {
       await updateQuantity(cleanId, null, newQty);

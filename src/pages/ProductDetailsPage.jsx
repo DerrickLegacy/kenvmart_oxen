@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import ProductGallery from "../components/product/ProductGallery";
 import Breadcrumb from "../components/layout/Breadcrumb";
 import StarRating from "../components/product/StarRating";
+import ReviewModal from "../components/product/ReviewModal";
 import ProductCard from "../components/product/ProductCard";
 import RecentlyViewed from "../components/home/RecentlyViewed";
 import HorizontalCategoryNav from "../components/home/HorizontalCategoryNav";
@@ -69,6 +70,8 @@ export default function ProductDetailsPage() {
   const [localError, setLocalError] = useState("");
   const [deliveryType, setDeliveryType] = useState("pickup");
   const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [votingReviewId, setVotingReviewId] = useState(null);
 
   // Calculate return date (current + 60 days)
   const returnDate = new Date();
@@ -266,7 +269,7 @@ export default function ProductDetailsPage() {
     }
 
     setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
+    setTimeout(() => setAddedToCart(false), 3000);
   };
 
   const handleToggleWishlist = async () => {
@@ -288,6 +291,26 @@ export default function ProductDetailsPage() {
           await wishlistApi.add(product.id);
         } catch { }
       }
+    }
+  };
+
+  const handleVote = async (reviewId, voteValue) => {
+    if (!user) {
+      toast.error("Please sign in to vote on reviews.");
+      return;
+    }
+
+    setVotingReviewId(reviewId);
+    try {
+      const response = await productsApi.submitReviewVote(reviewId, voteValue);
+      if (response.status) {
+        toast.success(voteValue === 1 ? "Marked as helpful!" : "Vote submitted.");
+        refetch(); // Reload reviews to show updated counts
+      }
+    } catch (err) {
+      toast.error(err.message || "Failed to submit vote.");
+    } finally {
+      setVotingReviewId(null);
     }
   };
 
@@ -770,7 +793,16 @@ export default function ProductDetailsPage() {
 
               {/* Customer Ratings & Reviews */}
               <div className="reviews-section">
-                <h3>Customer ratings & reviews</h3>
+                <div className="d-flex justify-content-between align-items-center">
+                  <h3>Customer ratings & reviews</h3>
+                  <button
+                    className="btn btn-sm px-3 py-2"
+                    onClick={() => setIsReviewModalOpen(true)}
+                    style={{ background: '#183B9B', color: '#fff', borderRadius: '8px', fontWeight: 600 }}
+                  >
+                    Write a Review
+                  </button>
+                </div>
                 <div className="row align-items-center mt-4">
                   <div className="col-md-4 text-center">
                     <div style={{ fontSize: "48px", fontWeight: 700 }}>
@@ -820,6 +852,7 @@ export default function ProductDetailsPage() {
                           style={{
                             display: "flex",
                             justifyContent: "space-between",
+                            alignItems: "center"
                           }}
                         >
                           <strong>{r.reviewer_name}</strong>
@@ -829,12 +862,39 @@ export default function ProductDetailsPage() {
                               : ""}
                           </span>
                         </div>
-                        <StarRating rating={r.rating} />
+                        <div className="d-flex align-items-center gap-2">
+                          <StarRating rating={r.rating} />
+                          {r.verified_purchase && (
+                            <span className="badge bg-success-subtle text-success border border-success-subtle" style={{ fontSize: '10px' }}>
+                              <i className="lni lni-checkmark-circle me-1"></i>
+                              Verified Purchase
+                            </span>
+                          )}
+                        </div>
                         {r.comment && (
                           <p style={{ marginTop: 8, color: "#2e2f32" }}>
                             {r.comment}
                           </p>
                         )}
+                        <div className="mt-2 d-flex align-items-center gap-3">
+                          <button
+                            className="btn btn-sm border-0 p-0 text-muted"
+                            style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                            onClick={() => handleVote(r.id, 1)}
+                            disabled={votingReviewId === r.id}
+                          >
+                            <i className="lni lni-thumbs-up"></i>
+                            Helpful ({r.helpful_count || 0})
+                          </button>
+                          <button
+                            className="btn btn-sm border-0 p-0 text-muted"
+                            style={{ fontSize: '12px' }}
+                            onClick={() => handleVote(r.id, -1)}
+                            disabled={votingReviewId === r.id}
+                          >
+                            Report
+                          </button>
+                        </div>
                       </div>
                     ))
                   ) : (
@@ -1024,7 +1084,16 @@ export default function ProductDetailsPage() {
       </section>
 
       {/* Recently Viewed — full-width at the bottom of the page */}
-      <RecentlyViewed />
+      <RecentlyViewed items={recentlyViewed} />
+
+      {product && (
+        <ReviewModal
+          productId={product.id}
+          isOpen={isReviewModalOpen}
+          onClose={() => setIsReviewModalOpen(false)}
+          onReviewSubmitted={refetch}
+        />
+      )}
     </div>
   );
 }

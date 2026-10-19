@@ -105,6 +105,9 @@ export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, undefined, initCartState);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
+  // 🟢 FIX: Added missing state variables here
+  const [isHeaderDropdownOpen, setIsHeaderDropdownOpen] = useState(false);
+
   let authCtx = null;
   try { authCtx = useContext(AuthContext); } catch { }
   const user = authCtx?.user ?? null;
@@ -196,7 +199,9 @@ export function CartProvider({ children }) {
       updateQuantity,
       clearCart,
       quickViewProduct,
-      setQuickViewProduct
+      setQuickViewProduct,
+      isHeaderDropdownOpen,     // Now properly defined
+      setIsHeaderDropdownOpen   // Now properly defined
     }}>
       {children}
     </CartContext.Provider>

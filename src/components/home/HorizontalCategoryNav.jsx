@@ -1,15 +1,24 @@
 import { useNavigate } from "react-router-dom";
 import categories from "../../data/categories";
+import { useCart } from "../../context/CartContext";
 
 export default function HorizontalCategoryNav() {
   const navigate = useNavigate();
+  const { setIsHeaderDropdownOpen } = useCart();
 
   const handleCategoryClick = (categoryTitle) => {
+    setIsHeaderDropdownOpen(false);
     navigate(`/products?category=${encodeURIComponent(categoryTitle)}`);
   };
 
   const handleItemClick = (itemName) => {
+    setIsHeaderDropdownOpen(false);
     navigate(`/products?category=${encodeURIComponent(itemName)}`);
+  };
+
+  const handleInteraction = (e) => {
+    // Prevent accidental closure when moving mouse quickly near the header
+    setIsHeaderDropdownOpen(false);
   };
 
   const categoryIcons = {
@@ -23,7 +32,7 @@ export default function HorizontalCategoryNav() {
   };
 
   return (
-    <div className="category-strip">
+    <div className="category-strip" onMouseEnter={handleInteraction} onClick={handleInteraction} style={{ zIndex: 10 }}>
       <div className="container-wide">
         <div className="category-row">
           {categories.map((cat) => (

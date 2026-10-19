@@ -14,6 +14,7 @@ import https from 'https';
 import db from '../db.js';
 import * as jwt from '../utils/jwt.js';
 import { requireAuth } from '../middleware/auth.js';
+import { rateLimitMiddleware } from '../middleware/rateLimiter.js';
 import fs from 'fs';
 import { join } from 'path';
 
@@ -63,7 +64,7 @@ async function updateUser(id, data) {
 
 // ── POST /api/auth/register ────────────────────────────────────────────────
 
-router.post('/register', async (req, res) => {
+router.post('/register', rateLimitMiddleware('register', 10, 15), async (req, res) => {
   try {
     const bcrypt = require('bcryptjs');
     const { full_name = '', email = '', phone = '', password = '', password_confirmation = '' } = req.body;
@@ -103,7 +104,7 @@ router.post('/register', async (req, res) => {
 
 // ── POST /api/auth/login ───────────────────────────────────────────────────
 
-router.post('/login', async (req, res) => {
+router.post('/login', rateLimitMiddleware('login', 20, 5), async (req, res) => {
   try {
     const bcrypt = require('bcryptjs');
     const { identifier = '', password = '' } = req.body;
@@ -190,10 +191,10 @@ async function googleOAuthCallbackHandler(req, res) {
   const logTrace = (message, data = '') => {
     const timestamp = new Date().toISOString();
     const logLine = `[${timestamp}] [Google Auth Trace] ${message} ${data ? JSON.stringify(data) : ''}\n`;
-    
+
     // 1. Print to terminal
     console.log(logLine.trim());
-    
+
     // 2. Append to a specific trace file so you don't lose it among HTTP logs
     try {
       fs.appendFileSync(join(process.cwd(), 'logs', 'google-auth-trace.log'), logLine);
@@ -224,7 +225,7 @@ async function googleOAuthCallbackHandler(req, res) {
 
   const serverRedirectUri = process.env.VITE_GOOGLE_AUTH_REDIRECT_URI ||
     (req.protocol + '://' + req.get('host') + '/google-auth-callback');
-  
+
   logTrace('Sending to Google', { redirect_uri: serverRedirectUri });
 
   let tokenData;
@@ -237,13 +238,13 @@ async function googleOAuthCallbackHandler(req, res) {
   }
 
   if (!tokenData?.id_token && !tokenData?.access_token) {
-  logTrace('FAIL: Google did not return valid credentials', { tokenData });
-  return fail('Google did not return valid credentials.');
-}
+    logTrace('FAIL: Google did not return valid credentials', { tokenData });
+    return fail('Google did not return valid credentials.');
+  }
   let googleUser;
   try {
     googleUser = await googleGetUserInfo(tokenData.access_token);
-    logTrace("Logging in User: ",googleUser)
+    logTrace("Logging in User: ", googleUser)
     logTrace('Google User Info', { email: googleUser?.email, id: googleUser?.sub });
   } catch (err) {
     logTrace('Userinfo Exception', err.message);

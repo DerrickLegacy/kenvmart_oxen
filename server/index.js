@@ -31,6 +31,7 @@ import compression from 'compression';
 import fs from 'fs';
 import { createWriteStream } from 'fs';
 import { mkdirSync } from 'fs';
+import crypto from 'crypto';
 
 // ── Logger setup ───────────────────────────────────────────────────────────
 const IS_PROD = process.env.NODE_ENV === 'production';
@@ -38,6 +39,50 @@ const LOG_DIR = join(__dirname, '..', 'logs');
 
 // Create logs/ directory if it doesn't exist
 try { mkdirSync(LOG_DIR, { recursive: true }); } catch { }
+
+// ── Visit Tracking (Unique Visitors per Day) ──────────────────────────────
+async function trackVisit(req) {
+  try {
+    const db = (await import('./db.js')).default;
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    const ua = req.headers['user-agent'] || 'unknown';
+
+    // Privacy-safe visitor hash
+    const salt = process.env.VISIT_SALT || 'kenvmart_default_salt';
+    const hash = crypto.createHash('sha256').update(`${ip}|${ua}|${salt}`).digest('hex');
+
+    console.log('[trackVisit] Tracking hash:', hash.substring(0, 8), 'URL:', req.originalUrl);
+
+    // Session-level dedup (once per visitor_hash per day)
+    const [existing] = await db.query(
+      'SELECT 1 FROM shop_visits WHERE visitor_hash = ? AND visit_date = CURDATE() LIMIT 1',
+      [hash]
+    );
+
+    if (existing.length === 0) {
+      const isBot = /bot|crawl|spider|headless|phantom|selenium|curl|wget|python-requests|go-http|uptime|pingdom/i.test(ua);
+      const referrer = req.headers['referer'] || null;
+      const landingPath = req.originalUrl;
+
+      // Basic device detection
+      let deviceType = 'unknown';
+      if (/mobile/i.test(ua)) deviceType = 'mobile';
+      else if (/tablet/i.test(ua)) deviceType = 'tablet';
+      else if (/desktop/i.test(ua)) deviceType = 'desktop';
+
+      const [result] = await db.query(
+        `INSERT INTO shop_visits (visitor_hash, ip_address, user_agent, referrer, landing_path, device_type, is_bot, visit_date) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, CURDATE())`,
+        [hash, ip, ua.substring(0, 255), referrer ? referrer.substring(0, 500) : null, landingPath.substring(0, 255), deviceType, isBot ? 1 : 0]
+      );
+      console.log('[trackVisit] Insert result:', result.affectedRows > 0 ? 'Success' : 'Failed');
+    } else {
+      console.log('[trackVisit] Visitor already tracked today');
+    }
+  } catch (err) {
+    console.error('[trackVisit] error:', err);
+  }
+}
 
 // ── Log rotation — one combined file per day: kenvmart_DD-MM-YY.log ────────
 function todayStamp() {
@@ -154,6 +199,12 @@ const INDEX_HTML = join(DIST_DIR, 'index.html');
 app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => logger.http(req, res, Date.now() - start));
+
+  // Track unique visit (async, non-blocking)
+  if (!req.path.startsWith('/api') && !req.path.includes('.')) {
+    trackVisit(req);
+  }
+
   next();
 });
 
@@ -192,7 +243,7 @@ app.get('/google-auth-callback', async (req, res, next) => {
   try {
     await googleOAuthCallbackHandler(req, res);
   } catch (err) {
-    console.log("Google Auth Error: ",err)
+    console.log("Google Auth Error: ", err)
     next(err);
   }
 });

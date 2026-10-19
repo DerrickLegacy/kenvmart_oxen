@@ -140,7 +140,9 @@ export const productsApi = {
   hot: (limit = 8) => get(`/products/hot?limit=${limit}`),
   sale: (limit = 8) => get(`/products/sale?limit=${limit}`),
   related: (id) => get(`/products/${id}/related`),
+  canReview: (id) => get(`/products/${id}/can-review`),
   submitReview: (id, data) => post(`/products/${id}/reviews`, data),
+  submitReviewVote: (reviewId, vote) => post(`/products/reviews/${reviewId}/vote`, { vote }),
 };
 
 // ── Categories ────────────────────────────────────────────────────────────────
