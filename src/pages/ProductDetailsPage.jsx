@@ -904,7 +904,7 @@ export default function ProductDetailsPage() {
               </div>
             </div>
 
-            <div className="col-lg-4 col-12 d-none d-lg-block">
+            <div className="col-lg-4 col-12 d-none d-lg-block mb-2">
               <div className="walmart-sticky-card">
                 <div className="price-label">Price when purchased online <i className="lni lni-question-circle"></i></div>
                 <div className="main-price">Shs. {formatUgxPrice(effectivePrice(product))}</div>
